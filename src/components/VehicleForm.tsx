@@ -2,10 +2,9 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Upload, X } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
+import VehicleBasicInfo from './VehicleBasicInfo';
+import VehiclePhotosUpload from './VehiclePhotosUpload';
 
 interface Vehicle {
   id: string;
@@ -52,24 +51,8 @@ const VehicleForm = ({ vehicle, onSave, onCancel }: VehicleFormProps) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      const newPhotos = Array.from(files).map(file => {
-        return URL.createObjectURL(file);
-      });
-      setFormData(prev => ({
-        ...prev,
-        photos: [...prev.photos, ...newPhotos]
-      }));
-    }
-  };
-
-  const removePhoto = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      photos: prev.photos.filter((_, i) => i !== index)
-    }));
+  const handlePhotosChange = (photos: string[]) => {
+    setFormData(prev => ({ ...prev, photos }));
   };
 
   return (
@@ -95,186 +78,15 @@ const VehicleForm = ({ vehicle, onSave, onCancel }: VehicleFormProps) => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="marque">Marque *</Label>
-                <Input
-                  id="marque"
-                  value={formData.marque}
-                  onChange={(e) => handleChange('marque', e.target.value)}
-                  placeholder="ex: Peugeot"
-                  required
-                />
-              </div>
+            <VehicleBasicInfo 
+              formData={formData} 
+              onChange={handleChange}
+            />
 
-              <div className="space-y-2">
-                <Label htmlFor="modele">Modèle *</Label>
-                <Input
-                  id="modele"
-                  value={formData.modele}
-                  onChange={(e) => handleChange('modele', e.target.value)}
-                  placeholder="ex: 308"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="immatriculation">Immatriculation *</Label>
-                <Input
-                  id="immatriculation"
-                  value={formData.immatriculation}
-                  onChange={(e) => handleChange('immatriculation', e.target.value)}
-                  placeholder="ex: AA-123-BB"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="annee">Année *</Label>
-                <Input
-                  id="annee"
-                  type="number"
-                  value={formData.annee}
-                  onChange={(e) => handleChange('annee', parseInt(e.target.value))}
-                  min="2000"
-                  max={new Date().getFullYear() + 1}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="couleur">Couleur *</Label>
-                <Input
-                  id="couleur"
-                  value={formData.couleur}
-                  onChange={(e) => handleChange('couleur', e.target.value)}
-                  placeholder="ex: Bleu"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="carburant">Carburant *</Label>
-                <Select value={formData.carburant} onValueChange={(value) => handleChange('carburant', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionnez le carburant" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Essence">Essence</SelectItem>
-                    <SelectItem value="Diesel">Diesel</SelectItem>
-                    <SelectItem value="Hybride">Hybride</SelectItem>
-                    <SelectItem value="Électrique">Électrique</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="places">Nombre de places *</Label>
-                <Select value={formData.places.toString()} onValueChange={(value) => handleChange('places', parseInt(value))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="2">2 places</SelectItem>
-                    <SelectItem value="4">4 places</SelectItem>
-                    <SelectItem value="5">5 places</SelectItem>
-                    <SelectItem value="7">7 places</SelectItem>
-                    <SelectItem value="9">9 places</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="kilometrage">Kilométrage</Label>
-                <Input
-                  id="kilometrage"
-                  type="number"
-                  value={formData.kilometrage}
-                  onChange={(e) => handleChange('kilometrage', parseInt(e.target.value) || 0)}
-                  placeholder="0"
-                  min="0"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="prixJour">Prix par jour (€) *</Label>
-                <Input
-                  id="prixJour"
-                  type="number"
-                  value={formData.prixJour}
-                  onChange={(e) => handleChange('prixJour', parseFloat(e.target.value) || 0)}
-                  placeholder="0"
-                  min="0"
-                  step="0.01"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="statut">Statut</Label>
-                <Select value={formData.statut} onValueChange={(value) => handleChange('statut', value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="disponible">Disponible</SelectItem>
-                    <SelectItem value="loue">Loué</SelectItem>
-                    <SelectItem value="maintenance">En maintenance</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Photos Section */}
-            <div className="space-y-4">
-              <Label>Photos du véhicule</Label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
-                <div className="text-center">
-                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                  <div className="mt-4">
-                    <label htmlFor="photos" className="cursor-pointer">
-                      <span className="mt-2 block text-sm font-medium text-gray-900">
-                        Cliquez pour ajouter des photos
-                      </span>
-                      <span className="mt-1 block text-sm text-gray-500">
-                        PNG, JPG jusqu'à 10MB
-                      </span>
-                    </label>
-                    <input
-                      id="photos"
-                      name="photos"
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageUpload}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Photo Preview */}
-              {formData.photos.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {formData.photos.map((photo, index) => (
-                    <div key={index} className="relative">
-                      <img
-                        src={photo}
-                        alt={`Photo ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(index)}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <VehiclePhotosUpload 
+              photos={formData.photos}
+              onPhotosChange={handlePhotosChange}
+            />
 
             <div className="flex gap-4 pt-6">
               <Button type="submit" className="flex items-center gap-2">
