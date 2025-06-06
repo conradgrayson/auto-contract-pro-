@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,7 +18,7 @@ interface Vehicle {
   kilometrage: number;
   prixJour: number;
   statut: 'disponible' | 'loue' | 'maintenance';
-  photo?: string;
+  photos?: string[];
 }
 
 const VehicleManagement = () => {
@@ -35,7 +34,8 @@ const VehicleManagement = () => {
       places: 5,
       kilometrage: 15000,
       prixJour: 45,
-      statut: 'disponible'
+      statut: 'disponible',
+      photos: []
     },
     {
       id: '2',
@@ -48,7 +48,8 @@ const VehicleManagement = () => {
       places: 5,
       kilometrage: 25000,
       prixJour: 35,
-      statut: 'loue'
+      statut: 'loue',
+      photos: []
     },
     {
       id: '3',
@@ -61,7 +62,8 @@ const VehicleManagement = () => {
       places: 5,
       kilometrage: 5000,
       prixJour: 75,
-      statut: 'maintenance'
+      statut: 'maintenance',
+      photos: []
     }
   ]);
 
@@ -165,6 +167,26 @@ const VehicleManagement = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredVehicles.map((vehicle) => (
           <Card key={vehicle.id} className="hover:shadow-lg transition-shadow">
+            {/* Photo Header */}
+            {vehicle.photos && vehicle.photos.length > 0 ? (
+              <div className="relative h-48 overflow-hidden rounded-t-lg">
+                <img
+                  src={vehicle.photos[0]}
+                  alt={`${vehicle.marque} ${vehicle.modele}`}
+                  className="w-full h-full object-cover"
+                />
+                {vehicle.photos.length > 1 && (
+                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                    +{vehicle.photos.length - 1} photo{vehicle.photos.length > 2 ? 's' : ''}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="h-48 bg-gray-100 rounded-t-lg flex items-center justify-center">
+                <Car className="h-16 w-16 text-gray-300" />
+              </div>
+            )}
+
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
                 <div>

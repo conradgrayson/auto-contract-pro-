@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Upload, X } from 'lucide-react';
 
 interface Vehicle {
   id: string;
@@ -19,6 +19,7 @@ interface Vehicle {
   kilometrage: number;
   prixJour: number;
   statut: 'disponible' | 'loue' | 'maintenance';
+  photos?: string[];
 }
 
 interface VehicleFormProps {
@@ -39,6 +40,7 @@ const VehicleForm = ({ vehicle, onSave, onCancel }: VehicleFormProps) => {
     kilometrage: vehicle?.kilometrage || 0,
     prixJour: vehicle?.prixJour || 0,
     statut: vehicle?.statut || 'disponible' as const,
+    photos: vehicle?.photos || [],
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -46,8 +48,28 @@ const VehicleForm = ({ vehicle, onSave, onCancel }: VehicleFormProps) => {
     onSave(formData);
   };
 
-  const handleChange = (field: string, value: string | number) => {
+  const handleChange = (field: string, value: string | number | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const newPhotos = Array.from(files).map(file => {
+        return URL.createObjectURL(file);
+      });
+      setFormData(prev => ({
+        ...prev,
+        photos: [...prev.photos, ...newPhotos]
+      }));
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      photos: prev.photos.filter((_, i) => i !== index)
+    }));
   };
 
   return (
@@ -201,6 +223,57 @@ const VehicleForm = ({ vehicle, onSave, onCancel }: VehicleFormProps) => {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            {/* Photos Section */}
+            <div className="space-y-4">
+              <Label>Photos du véhicule</Label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                <div className="text-center">
+                  <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                  <div className="mt-4">
+                    <label htmlFor="photos" className="cursor-pointer">
+                      <span className="mt-2 block text-sm font-medium text-gray-900">
+                        Cliquez pour ajouter des photos
+                      </span>
+                      <span className="mt-1 block text-sm text-gray-500">
+                        PNG, JPG jusqu'à 10MB
+                      </span>
+                    </label>
+                    <input
+                      id="photos"
+                      name="photos"
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Photo Preview */}
+              {formData.photos.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {formData.photos.map((photo, index) => (
+                    <div key={index} className="relative">
+                      <img
+                        src={photo}
+                        alt={`Photo ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex gap-4 pt-6">
