@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,9 +39,9 @@ const ContractManagement = () => {
       vehicleImmatriculation: 'AA-123-BB',
       dateDebut: '2024-06-06',
       dateFin: '2024-06-13',
-      prixJour: 45,
+      prixJour: 25000,
       nbJours: 7,
-      montantTotal: 315,
+      montantTotal: 175000,
       statut: 'actif',
       dateCreation: '2024-06-06',
       conditions: 'Véhicule à retourner avec le plein de carburant'
@@ -58,9 +57,9 @@ const ContractManagement = () => {
       vehicleImmatriculation: 'CC-456-DD',
       dateDebut: '2024-05-15',
       dateFin: '2024-05-22',
-      prixJour: 35,
+      prixJour: 20000,
       nbJours: 7,
-      montantTotal: 245,
+      montantTotal: 140000,
       statut: 'termine',
       dateCreation: '2024-05-15'
     }
@@ -220,8 +219,8 @@ const ContractManagement = () => {
                   </div>
                   
                   <div>
-                    <p className="text-lg font-semibold text-gray-900">{contract.montantTotal}€</p>
-                    <p className="text-sm text-gray-600">{contract.prixJour}€/jour</p>
+                    <p className="text-lg font-semibold text-gray-900">{contract.montantTotal.toLocaleString()} CFA</p>
+                    <p className="text-sm text-gray-600">{contract.prixJour.toLocaleString()} CFA/jour</p>
                   </div>
                 </div>
                 

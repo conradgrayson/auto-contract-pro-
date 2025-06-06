@@ -5,6 +5,7 @@ import Dashboard from '@/components/Dashboard';
 import VehicleManagement from '@/components/VehicleManagement';
 import ClientManagement from '@/components/ClientManagement';
 import ContractManagement from '@/components/ContractManagement';
+import ContractTermsSettings from '@/components/ContractTermsSettings';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -20,12 +21,7 @@ const Index = () => {
       case 'contracts':
         return <ContractManagement />;
       case 'settings':
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Paramètres</h2>
-            <p className="text-gray-600">Section en cours de développement</p>
-          </div>
-        );
+        return <ContractTermsSettings />;
       default:
         return <Dashboard />;
     }

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -130,7 +129,7 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Prix par jour</p>
-                  <p className="font-medium">{contract.prixJour}€</p>
+                  <p className="font-medium">{contract.prixJour.toLocaleString()} CFA</p>
                 </div>
               </div>
             </div>
@@ -142,12 +141,12 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
               </h3>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="flex justify-between items-center mb-2">
-                  <span>Location ({contract.nbJours} jour(s) × {contract.prixJour}€)</span>
-                  <span>{contract.montantTotal}€</span>
+                  <span>Location ({contract.nbJours} jour(s) × {contract.prixJour.toLocaleString()} CFA)</span>
+                  <span>{contract.montantTotal.toLocaleString()} CFA</span>
                 </div>
                 <div className="flex justify-between items-center text-lg font-bold pt-2 border-t border-gray-300">
                   <span>TOTAL TTC</span>
-                  <span className="text-primary">{contract.montantTotal}€</span>
+                  <span className="text-primary">{contract.montantTotal.toLocaleString()} CFA</span>
                 </div>
               </div>
             </div>
@@ -190,7 +189,7 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
 
             {/* Pied de page */}
             <div className="mt-12 pt-4 border-t border-gray-200 text-center text-xs text-gray-500">
-              <p>Pro-Excellence - SIRET: 123 456 789 00012 - TVA: FR12345678901</p>
+              <p>Pro-Excellence - RCCM: TG-LOM 2024 B 1234 - NIF: 1234567890123</p>
               <p>Document généré automatiquement - Contrat N° {contract.id}</p>
             </div>
           </CardContent>
@@ -246,21 +245,21 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
                     <span className="text-sm text-gray-500">{contract.vehicleImmatriculation}</span>
                   </td>
                   <td className="text-center py-3">{contract.nbJours} jour(s)</td>
-                  <td className="text-right py-3">{contract.prixJour}€</td>
-                  <td className="text-right py-3">{contract.montantTotal}€</td>
+                  <td className="text-right py-3">{contract.prixJour.toLocaleString()} CFA</td>
+                  <td className="text-right py-3">{contract.montantTotal.toLocaleString()} CFA</td>
                 </tr>
               </tbody>
               <tfoot>
                 <tr>
                   <td colSpan={3} className="text-right py-3 font-semibold">TOTAL TTC:</td>
-                  <td className="text-right py-3 font-bold text-lg text-primary">{contract.montantTotal}€</td>
+                  <td className="text-right py-3 font-bold text-lg text-primary">{contract.montantTotal.toLocaleString()} CFA</td>
                 </tr>
               </tfoot>
             </table>
 
             <div className="text-sm text-gray-600">
               <p><strong>Conditions de paiement:</strong> Paiement à la prise du véhicule</p>
-              <p><strong>Modalités:</strong> Espèces, carte bancaire, chèque acceptés</p>
+              <p><strong>Modalités:</strong> Espèces, mobile money, chèque acceptés</p>
             </div>
           </CardContent>
         </Card>

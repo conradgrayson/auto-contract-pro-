@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -124,7 +123,7 @@ const VehicleBasicInfo = ({ formData, onChange }: VehicleBasicInfoProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="prixJour">Prix par jour (€) *</Label>
+        <Label htmlFor="prixJour">Prix par jour (CFA) *</Label>
         <Input
           id="prixJour"
           type="number"
@@ -132,7 +131,7 @@ const VehicleBasicInfo = ({ formData, onChange }: VehicleBasicInfoProps) => {
           onChange={(e) => onChange('prixJour', parseFloat(e.target.value) || 0)}
           placeholder="0"
           min="0"
-          step="0.01"
+          step="100"
           required
         />
       </div>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,9 +41,9 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
   ];
 
   const vehicles = [
-    { id: '1', marque: 'Peugeot', modele: '308', immatriculation: 'AA-123-BB', prixJour: 45 },
-    { id: '2', marque: 'Renault', modele: 'Clio', immatriculation: 'CC-456-DD', prixJour: 35 },
-    { id: '3', marque: 'BMW', modele: 'Série 3', immatriculation: 'EE-789-FF', prixJour: 75 }
+    { id: '1', marque: 'Peugeot', modele: '308', immatriculation: 'AA-123-BB', prixJour: 25000 },
+    { id: '2', marque: 'Renault', modele: 'Clio', immatriculation: 'CC-456-DD', prixJour: 20000 },
+    { id: '3', marque: 'BMW', modele: 'Série 3', immatriculation: 'EE-789-FF', prixJour: 45000 }
   ];
 
   const [formData, setFormData] = useState({
@@ -199,7 +198,7 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="prixJour">Prix par jour (€) *</Label>
+                    <Label htmlFor="prixJour">Prix par jour (CFA) *</Label>
                     <Input
                       id="prixJour"
                       type="number"
@@ -207,7 +206,7 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
                       onChange={(e) => handleChange('prixJour', parseFloat(e.target.value) || 0)}
                       placeholder="0"
                       min="0"
-                      step="0.01"
+                      step="100"
                       required
                     />
                   </div>
@@ -290,14 +289,14 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
               {formData.prixJour > 0 && (
                 <div>
                   <p className="text-sm text-gray-600">Prix</p>
-                  <p className="font-medium">{formData.prixJour}€ / jour</p>
+                  <p className="font-medium">{formData.prixJour.toLocaleString()} CFA / jour</p>
                 </div>
               )}
 
               {calculateTotal() > 0 && (
                 <div className="pt-3 border-t">
                   <p className="text-sm text-gray-600">Total</p>
-                  <p className="text-2xl font-bold text-primary">{calculateTotal()}€</p>
+                  <p className="text-2xl font-bold text-primary">{calculateTotal().toLocaleString()} CFA</p>
                 </div>
               )}
             </CardContent>
