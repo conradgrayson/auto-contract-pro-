@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -10,10 +11,10 @@ interface VehicleBasicInfoProps {
     immatriculation: string;
     annee: number;
     couleur: string;
-    carburant: string;
-    places: number;
+    typeCarburant: string;
+    nombrePlaces: number;
     kilometrage: number;
-    prixJour: number;
+    prixParJour: number;
     statut: 'disponible' | 'loue' | 'maintenance';
   };
   onChange: (field: string, value: string | number) => void;
@@ -80,8 +81,8 @@ const VehicleBasicInfo = ({ formData, onChange }: VehicleBasicInfoProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="carburant">Carburant *</Label>
-        <Select value={formData.carburant} onValueChange={(value) => onChange('carburant', value)}>
+        <Label htmlFor="typeCarburant">Carburant *</Label>
+        <Select value={formData.typeCarburant} onValueChange={(value) => onChange('typeCarburant', value)}>
           <SelectTrigger>
             <SelectValue placeholder="Sélectionnez le carburant" />
           </SelectTrigger>
@@ -95,8 +96,8 @@ const VehicleBasicInfo = ({ formData, onChange }: VehicleBasicInfoProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="places">Nombre de places *</Label>
-        <Select value={formData.places.toString()} onValueChange={(value) => onChange('places', parseInt(value))}>
+        <Label htmlFor="nombrePlaces">Nombre de places *</Label>
+        <Select value={formData.nombrePlaces.toString()} onValueChange={(value) => onChange('nombrePlaces', parseInt(value))}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
@@ -123,12 +124,12 @@ const VehicleBasicInfo = ({ formData, onChange }: VehicleBasicInfoProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="prixJour">Prix par jour (CFA) *</Label>
+        <Label htmlFor="prixParJour">Prix par jour (CFA) *</Label>
         <Input
-          id="prixJour"
+          id="prixParJour"
           type="number"
-          value={formData.prixJour}
-          onChange={(e) => onChange('prixJour', parseFloat(e.target.value) || 0)}
+          value={formData.prixParJour}
+          onChange={(e) => onChange('prixParJour', parseFloat(e.target.value) || 0)}
           placeholder="0"
           min="0"
           step="100"

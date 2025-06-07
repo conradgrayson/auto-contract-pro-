@@ -50,7 +50,7 @@ export const useSupabaseVehicles = () => {
         nombrePlaces: vehicle.nombreplaces,
         kilometrage: vehicle.kilometrage,
         prixParJour: vehicle.prixparjour,
-        statut: vehicle.statut,
+        statut: vehicle.statut as 'disponible' | 'loue' | 'maintenance',
         photos: vehicle.photos || [],
         equipements: vehicle.equipements || [],
         description: vehicle.description || '',
@@ -99,7 +99,7 @@ export const useSupabaseVehicles = () => {
       if (error) throw error;
 
       // Mapper les données retournées vers notre interface
-      const mappedVehicle = {
+      const mappedVehicle: Vehicle = {
         id: data.id,
         marque: data.marque,
         modele: data.modele,
@@ -110,7 +110,7 @@ export const useSupabaseVehicles = () => {
         nombrePlaces: data.nombreplaces,
         kilometrage: data.kilometrage,
         prixParJour: data.prixparjour,
-        statut: data.statut,
+        statut: data.statut as 'disponible' | 'loue' | 'maintenance',
         photos: data.photos || [],
         equipements: data.equipements || [],
         description: data.description || '',
@@ -165,7 +165,7 @@ export const useSupabaseVehicles = () => {
       if (error) throw error;
 
       // Mapper les données retournées vers notre interface
-      const mappedVehicle = {
+      const mappedVehicle: Vehicle = {
         id: data.id,
         marque: data.marque,
         modele: data.modele,
@@ -176,7 +176,7 @@ export const useSupabaseVehicles = () => {
         nombrePlaces: data.nombreplaces,
         kilometrage: data.kilometrage,
         prixParJour: data.prixparjour,
-        statut: data.statut,
+        statut: data.statut as 'disponible' | 'loue' | 'maintenance',
         photos: data.photos || [],
         equipements: data.equipements || [],
         description: data.description || '',
