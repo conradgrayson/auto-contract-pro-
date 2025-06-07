@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Edit, Trash2, FileText, Printer, Eye, Calendar } from 'lucide-react';
 import ContractForm from './ContractForm';
 import ContractPreview from './ContractPreview';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useToast } from '@/components/ui/use-toast';
 
 interface Contract {
   id: string;
@@ -27,7 +29,8 @@ interface Contract {
 }
 
 const ContractManagement = () => {
-  const [contracts, setContracts] = useState<Contract[]>([
+  const { toast } = useToast();
+  const [contracts, setContracts] = useLocalStorage<Contract[]>('contracts', [
     {
       id: '1',
       clientId: '1',
@@ -108,6 +111,10 @@ const ContractManagement = () => {
           ? { ...contractData, id: editingContract.id, dateCreation: editingContract.dateCreation, nbJours, montantTotal }
           : c
       ));
+      toast({
+        title: "Contrat modifié",
+        description: "Les modifications ont été sauvegardées avec succès.",
+      });
     } else {
       const newContract: Contract = {
         ...contractData,
@@ -117,6 +124,10 @@ const ContractManagement = () => {
         montantTotal
       };
       setContracts(prev => [...prev, newContract]);
+      toast({
+        title: "Contrat créé",
+        description: "Le nouveau contrat a été créé avec succès.",
+      });
     }
     setShowForm(false);
     setEditingContract(null);
@@ -130,6 +141,10 @@ const ContractManagement = () => {
   const handleDeleteContract = (id: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce contrat ?')) {
       setContracts(prev => prev.filter(c => c.id !== id));
+      toast({
+        title: "Contrat supprimé",
+        description: "Le contrat a été supprimé avec succès.",
+      });
     }
   };
 

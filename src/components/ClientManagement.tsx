@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Edit, Trash2, User, Phone, Mail, MapPin } from 'lucide-react';
 import ClientForm from './ClientForm';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useToast } from '@/components/ui/use-toast';
 
 interface Client {
   id: string;
@@ -23,7 +24,8 @@ interface Client {
 }
 
 const ClientManagement = () => {
-  const [clients, setClients] = useState<Client[]>([
+  const { toast } = useToast();
+  const [clients, setClients] = useLocalStorage<Client[]>('clients', [
     {
       id: '1',
       nom: 'Dupont',
@@ -70,6 +72,10 @@ const ClientManagement = () => {
       setClients(prev => prev.map(c => 
         c.id === editingClient.id ? { ...clientData, id: editingClient.id, dateInscription: editingClient.dateInscription } : c
       ));
+      toast({
+        title: "Client modifié",
+        description: "Les modifications ont été sauvegardées avec succès.",
+      });
     } else {
       const newClient: Client = {
         ...clientData,
@@ -77,6 +83,10 @@ const ClientManagement = () => {
         dateInscription: new Date().toISOString().split('T')[0]
       };
       setClients(prev => [...prev, newClient]);
+      toast({
+        title: "Client ajouté",
+        description: "Le nouveau client a été ajouté avec succès.",
+      });
     }
     setShowForm(false);
     setEditingClient(null);
@@ -90,6 +100,10 @@ const ClientManagement = () => {
   const handleDeleteClient = (id: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
       setClients(prev => prev.filter(c => c.id !== id));
+      toast({
+        title: "Client supprimé",
+        description: "Le client a été supprimé avec succès.",
+      });
     }
   };
 

@@ -1,13 +1,15 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Save, FileText } from 'lucide-react';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useToast } from '@/components/ui/use-toast';
 
 const ContractTermsSettings = () => {
-  const [terms, setTerms] = useState({
+  const { toast } = useToast();
+  const [terms, setTerms] = useLocalStorage('contractTerms', {
     generalTerms: `• Le véhicule doit être retourné avec le même niveau de carburant qu'au départ.
 • Tout retard dans la restitution du véhicule sera facturé une journée supplémentaire.
 • Le locataire s'engage à respecter le code de la route et à utiliser le véhicule dans les conditions normales.
@@ -31,9 +33,11 @@ Une caution de 300,000 CFA est exigée et sera restituée après restitution du 
   });
 
   const handleSave = () => {
-    // Ici on sauvegarderait les termes dans le localStorage ou base de données
-    localStorage.setItem('contractTerms', JSON.stringify(terms));
-    alert('Termes du contrat sauvegardés avec succès !');
+    // Les termes sont automatiquement sauvegardés grâce à useLocalStorage
+    toast({
+      title: "Termes sauvegardés",
+      description: "Les termes du contrat ont été sauvegardés avec succès !",
+    });
   };
 
   const handleChange = (field: string, value: string) => {

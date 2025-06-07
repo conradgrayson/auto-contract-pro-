@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Edit, Trash2, Car, Fuel, Users, Calendar } from 'lucide-react';
 import VehicleForm from './VehicleForm';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useToast } from '@/components/ui/use-toast';
 
 interface Vehicle {
   id: string;
@@ -22,7 +24,8 @@ interface Vehicle {
 }
 
 const VehicleManagement = () => {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([
+  const { toast } = useToast();
+  const [vehicles, setVehicles] = useLocalStorage<Vehicle[]>('vehicles', [
     {
       id: '1',
       marque: 'Peugeot',
@@ -33,7 +36,7 @@ const VehicleManagement = () => {
       carburant: 'Essence',
       places: 5,
       kilometrage: 15000,
-      prixJour: 45,
+      prixJour: 25000,
       statut: 'disponible',
       photos: []
     },
@@ -47,7 +50,7 @@ const VehicleManagement = () => {
       carburant: 'Diesel',
       places: 5,
       kilometrage: 25000,
-      prixJour: 35,
+      prixJour: 20000,
       statut: 'loue',
       photos: []
     },
@@ -61,7 +64,7 @@ const VehicleManagement = () => {
       carburant: 'Essence',
       places: 5,
       kilometrage: 5000,
-      prixJour: 75,
+      prixJour: 45000,
       statut: 'maintenance',
       photos: []
     }
@@ -100,12 +103,20 @@ const VehicleManagement = () => {
       setVehicles(prev => prev.map(v => 
         v.id === editingVehicle.id ? { ...vehicleData, id: editingVehicle.id } : v
       ));
+      toast({
+        title: "Véhicule modifié",
+        description: "Les modifications ont été sauvegardées avec succès.",
+      });
     } else {
       const newVehicle: Vehicle = {
         ...vehicleData,
         id: Date.now().toString()
       };
       setVehicles(prev => [...prev, newVehicle]);
+      toast({
+        title: "Véhicule ajouté",
+        description: "Le nouveau véhicule a été ajouté avec succès.",
+      });
     }
     setShowForm(false);
     setEditingVehicle(null);
@@ -119,6 +130,10 @@ const VehicleManagement = () => {
   const handleDeleteVehicle = (id: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce véhicule ?')) {
       setVehicles(prev => prev.filter(v => v.id !== id));
+      toast({
+        title: "Véhicule supprimé",
+        description: "Le véhicule a été supprimé avec succès.",
+      });
     }
   };
 
@@ -219,7 +234,7 @@ const VehicleManagement = () => {
               </div>
               
               <div className="pt-2 border-t">
-                <p className="text-lg font-semibold text-primary">{vehicle.prixJour}€/jour</p>
+                <p className="text-lg font-semibold text-primary">{vehicle.prixJour.toLocaleString()} CFA/jour</p>
                 <p className="text-sm text-gray-600">Couleur: {vehicle.couleur}</p>
               </div>
 
