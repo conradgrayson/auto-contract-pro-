@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,71 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Edit, Trash2, Car, Fuel, Users, Calendar } from 'lucide-react';
 import VehicleForm from './VehicleForm';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useToast } from '@/components/ui/use-toast';
-
-interface Vehicle {
-  id: string;
-  marque: string;
-  modele: string;
-  immatriculation: string;
-  annee: number;
-  couleur: string;
-  carburant: string;
-  places: number;
-  kilometrage: number;
-  prixJour: number;
-  statut: 'disponible' | 'loue' | 'maintenance';
-  photos?: string[];
-}
+import { useSupabaseVehicles, Vehicle } from '@/hooks/useSupabaseVehicles';
 
 const VehicleManagement = () => {
-  const { toast } = useToast();
-  const [vehicles, setVehicles] = useLocalStorage<Vehicle[]>('vehicles', [
-    {
-      id: '1',
-      marque: 'Peugeot',
-      modele: '308',
-      immatriculation: 'AA-123-BB',
-      annee: 2023,
-      couleur: 'Bleu',
-      carburant: 'Essence',
-      places: 5,
-      kilometrage: 15000,
-      prixJour: 25000,
-      statut: 'disponible',
-      photos: []
-    },
-    {
-      id: '2',
-      marque: 'Renault',
-      modele: 'Clio',
-      immatriculation: 'CC-456-DD',
-      annee: 2022,
-      couleur: 'Rouge',
-      carburant: 'Diesel',
-      places: 5,
-      kilometrage: 25000,
-      prixJour: 20000,
-      statut: 'loue',
-      photos: []
-    },
-    {
-      id: '3',
-      marque: 'BMW',
-      modele: 'Série 3',
-      immatriculation: 'EE-789-FF',
-      annee: 2024,
-      couleur: 'Noir',
-      carburant: 'Essence',
-      places: 5,
-      kilometrage: 5000,
-      prixJour: 45000,
-      statut: 'maintenance',
-      photos: []
-    }
-  ]);
-
+  const { vehicles, loading, addVehicle, updateVehicle, deleteVehicle } = useSupabaseVehicles();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
@@ -98,25 +38,11 @@ const VehicleManagement = () => {
     }
   };
 
-  const handleSaveVehicle = (vehicleData: Omit<Vehicle, 'id'>) => {
+  const handleSaveVehicle = async (vehicleData: Omit<Vehicle, 'id'>) => {
     if (editingVehicle) {
-      setVehicles(prev => prev.map(v => 
-        v.id === editingVehicle.id ? { ...vehicleData, id: editingVehicle.id } : v
-      ));
-      toast({
-        title: "Véhicule modifié",
-        description: "Les modifications ont été sauvegardées avec succès.",
-      });
+      await updateVehicle(editingVehicle.id, vehicleData);
     } else {
-      const newVehicle: Vehicle = {
-        ...vehicleData,
-        id: Date.now().toString()
-      };
-      setVehicles(prev => [...prev, newVehicle]);
-      toast({
-        title: "Véhicule ajouté",
-        description: "Le nouveau véhicule a été ajouté avec succès.",
-      });
+      await addVehicle(vehicleData);
     }
     setShowForm(false);
     setEditingVehicle(null);
@@ -127,15 +53,19 @@ const VehicleManagement = () => {
     setShowForm(true);
   };
 
-  const handleDeleteVehicle = (id: string) => {
+  const handleDeleteVehicle = async (id: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce véhicule ?')) {
-      setVehicles(prev => prev.filter(v => v.id !== id));
-      toast({
-        title: "Véhicule supprimé",
-        description: "Le véhicule a été supprimé avec succès.",
-      });
+      await deleteVehicle(id);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (showForm) {
     return (
@@ -221,11 +151,11 @@ const VehicleManagement = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <Fuel className="h-4 w-4 text-gray-400" />
-                  <span>{vehicle.carburant}</span>
+                  <span>{vehicle.typeCarburant}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-gray-400" />
-                  <span>{vehicle.places} places</span>
+                  <span>{vehicle.nombrePlaces} places</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Car className="h-4 w-4 text-gray-400" />
@@ -234,7 +164,7 @@ const VehicleManagement = () => {
               </div>
               
               <div className="pt-2 border-t">
-                <p className="text-lg font-semibold text-primary">{vehicle.prixJour.toLocaleString()} CFA/jour</p>
+                <p className="text-lg font-semibold text-primary">{vehicle.prixParJour.toLocaleString()} CFA/jour</p>
                 <p className="text-sm text-gray-600">Couleur: {vehicle.couleur}</p>
               </div>
 

@@ -1,7 +1,9 @@
 
 import React, { ReactNode } from 'react';
-import { Car, Users, FileText, BarChart3, Settings } from 'lucide-react';
+import { Car, Users, FileText, BarChart3, Settings, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
 
 interface LayoutProps {
   children: ReactNode;
@@ -10,6 +12,8 @@ interface LayoutProps {
 }
 
 const Layout = ({ children, activeTab, onTabChange }: LayoutProps) => {
+  const { signOut, user } = useAuth();
+  
   const menuItems = [
     { id: 'dashboard', label: 'Tableau de bord', icon: BarChart3 },
     { id: 'vehicles', label: 'Véhicules', icon: Car },
@@ -34,13 +38,29 @@ const Layout = ({ children, activeTab, onTabChange }: LayoutProps) => {
               <p className="text-sm text-gray-500">Gestion de Location de Voiture</p>
             </div>
           </div>
-          <div className="text-sm text-gray-500">
-            {new Date().toLocaleDateString('fr-FR', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-500">
+              {new Date().toLocaleDateString('fr-FR', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">
+                {user?.email}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={signOut}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Déconnexion
+              </Button>
+            </div>
           </div>
         </div>
       </header>

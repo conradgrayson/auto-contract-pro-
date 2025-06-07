@@ -5,21 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Save } from 'lucide-react';
 import VehicleBasicInfo from './VehicleBasicInfo';
 import VehiclePhotosUpload from './VehiclePhotosUpload';
-
-interface Vehicle {
-  id: string;
-  marque: string;
-  modele: string;
-  immatriculation: string;
-  annee: number;
-  couleur: string;
-  carburant: string;
-  places: number;
-  kilometrage: number;
-  prixJour: number;
-  statut: 'disponible' | 'loue' | 'maintenance';
-  photos?: string[];
-}
+import { Vehicle } from '@/hooks/useSupabaseVehicles';
 
 interface VehicleFormProps {
   vehicle?: Vehicle | null;
@@ -34,12 +20,14 @@ const VehicleForm = ({ vehicle, onSave, onCancel }: VehicleFormProps) => {
     immatriculation: vehicle?.immatriculation || '',
     annee: vehicle?.annee || new Date().getFullYear(),
     couleur: vehicle?.couleur || '',
-    carburant: vehicle?.carburant || '',
-    places: vehicle?.places || 5,
+    typeCarburant: vehicle?.typeCarburant || '',
+    nombrePlaces: vehicle?.nombrePlaces || 5,
     kilometrage: vehicle?.kilometrage || 0,
-    prixJour: vehicle?.prixJour || 0,
+    prixParJour: vehicle?.prixParJour || 0,
     statut: vehicle?.statut || 'disponible' as const,
     photos: vehicle?.photos || [],
+    equipements: vehicle?.equipements || [],
+    description: vehicle?.description || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {

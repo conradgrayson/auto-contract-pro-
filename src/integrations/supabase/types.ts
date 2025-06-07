@@ -9,7 +9,225 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      clients: {
+        Row: {
+          adresse: string
+          codepostal: string
+          created_at: string
+          dateinscription: string
+          datenaissance: string
+          email: string
+          id: string
+          nom: string
+          numeropermis: string
+          prenom: string
+          statut: string
+          telephone: string
+          updated_at: string
+          user_id: string
+          ville: string
+        }
+        Insert: {
+          adresse: string
+          codepostal: string
+          created_at?: string
+          dateinscription?: string
+          datenaissance: string
+          email: string
+          id?: string
+          nom: string
+          numeropermis: string
+          prenom: string
+          statut?: string
+          telephone: string
+          updated_at?: string
+          user_id: string
+          ville: string
+        }
+        Update: {
+          adresse?: string
+          codepostal?: string
+          created_at?: string
+          dateinscription?: string
+          datenaissance?: string
+          email?: string
+          id?: string
+          nom?: string
+          numeropermis?: string
+          prenom?: string
+          statut?: string
+          telephone?: string
+          updated_at?: string
+          user_id?: string
+          ville?: string
+        }
+        Relationships: []
+      }
+      contract_terms: {
+        Row: {
+          companyinfo: string
+          created_at: string
+          generalterms: string
+          id: string
+          paymentterms: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          companyinfo: string
+          created_at?: string
+          generalterms: string
+          id?: string
+          paymentterms: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          companyinfo?: string
+          created_at?: string
+          generalterms?: string
+          id?: string
+          paymentterms?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      contracts: {
+        Row: {
+          caution: number
+          clientid: string
+          created_at: string
+          datedebut: string
+          datefin: string
+          etatvehiculedepart: string | null
+          etatvehiculeretour: string | null
+          id: string
+          kilometragedepart: number | null
+          kilometrageretour: number | null
+          notes: string | null
+          numerocontrat: string
+          prixtotal: number
+          statut: string
+          updated_at: string
+          user_id: string
+          vehicleid: string
+        }
+        Insert: {
+          caution?: number
+          clientid: string
+          created_at?: string
+          datedebut: string
+          datefin: string
+          etatvehiculedepart?: string | null
+          etatvehiculeretour?: string | null
+          id?: string
+          kilometragedepart?: number | null
+          kilometrageretour?: number | null
+          notes?: string | null
+          numerocontrat: string
+          prixtotal: number
+          statut?: string
+          updated_at?: string
+          user_id: string
+          vehicleid: string
+        }
+        Update: {
+          caution?: number
+          clientid?: string
+          created_at?: string
+          datedebut?: string
+          datefin?: string
+          etatvehiculedepart?: string | null
+          etatvehiculeretour?: string | null
+          id?: string
+          kilometragedepart?: number | null
+          kilometrageretour?: number | null
+          notes?: string | null
+          numerocontrat?: string
+          prixtotal?: number
+          statut?: string
+          updated_at?: string
+          user_id?: string
+          vehicleid?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_clientid_fkey"
+            columns: ["clientid"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_vehicleid_fkey"
+            columns: ["vehicleid"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicles: {
+        Row: {
+          annee: number
+          couleur: string
+          created_at: string
+          description: string | null
+          equipements: string[] | null
+          id: string
+          immatriculation: string
+          kilometrage: number
+          marque: string
+          modele: string
+          nombreplaces: number
+          photos: string[] | null
+          prixparjour: number
+          statut: string
+          typecarburant: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          annee: number
+          couleur: string
+          created_at?: string
+          description?: string | null
+          equipements?: string[] | null
+          id?: string
+          immatriculation: string
+          kilometrage: number
+          marque: string
+          modele: string
+          nombreplaces: number
+          photos?: string[] | null
+          prixparjour: number
+          statut: string
+          typecarburant: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          annee?: number
+          couleur?: string
+          created_at?: string
+          description?: string | null
+          equipements?: string[] | null
+          id?: string
+          immatriculation?: string
+          kilometrage?: number
+          marque?: string
+          modele?: string
+          nombreplaces?: number
+          photos?: string[] | null
+          prixparjour?: number
+          statut?: string
+          typecarburant?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
