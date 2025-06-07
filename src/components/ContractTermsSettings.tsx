@@ -1,14 +1,32 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Save, FileText } from 'lucide-react';
+import { Save, FileText, Trash2 } from 'lucide-react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useToast } from '@/components/ui/use-toast';
+import { useSupabaseVehicles } from '@/hooks/useSupabaseVehicles';
+import { useSupabaseClients } from '@/hooks/useSupabaseClients';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 const ContractTermsSettings = () => {
   const { toast } = useToast();
+  const { vehicles, deleteVehicle } = useSupabaseVehicles();
+  const { clients, deleteClient } = useSupabaseClients();
+  const [isClearing, setIsClearing] = useState(false);
+  
   const [terms, setTerms] = useLocalStorage('contractTerms', {
     generalTerms: `• Le véhicule doit être retourné avec le même niveau de carburant qu'au départ.
 • Tout retard dans la restitution du véhicule sera facturé une journée supplémentaire.
@@ -42,6 +60,37 @@ Une caution de 300,000 CFA est exigée et sera restituée après restitution du 
 
   const handleChange = (field: string, value: string) => {
     setTerms(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleClearAllData = async () => {
+    setIsClearing(true);
+    
+    try {
+      // Supprimer tous les véhicules
+      for (const vehicle of vehicles) {
+        await deleteVehicle(vehicle.id);
+      }
+      
+      // Supprimer tous les clients
+      for (const client of clients) {
+        await deleteClient(client.id);
+      }
+      
+      // Effacer les données localStorage
+      localStorage.clear();
+      
+      // Recharger la page pour remettre à zéro complètement
+      window.location.reload();
+      
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de la suppression des données.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsClearing(false);
+    }
   };
 
   return (
@@ -108,6 +157,43 @@ Une caution de 300,000 CFA est exigée et sera restituée après restitution du 
                   placeholder="Conditions de paiement..."
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-red-600">Zone Dangereuse</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-4">
+                Cette action supprimera définitivement toutes vos données : véhicules, clients, contrats et paramètres.
+              </p>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" className="flex items-center gap-2" disabled={isClearing}>
+                    <Trash2 className="h-4 w-4" />
+                    {isClearing ? "Suppression..." : "Effacer toutes les données"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Êtes-vous absolument sûr ?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Cette action est irréversible. Elle supprimera définitivement tous vos véhicules, clients, contrats et paramètres.
+                      Toutes les données seront perdues et ne pourront pas être récupérées.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleClearAllData}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Oui, tout supprimer
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </CardContent>
           </Card>
 
