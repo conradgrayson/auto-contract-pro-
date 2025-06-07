@@ -37,7 +37,26 @@ export const useSupabaseVehicles = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setVehicles(data || []);
+      
+      // Mapper les données de la base vers notre interface
+      const mappedVehicles = (data || []).map(vehicle => ({
+        id: vehicle.id,
+        marque: vehicle.marque,
+        modele: vehicle.modele,
+        immatriculation: vehicle.immatriculation,
+        annee: vehicle.annee,
+        couleur: vehicle.couleur,
+        typeCarburant: vehicle.typecarburant,
+        nombrePlaces: vehicle.nombreplaces,
+        kilometrage: vehicle.kilometrage,
+        prixParJour: vehicle.prixparjour,
+        statut: vehicle.statut,
+        photos: vehicle.photos || [],
+        equipements: vehicle.equipements || [],
+        description: vehicle.description || '',
+      }));
+      
+      setVehicles(mappedVehicles);
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -53,24 +72,57 @@ export const useSupabaseVehicles = () => {
     if (!user) return null;
 
     try {
+      // Mapper les données vers les noms de colonnes de la base
+      const dbData = {
+        user_id: user.id,
+        marque: vehicleData.marque,
+        modele: vehicleData.modele,
+        immatriculation: vehicleData.immatriculation,
+        annee: vehicleData.annee,
+        couleur: vehicleData.couleur,
+        typecarburant: vehicleData.typeCarburant,
+        nombreplaces: vehicleData.nombrePlaces,
+        kilometrage: vehicleData.kilometrage,
+        prixparjour: vehicleData.prixParJour,
+        statut: vehicleData.statut,
+        photos: vehicleData.photos || [],
+        equipements: vehicleData.equipements || [],
+        description: vehicleData.description || '',
+      };
+
       const { data, error } = await supabase
         .from('vehicles')
-        .insert([{
-          ...vehicleData,
-          user_id: user.id
-        }])
+        .insert([dbData])
         .select()
         .single();
 
       if (error) throw error;
 
-      setVehicles(prev => [data, ...prev]);
+      // Mapper les données retournées vers notre interface
+      const mappedVehicle = {
+        id: data.id,
+        marque: data.marque,
+        modele: data.modele,
+        immatriculation: data.immatriculation,
+        annee: data.annee,
+        couleur: data.couleur,
+        typeCarburant: data.typecarburant,
+        nombrePlaces: data.nombreplaces,
+        kilometrage: data.kilometrage,
+        prixParJour: data.prixparjour,
+        statut: data.statut,
+        photos: data.photos || [],
+        equipements: data.equipements || [],
+        description: data.description || '',
+      };
+
+      setVehicles(prev => [mappedVehicle, ...prev]);
       toast({
         title: "Véhicule ajouté",
         description: "Le nouveau véhicule a été ajouté avec succès.",
       });
       
-      return data;
+      return mappedVehicle;
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -85,9 +137,26 @@ export const useSupabaseVehicles = () => {
     if (!user) return null;
 
     try {
+      // Mapper les données vers les noms de colonnes de la base
+      const dbData = {
+        marque: vehicleData.marque,
+        modele: vehicleData.modele,
+        immatriculation: vehicleData.immatriculation,
+        annee: vehicleData.annee,
+        couleur: vehicleData.couleur,
+        typecarburant: vehicleData.typeCarburant,
+        nombreplaces: vehicleData.nombrePlaces,
+        kilometrage: vehicleData.kilometrage,
+        prixparjour: vehicleData.prixParJour,
+        statut: vehicleData.statut,
+        photos: vehicleData.photos || [],
+        equipements: vehicleData.equipements || [],
+        description: vehicleData.description || '',
+      };
+
       const { data, error } = await supabase
         .from('vehicles')
-        .update(vehicleData)
+        .update(dbData)
         .eq('id', id)
         .eq('user_id', user.id)
         .select()
@@ -95,13 +164,31 @@ export const useSupabaseVehicles = () => {
 
       if (error) throw error;
 
-      setVehicles(prev => prev.map(v => v.id === id ? data : v));
+      // Mapper les données retournées vers notre interface
+      const mappedVehicle = {
+        id: data.id,
+        marque: data.marque,
+        modele: data.modele,
+        immatriculation: data.immatriculation,
+        annee: data.annee,
+        couleur: data.couleur,
+        typeCarburant: data.typecarburant,
+        nombrePlaces: data.nombreplaces,
+        kilometrage: data.kilometrage,
+        prixParJour: data.prixparjour,
+        statut: data.statut,
+        photos: data.photos || [],
+        equipements: data.equipements || [],
+        description: data.description || '',
+      };
+
+      setVehicles(prev => prev.map(v => v.id === id ? mappedVehicle : v));
       toast({
         title: "Véhicule modifié",
         description: "Les modifications ont été sauvegardées avec succès.",
       });
       
-      return data;
+      return mappedVehicle;
     } catch (error: any) {
       toast({
         title: "Erreur",

@@ -35,7 +35,24 @@ export const useSupabaseClients = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setClients(data || []);
+      
+      // Mapper les données de la base vers notre interface
+      const mappedClients = (data || []).map(client => ({
+        id: client.id,
+        nom: client.nom,
+        prenom: client.prenom,
+        email: client.email,
+        telephone: client.telephone,
+        adresse: client.adresse,
+        ville: client.ville,
+        codePostal: client.codepostal,
+        numeroPermis: client.numeropermis,
+        dateNaissance: client.datenaissance,
+        statut: client.statut as 'actif' | 'inactif',
+        dateInscription: client.dateinscription,
+      }));
+      
+      setClients(mappedClients);
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -51,24 +68,52 @@ export const useSupabaseClients = () => {
     if (!user) return null;
 
     try {
+      // Mapper les données vers les noms de colonnes de la base
+      const dbData = {
+        user_id: user.id,
+        nom: clientData.nom,
+        prenom: clientData.prenom,
+        email: clientData.email,
+        telephone: clientData.telephone,
+        adresse: clientData.adresse,
+        ville: clientData.ville,
+        codepostal: clientData.codePostal,
+        numeropermis: clientData.numeroPermis,
+        datenaissance: clientData.dateNaissance,
+        statut: clientData.statut,
+      };
+
       const { data, error } = await supabase
         .from('clients')
-        .insert([{
-          ...clientData,
-          user_id: user.id
-        }])
+        .insert([dbData])
         .select()
         .single();
 
       if (error) throw error;
 
-      setClients(prev => [data, ...prev]);
+      // Mapper les données retournées vers notre interface
+      const mappedClient = {
+        id: data.id,
+        nom: data.nom,
+        prenom: data.prenom,
+        email: data.email,
+        telephone: data.telephone,
+        adresse: data.adresse,
+        ville: data.ville,
+        codePostal: data.codepostal,
+        numeroPermis: data.numeropermis,
+        dateNaissance: data.datenaissance,
+        statut: data.statut as 'actif' | 'inactif',
+        dateInscription: data.dateinscription,
+      };
+
+      setClients(prev => [mappedClient, ...prev]);
       toast({
         title: "Client ajouté",
         description: "Le nouveau client a été ajouté avec succès.",
       });
       
-      return data;
+      return mappedClient;
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -83,9 +128,23 @@ export const useSupabaseClients = () => {
     if (!user) return null;
 
     try {
+      // Mapper les données vers les noms de colonnes de la base
+      const dbData = {
+        nom: clientData.nom,
+        prenom: clientData.prenom,
+        email: clientData.email,
+        telephone: clientData.telephone,
+        adresse: clientData.adresse,
+        ville: clientData.ville,
+        codepostal: clientData.codePostal,
+        numeropermis: clientData.numeroPermis,
+        datenaissance: clientData.dateNaissance,
+        statut: clientData.statut,
+      };
+
       const { data, error } = await supabase
         .from('clients')
-        .update(clientData)
+        .update(dbData)
         .eq('id', id)
         .eq('user_id', user.id)
         .select()
@@ -93,13 +152,29 @@ export const useSupabaseClients = () => {
 
       if (error) throw error;
 
-      setClients(prev => prev.map(c => c.id === id ? data : c));
+      // Mapper les données retournées vers notre interface
+      const mappedClient = {
+        id: data.id,
+        nom: data.nom,
+        prenom: data.prenom,
+        email: data.email,
+        telephone: data.telephone,
+        adresse: data.adresse,
+        ville: data.ville,
+        codePostal: data.codepostal,
+        numeroPermis: data.numeropermis,
+        dateNaissance: data.datenaissance,
+        statut: data.statut as 'actif' | 'inactif',
+        dateInscription: data.dateinscription,
+      };
+
+      setClients(prev => prev.map(c => c.id === id ? mappedClient : c));
       toast({
         title: "Client modifié",
         description: "Les modifications ont été sauvegardées avec succès.",
       });
       
-      return data;
+      return mappedClient;
     } catch (error: any) {
       toast({
         title: "Erreur",

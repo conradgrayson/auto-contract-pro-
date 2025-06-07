@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,57 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Search, Edit, Trash2, User, Phone, Mail, MapPin } from 'lucide-react';
 import ClientForm from './ClientForm';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useToast } from '@/components/ui/use-toast';
-
-interface Client {
-  id: string;
-  nom: string;
-  prenom: string;
-  email: string;
-  telephone: string;
-  adresse: string;
-  ville: string;
-  codePostal: string;
-  numeroPermis: string;
-  dateNaissance: string;
-  statut: 'actif' | 'inactif';
-  dateInscription: string;
-}
+import { useSupabaseClients, Client } from '@/hooks/useSupabaseClients';
 
 const ClientManagement = () => {
-  const { toast } = useToast();
-  const [clients, setClients] = useLocalStorage<Client[]>('clients', [
-    {
-      id: '1',
-      nom: 'Dupont',
-      prenom: 'Jean',
-      email: 'jean.dupont@email.com',
-      telephone: '0123456789',
-      adresse: '123 Rue de la Paix',
-      ville: 'Paris',
-      codePostal: '75001',
-      numeroPermis: 'ABC123456789',
-      dateNaissance: '1985-03-15',
-      statut: 'actif',
-      dateInscription: '2024-01-15'
-    },
-    {
-      id: '2',
-      nom: 'Martin',
-      prenom: 'Marie',
-      email: 'marie.martin@email.com',
-      telephone: '0987654321',
-      adresse: '456 Avenue des Champs',
-      ville: 'Lyon',
-      codePostal: '69001',
-      numeroPermis: 'DEF987654321',
-      dateNaissance: '1990-07-22',
-      statut: 'actif',
-      dateInscription: '2024-02-01'
-    }
-  ]);
-
+  const { clients, loading, addClient, updateClient, deleteClient } = useSupabaseClients();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
@@ -67,26 +21,11 @@ const ClientManagement = () => {
     client.telephone.includes(searchTerm)
   );
 
-  const handleSaveClient = (clientData: Omit<Client, 'id' | 'dateInscription'>) => {
+  const handleSaveClient = async (clientData: Omit<Client, 'id' | 'dateInscription'>) => {
     if (editingClient) {
-      setClients(prev => prev.map(c => 
-        c.id === editingClient.id ? { ...clientData, id: editingClient.id, dateInscription: editingClient.dateInscription } : c
-      ));
-      toast({
-        title: "Client modifié",
-        description: "Les modifications ont été sauvegardées avec succès.",
-      });
+      await updateClient(editingClient.id, clientData);
     } else {
-      const newClient: Client = {
-        ...clientData,
-        id: Date.now().toString(),
-        dateInscription: new Date().toISOString().split('T')[0]
-      };
-      setClients(prev => [...prev, newClient]);
-      toast({
-        title: "Client ajouté",
-        description: "Le nouveau client a été ajouté avec succès.",
-      });
+      await addClient(clientData);
     }
     setShowForm(false);
     setEditingClient(null);
@@ -97,15 +36,19 @@ const ClientManagement = () => {
     setShowForm(true);
   };
 
-  const handleDeleteClient = (id: string) => {
+  const handleDeleteClient = async (id: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
-      setClients(prev => prev.filter(c => c.id !== id));
-      toast({
-        title: "Client supprimé",
-        description: "Le client a été supprimé avec succès.",
-      });
+      await deleteClient(id);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (showForm) {
     return (
