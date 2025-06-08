@@ -25,6 +25,7 @@ const ContractTermsSettings = () => {
   const { toast } = useToast();
   const { vehicles, deleteVehicle } = useSupabaseVehicles();
   const { clients, deleteClient } = useSupabaseClients();
+  const { contracts, deleteContract } = useSupabaseContracts();
   const [isClearing, setIsClearing] = useState(false);
   
   const [terms, setTerms] = useLocalStorage('contractTerms', {
@@ -66,6 +67,11 @@ Une caution de 300,000 CFA est exigée et sera restituée après restitution du 
     setIsClearing(true);
     
     try {
+      // Supprimer tous les contrats d'abord (à cause des foreign keys)
+      for (const contract of contracts) {
+        await deleteContract(contract.id);
+      }
+
       // Supprimer tous les véhicules
       for (const vehicle of vehicles) {
         await deleteVehicle(vehicle.id);
@@ -78,6 +84,11 @@ Une caution de 300,000 CFA est exigée et sera restituée après restitution du 
       
       // Effacer les données localStorage
       localStorage.clear();
+      
+      toast({
+        title: "Données supprimées",
+        description: "Toutes les données ont été supprimées avec succès.",
+      });
       
       // Recharger la page pour remettre à zéro complètement
       window.location.reload();

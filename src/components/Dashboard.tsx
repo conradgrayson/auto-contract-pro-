@@ -1,27 +1,88 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Car, Users, FileText, TrendingUp, Calendar, AlertTriangle } from 'lucide-react';
+import { useSupabaseVehicles } from '@/hooks/useSupabaseVehicles';
+import { useSupabaseClients } from '@/hooks/useSupabaseClients';
+import { useSupabaseContracts } from '@/hooks/useSupabaseContracts';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { vehicles } = useSupabaseVehicles();
+  const { clients } = useSupabaseClients();
+  const { contracts } = useSupabaseContracts();
+
+  const vehiculesLoues = vehicles.filter(v => v.statut === 'loue').length;
+  const clientsActifs = clients.filter(c => c.statut === 'actif').length;
+  const contratsActifs = contracts.filter(c => c.statut === 'actif').length;
+
   const stats = [
-    { title: 'Véhicules Total', value: '24', icon: Car, color: 'text-blue-600' },
-    { title: 'Véhicules Loués', value: '18', icon: Car, color: 'text-green-600' },
-    { title: 'Clients Actifs', value: '156', icon: Users, color: 'text-purple-600' },
-    { title: 'Contrats ce Mois', value: '42', icon: FileText, color: 'text-orange-600' },
+    { title: 'Véhicules Total', value: vehicles.length.toString(), icon: Car, color: 'text-blue-600' },
+    { title: 'Véhicules Loués', value: vehiculesLoues.toString(), icon: Car, color: 'text-green-600' },
+    { title: 'Clients Actifs', value: clientsActifs.toString(), icon: Users, color: 'text-purple-600' },
+    { title: 'Contrats Actifs', value: contratsActifs.toString(), icon: FileText, color: 'text-orange-600' },
   ];
 
-  const recentActivity = [
-    { type: 'Nouveau contrat', client: 'Jean Dupont', vehicle: 'Peugeot 308', date: '2024-06-06' },
-    { type: 'Retour véhicule', client: 'Marie Martin', vehicle: 'Renault Clio', date: '2024-06-05' },
-    { type: 'Nouveau client', client: 'Pierre Durand', vehicle: '-', date: '2024-06-05' },
-  ];
+  const recentContracts = contracts
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 5);
 
-  const alerts = [
-    { message: 'Révision programmée - BMW Série 3 (AA-123-BB)', priority: 'high' },
-    { message: 'Assurance expire dans 15 jours - Mercedes Classe A', priority: 'medium' },
-    { message: 'Retour prévu aujourd\'hui - Volkswagen Golf', priority: 'low' },
-  ];
+  const getAlerts = () => {
+    const alerts = [];
+    
+    // Véhicules en maintenance
+    const vehiculesEnMaintenance = vehicles.filter(v => v.statut === 'maintenance');
+    if (vehiculesEnMaintenance.length > 0) {
+      alerts.push({
+        message: `${vehiculesEnMaintenance.length} véhicule(s) en maintenance`,
+        priority: 'high' as const
+      });
+    }
+
+    // Contrats se terminant bientôt (dans les 3 prochains jours)
+    const today = new Date();
+    const inThreeDays = new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000);
+    const contratsFinissantBientot = contracts.filter(c => {
+      const dateFin = new Date(c.datefin);
+      return c.statut === 'actif' && dateFin <= inThreeDays && dateFin >= today;
+    });
+
+    if (contratsFinissantBientot.length > 0) {
+      alerts.push({
+        message: `${contratsFinissantBientot.length} contrat(s) se termine(nt) dans les 3 prochains jours`,
+        priority: 'medium' as const
+      });
+    }
+
+    // Véhicules disponibles
+    const vehiculesDisponibles = vehicles.filter(v => v.statut === 'disponible');
+    if (vehiculesDisponibles.length > 0) {
+      alerts.push({
+        message: `${vehiculesDisponibles.length} véhicule(s) disponible(s) pour location`,
+        priority: 'low' as const
+      });
+    }
+
+    return alerts;
+  };
+
+  const alerts = getAlerts();
+
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case 'nouveau-contrat':
+        navigate('/contrats');
+        break;
+      case 'ajouter-client':
+        navigate('/clients');
+        break;
+      case 'ajouter-vehicule':
+        navigate('/vehicules');
+        break;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -56,20 +117,28 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
-              Activité Récente
+              Contrats Récents
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                  <div>
-                    <p className="font-medium text-gray-900">{activity.type}</p>
-                    <p className="text-sm text-gray-600">{activity.client} - {activity.vehicle}</p>
+              {recentContracts.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">Aucun contrat récent</p>
+              ) : (
+                recentContracts.map((contract, index) => (
+                  <div key={index} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                    <div>
+                      <p className="font-medium text-gray-900">{contract.numerocontrat}</p>
+                      <p className="text-sm text-gray-600">
+                        {contract.client?.prenom} {contract.client?.nom} - {contract.vehicle?.marque} {contract.vehicle?.modele}
+                      </p>
+                    </div>
+                    <span className="text-sm text-gray-500">
+                      {new Date(contract.created_at).toLocaleDateString('fr-FR')}
+                    </span>
                   </div>
-                  <span className="text-sm text-gray-500">{activity.date}</span>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -84,15 +153,19 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {alerts.map((alert, index) => (
-                <div key={index} className={`p-3 rounded-lg border-l-4 ${
-                  alert.priority === 'high' ? 'bg-red-50 border-red-400' :
-                  alert.priority === 'medium' ? 'bg-yellow-50 border-yellow-400' :
-                  'bg-blue-50 border-blue-400'
-                }`}>
-                  <p className="text-sm text-gray-800">{alert.message}</p>
-                </div>
-              ))}
+              {alerts.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">Aucune alerte</p>
+              ) : (
+                alerts.map((alert, index) => (
+                  <div key={index} className={`p-3 rounded-lg border-l-4 ${
+                    alert.priority === 'high' ? 'bg-red-50 border-red-400' :
+                    alert.priority === 'medium' ? 'bg-yellow-50 border-yellow-400' :
+                    'bg-blue-50 border-blue-400'
+                  }`}>
+                    <p className="text-sm text-gray-800">{alert.message}</p>
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -105,18 +178,27 @@ const Dashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="p-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-              <FileText className="h-6 w-6 mx-auto mb-2" />
-              <span className="block text-sm font-medium">Nouveau Contrat</span>
-            </button>
-            <button className="p-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-              <Users className="h-6 w-6 mx-auto mb-2" />
-              <span className="block text-sm font-medium">Ajouter Client</span>
-            </button>
-            <button className="p-4 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-              <Car className="h-6 w-6 mx-auto mb-2" />
-              <span className="block text-sm font-medium">Ajouter Véhicule</span>
-            </button>
+            <Button 
+              onClick={() => handleQuickAction('nouveau-contrat')}
+              className="p-4 h-auto flex-col gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              <FileText className="h-6 w-6" />
+              <span className="text-sm font-medium">Nouveau Contrat</span>
+            </Button>
+            <Button 
+              onClick={() => handleQuickAction('ajouter-client')}
+              className="p-4 h-auto flex-col gap-2 bg-green-600 text-white hover:bg-green-700"
+            >
+              <Users className="h-6 w-6" />
+              <span className="text-sm font-medium">Ajouter Client</span>
+            </Button>
+            <Button 
+              onClick={() => handleQuickAction('ajouter-vehicule')}
+              className="p-4 h-auto flex-col gap-2 bg-purple-600 text-white hover:bg-purple-700"
+            >
+              <Car className="h-6 w-6" />
+              <span className="text-sm font-medium">Ajouter Véhicule</span>
+            </Button>
           </div>
         </CardContent>
       </Card>
