@@ -57,8 +57,9 @@ export const useSupabaseContracts = () => {
 
       if (error) throw error;
       
-      const mappedContracts = (data || []).map(contract => ({
+      const mappedContracts: Contract[] = (data || []).map(contract => ({
         ...contract,
+        statut: contract.statut as 'actif' | 'termine' | 'annule',
         client: contract.clients,
         vehicle: contract.vehicles,
       }));
@@ -90,12 +91,12 @@ export const useSupabaseContracts = () => {
     try {
       const { data, error } = await supabase
         .from('contracts')
-        .insert([{
+        .insert({
           user_id: user.id,
           ...contractData,
           caution: contractData.caution || 300000,
           statut: contractData.statut || 'actif',
-        }])
+        })
         .select(`
           *,
           clients:clientid (nom, prenom, email, telephone),
@@ -105,8 +106,9 @@ export const useSupabaseContracts = () => {
 
       if (error) throw error;
 
-      const mappedContract = {
+      const mappedContract: Contract = {
         ...data,
+        statut: data.statut as 'actif' | 'termine' | 'annule',
         client: data.clients,
         vehicle: data.vehicles,
       };
@@ -146,8 +148,9 @@ export const useSupabaseContracts = () => {
 
       if (error) throw error;
 
-      const mappedContract = {
+      const mappedContract: Contract = {
         ...data,
+        statut: data.statut as 'actif' | 'termine' | 'annule',
         client: data.clients,
         vehicle: data.vehicles,
       };

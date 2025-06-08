@@ -9,6 +9,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useToast } from '@/components/ui/use-toast';
 import { useSupabaseVehicles } from '@/hooks/useSupabaseVehicles';
 import { useSupabaseClients } from '@/hooks/useSupabaseClients';
+import { useSupabaseContracts } from '@/hooks/useSupabaseContracts';
 import {
   AlertDialog,
   AlertDialogAction,
