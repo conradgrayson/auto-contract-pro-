@@ -102,9 +102,10 @@ export const useSupabaseContracts = () => {
         notes: contractData.notes || null,
       };
 
+      // Utiliser 'any' pour contourner la limitation TypeScript avec le champ numerocontrat auto-généré
       const { data, error } = await supabase
         .from('contracts')
-        .insert(insertData)
+        .insert(insertData as any)
         .select(`
           *,
           clients:clientid (nom, prenom, email, telephone),
