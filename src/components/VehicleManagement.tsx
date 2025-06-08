@@ -4,19 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Edit, Trash2, Car, FileText } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Car, Fuel, Users, Calendar } from 'lucide-react';
 import VehicleForm from './VehicleForm';
 import { useSupabaseVehicles, Vehicle } from '@/hooks/useSupabaseVehicles';
-import { useNavigate } from 'react-router-dom';
 
-interface VehicleManagementProps {
-  onCreateContract?: (vehicleId: string) => void;
-}
-
-const VehicleManagement = ({ onCreateContract }: VehicleManagementProps) => {
-  const navigate = useNavigate();
-  const { vehicles, addVehicle, updateVehicle, deleteVehicle, loading } = useSupabaseVehicles();
-  
+const VehicleManagement = () => {
+  const { vehicles, loading, addVehicle, updateVehicle, deleteVehicle } = useSupabaseVehicles();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
@@ -24,15 +17,14 @@ const VehicleManagement = ({ onCreateContract }: VehicleManagementProps) => {
   const filteredVehicles = vehicles.filter(vehicle =>
     vehicle.marque.toLowerCase().includes(searchTerm.toLowerCase()) ||
     vehicle.modele.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vehicle.immatriculation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vehicle.couleur.toLowerCase().includes(searchTerm.toLowerCase())
+    vehicle.immatriculation.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'disponible': return 'bg-green-100 text-green-800';
-      case 'loue': return 'bg-orange-100 text-orange-800';
-      case 'maintenance': return 'bg-red-100 text-red-800';
+      case 'loue': return 'bg-blue-100 text-blue-800';
+      case 'maintenance': return 'bg-orange-100 text-orange-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -67,14 +59,13 @@ const VehicleManagement = ({ onCreateContract }: VehicleManagementProps) => {
     }
   };
 
-  const handleCreateContractForVehicle = (vehicleId: string) => {
-    if (onCreateContract) {
-      onCreateContract(vehicleId);
-    } else {
-      // Naviguer vers la page contrats avec le véhicule présélectionné
-      navigate('/contrats', { state: { preselectedVehicleId: vehicleId } });
-    }
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (showForm) {
     return (
@@ -86,14 +77,6 @@ const VehicleManagement = ({ onCreateContract }: VehicleManagementProps) => {
           setEditingVehicle(null);
         }}
       />
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Chargement des véhicules...</div>
-      </div>
     );
   }
 
@@ -116,7 +99,7 @@ const VehicleManagement = ({ onCreateContract }: VehicleManagementProps) => {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="Rechercher par marque, modèle, immatriculation..."
+              placeholder="Rechercher par marque, modèle ou immatriculation..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -128,62 +111,72 @@ const VehicleManagement = ({ onCreateContract }: VehicleManagementProps) => {
       {/* Vehicle Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredVehicles.map((vehicle) => (
-          <Card key={vehicle.id} className="hover:shadow-md transition-shadow">
+          <Card key={vehicle.id} className="hover:shadow-lg transition-shadow">
+            {/* Photo Header */}
+            {vehicle.photos && vehicle.photos.length > 0 ? (
+              <div className="relative h-48 overflow-hidden rounded-t-lg">
+                <img
+                  src={vehicle.photos[0]}
+                  alt={`${vehicle.marque} ${vehicle.modele}`}
+                  className="w-full h-full object-cover"
+                />
+                {vehicle.photos.length > 1 && (
+                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                    +{vehicle.photos.length - 1} photo{vehicle.photos.length > 2 ? 's' : ''}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="h-48 bg-gray-100 rounded-t-lg flex items-center justify-center">
+                <Car className="h-16 w-16 text-gray-300" />
+              </div>
+            )}
+
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">
-                  {vehicle.marque} {vehicle.modele}
-                </CardTitle>
+                <div>
+                  <CardTitle className="text-lg">{vehicle.marque} {vehicle.modele}</CardTitle>
+                  <p className="text-sm text-gray-600">{vehicle.immatriculation}</p>
+                </div>
                 <Badge className={getStatusColor(vehicle.statut)}>
                   {getStatusLabel(vehicle.statut)}
                 </Badge>
               </div>
-              <p className="text-sm text-gray-600">{vehicle.immatriculation}</p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-600">Année</p>
-                  <p className="font-medium">{vehicle.annee}</p>
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-gray-400" />
+                  <span>{vehicle.annee}</span>
                 </div>
-                <div>
-                  <p className="text-gray-600">Couleur</p>
-                  <p className="font-medium">{vehicle.couleur}</p>
+                <div className="flex items-center gap-2">
+                  <Fuel className="h-4 w-4 text-gray-400" />
+                  <span>{vehicle.typeCarburant}</span>
                 </div>
-                <div>
-                  <p className="text-gray-600">Places</p>
-                  <p className="font-medium">{vehicle.nombrePlaces}</p>
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-gray-400" />
+                  <span>{vehicle.nombrePlaces} places</span>
                 </div>
-                <div>
-                  <p className="text-gray-600">Kilométrage</p>
-                  <p className="font-medium">{vehicle.kilometrage.toLocaleString()} km</p>
+                <div className="flex items-center gap-2">
+                  <Car className="h-4 w-4 text-gray-400" />
+                  <span>{vehicle.kilometrage.toLocaleString()} km</span>
                 </div>
               </div>
               
-              <div className="pt-3 border-t">
-                <p className="text-2xl font-bold text-primary">
-                  {vehicle.prixParJour.toLocaleString()} CFA/jour
-                </p>
+              <div className="pt-2 border-t">
+                <p className="text-lg font-semibold text-primary">{vehicle.prixParJour.toLocaleString()} CFA/jour</p>
+                <p className="text-sm text-gray-600">Couleur: {vehicle.couleur}</p>
               </div>
 
               <div className="flex gap-2 pt-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleCreateContractForVehicle(vehicle.id)}
-                  className="flex items-center gap-1 flex-1"
-                  disabled={vehicle.statut !== 'disponible'}
-                >
-                  <FileText className="h-4 w-4" />
-                  Contrat
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
                   onClick={() => handleEditVehicle(vehicle)}
-                  className="flex items-center gap-1"
+                  className="flex-1"
                 >
-                  <Edit className="h-4 w-4" />
+                  <Edit className="h-4 w-4 mr-1" />
+                  Modifier
                 </Button>
                 <Button
                   variant="outline"

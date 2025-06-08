@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,58 +6,75 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Save, Calculator } from 'lucide-react';
-import { useSupabaseClients } from '@/hooks/useSupabaseClients';
-import { useSupabaseVehicles } from '@/hooks/useSupabaseVehicles';
-import { Contract } from '@/hooks/useSupabaseContracts';
+
+interface Contract {
+  id: string;
+  clientId: string;
+  clientNom: string;
+  clientPrenom: string;
+  vehicleId: string;
+  vehicleMarque: string;
+  vehicleModele: string;
+  vehicleImmatriculation: string;
+  dateDebut: string;
+  dateFin: string;
+  prixJour: number;
+  nbJours: number;
+  montantTotal: number;
+  statut: 'actif' | 'termine' | 'annule';
+  dateCreation: string;
+  conditions?: string;
+}
 
 interface ContractFormProps {
   contract?: Contract | null;
-  onSave: (contract: {
-    clientid: string;
-    vehicleid: string;
-    datedebut: string;
-    datefin: string;
-    prixtotal: number;
-    caution?: number;
-    statut?: 'actif' | 'termine' | 'annule';
-    notes?: string;
-  }) => void;
+  onSave: (contract: Omit<Contract, 'id' | 'dateCreation' | 'montantTotal' | 'nbJours'>) => void;
   onCancel: () => void;
-  preselectedClientId?: string;
-  preselectedVehicleId?: string;
 }
 
-const ContractForm = ({ contract, onSave, onCancel, preselectedClientId, preselectedVehicleId }: ContractFormProps) => {
-  const { clients } = useSupabaseClients();
-  const { vehicles } = useSupabaseVehicles();
+const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
+  // Données fictives pour les clients et véhicules
+  const clients = [
+    { id: '1', nom: 'Dupont', prenom: 'Jean' },
+    { id: '2', nom: 'Martin', prenom: 'Marie' },
+    { id: '3', nom: 'Durand', prenom: 'Pierre' }
+  ];
+
+  const vehicles = [
+    { id: '1', marque: 'Peugeot', modele: '308', immatriculation: 'AA-123-BB', prixJour: 25000 },
+    { id: '2', marque: 'Renault', modele: 'Clio', immatriculation: 'CC-456-DD', prixJour: 20000 },
+    { id: '3', marque: 'BMW', modele: 'Série 3', immatriculation: 'EE-789-FF', prixJour: 45000 }
+  ];
 
   const [formData, setFormData] = useState({
-    clientid: contract?.clientid || preselectedClientId || '',
-    vehicleid: contract?.vehicleid || preselectedVehicleId || '',
-    datedebut: contract?.datedebut || '',
-    datefin: contract?.datefin || '',
-    caution: contract?.caution || 300000,
+    clientId: contract?.clientId || '',
+    clientNom: contract?.clientNom || '',
+    clientPrenom: contract?.clientPrenom || '',
+    vehicleId: contract?.vehicleId || '',
+    vehicleMarque: contract?.vehicleMarque || '',
+    vehicleModele: contract?.vehicleModele || '',
+    vehicleImmatriculation: contract?.vehicleImmatriculation || '',
+    dateDebut: contract?.dateDebut || '',
+    dateFin: contract?.dateFin || '',
+    prixJour: contract?.prixJour || 0,
     statut: contract?.statut || 'actif' as const,
-    notes: contract?.notes || ''
+    conditions: contract?.conditions || ''
   });
 
-  const selectedClient = clients.find(c => c.id === formData.clientid);
-  const selectedVehicle = vehicles.find(v => v.id === formData.vehicleid);
-
   const calculateTotal = () => {
-    if (formData.datedebut && formData.datefin && selectedVehicle) {
-      const dateDebut = new Date(formData.datedebut);
-      const dateFin = new Date(formData.datefin);
+    if (formData.dateDebut && formData.dateFin && formData.prixJour) {
+      const dateDebut = new Date(formData.dateDebut);
+      const dateFin = new Date(formData.dateFin);
       const nbJours = Math.ceil((dateFin.getTime() - dateDebut.getTime()) / (1000 * 60 * 60 * 24));
-      return nbJours > 0 ? nbJours * selectedVehicle.prixParJour : 0;
+      return nbJours > 0 ? nbJours * formData.prixJour : 0;
     }
     return 0;
   };
 
   const getNbJours = () => {
-    if (formData.datedebut && formData.datefin) {
-      const dateDebut = new Date(formData.datedebut);
-      const dateFin = new Date(formData.datefin);
+    if (formData.dateDebut && formData.dateFin) {
+      const dateDebut = new Date(formData.dateDebut);
+      const dateFin = new Date(formData.dateFin);
       const nbJours = Math.ceil((dateFin.getTime() - dateDebut.getTime()) / (1000 * 60 * 60 * 24));
       return nbJours > 0 ? nbJours : 0;
     }
@@ -67,11 +83,33 @@ const ContractForm = ({ contract, onSave, onCancel, preselectedClientId, presele
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const total = calculateTotal();
-    onSave({
-      ...formData,
-      prixtotal: total
-    });
+    onSave(formData);
+  };
+
+  const handleClientChange = (clientId: string) => {
+    const selectedClient = clients.find(c => c.id === clientId);
+    if (selectedClient) {
+      setFormData(prev => ({
+        ...prev,
+        clientId,
+        clientNom: selectedClient.nom,
+        clientPrenom: selectedClient.prenom
+      }));
+    }
+  };
+
+  const handleVehicleChange = (vehicleId: string) => {
+    const selectedVehicle = vehicles.find(v => v.id === vehicleId);
+    if (selectedVehicle) {
+      setFormData(prev => ({
+        ...prev,
+        vehicleId,
+        vehicleMarque: selectedVehicle.marque,
+        vehicleModele: selectedVehicle.modele,
+        vehicleImmatriculation: selectedVehicle.immatriculation,
+        prixJour: selectedVehicle.prixJour
+      }));
+    }
   };
 
   const handleChange = (field: string, value: string | number) => {
@@ -106,7 +144,7 @@ const ContractForm = ({ contract, onSave, onCancel, preselectedClientId, presele
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="client">Client *</Label>
-                    <Select value={formData.clientid} onValueChange={(value) => handleChange('clientid', value)}>
+                    <Select value={formData.clientId} onValueChange={handleClientChange}>
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionnez un client" />
                       </SelectTrigger>
@@ -122,7 +160,7 @@ const ContractForm = ({ contract, onSave, onCancel, preselectedClientId, presele
 
                   <div className="space-y-2">
                     <Label htmlFor="vehicle">Véhicule *</Label>
-                    <Select value={formData.vehicleid} onValueChange={(value) => handleChange('vehicleid', value)}>
+                    <Select value={formData.vehicleId} onValueChange={handleVehicleChange}>
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionnez un véhicule" />
                       </SelectTrigger>
@@ -141,8 +179,8 @@ const ContractForm = ({ contract, onSave, onCancel, preselectedClientId, presele
                     <Input
                       id="dateDebut"
                       type="date"
-                      value={formData.datedebut}
-                      onChange={(e) => handleChange('datedebut', e.target.value)}
+                      value={formData.dateDebut}
+                      onChange={(e) => handleChange('dateDebut', e.target.value)}
                       required
                     />
                   </div>
@@ -152,23 +190,24 @@ const ContractForm = ({ contract, onSave, onCancel, preselectedClientId, presele
                     <Input
                       id="dateFin"
                       type="date"
-                      value={formData.datefin}
-                      onChange={(e) => handleChange('datefin', e.target.value)}
-                      min={formData.datedebut}
+                      value={formData.dateFin}
+                      onChange={(e) => handleChange('dateFin', e.target.value)}
+                      min={formData.dateDebut}
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="caution">Caution (CFA)</Label>
+                    <Label htmlFor="prixJour">Prix par jour (CFA) *</Label>
                     <Input
-                      id="caution"
+                      id="prixJour"
                       type="number"
-                      value={formData.caution}
-                      onChange={(e) => handleChange('caution', parseFloat(e.target.value) || 0)}
-                      placeholder="300000"
+                      value={formData.prixJour}
+                      onChange={(e) => handleChange('prixJour', parseFloat(e.target.value) || 0)}
+                      placeholder="0"
                       min="0"
-                      step="1000"
+                      step="100"
+                      required
                     />
                   </div>
 
@@ -188,12 +227,12 @@ const ContractForm = ({ contract, onSave, onCancel, preselectedClientId, presele
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="notes">Notes particulières</Label>
+                  <Label htmlFor="conditions">Conditions particulières</Label>
                   <Textarea
-                    id="notes"
-                    value={formData.notes}
-                    onChange={(e) => handleChange('notes', e.target.value)}
-                    placeholder="Ajoutez des notes particulières pour ce contrat..."
+                    id="conditions"
+                    value={formData.conditions}
+                    onChange={(e) => handleChange('conditions', e.target.value)}
+                    placeholder="Ajoutez des conditions particulières pour ce contrat..."
                     rows={3}
                   />
                 </div>
@@ -222,36 +261,35 @@ const ContractForm = ({ contract, onSave, onCancel, preselectedClientId, presele
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {selectedClient && (
+              {formData.clientNom && (
                 <div>
                   <p className="text-sm text-gray-600">Client</p>
-                  <p className="font-medium">{selectedClient.prenom} {selectedClient.nom}</p>
-                  <p className="text-sm text-gray-500">{selectedClient.email}</p>
+                  <p className="font-medium">{formData.clientPrenom} {formData.clientNom}</p>
                 </div>
               )}
 
-              {selectedVehicle && (
+              {formData.vehicleMarque && (
                 <div>
                   <p className="text-sm text-gray-600">Véhicule</p>
-                  <p className="font-medium">{selectedVehicle.marque} {selectedVehicle.modele}</p>
-                  <p className="text-sm text-gray-500">{selectedVehicle.immatriculation}</p>
+                  <p className="font-medium">{formData.vehicleMarque} {formData.vehicleModele}</p>
+                  <p className="text-sm text-gray-500">{formData.vehicleImmatriculation}</p>
                 </div>
               )}
 
-              {formData.datedebut && formData.datefin && (
+              {formData.dateDebut && formData.dateFin && (
                 <div>
                   <p className="text-sm text-gray-600">Période</p>
                   <p className="font-medium">
-                    {new Date(formData.datedebut).toLocaleDateString('fr-FR')} - {new Date(formData.datefin).toLocaleDateString('fr-FR')}
+                    {new Date(formData.dateDebut).toLocaleDateString('fr-FR')} - {new Date(formData.dateFin).toLocaleDateString('fr-FR')}
                   </p>
                   <p className="text-sm text-gray-500">{getNbJours()} jour(s)</p>
                 </div>
               )}
 
-              {selectedVehicle && (
+              {formData.prixJour > 0 && (
                 <div>
                   <p className="text-sm text-gray-600">Prix</p>
-                  <p className="font-medium">{selectedVehicle.prixParJour.toLocaleString()} CFA / jour</p>
+                  <p className="font-medium">{formData.prixJour.toLocaleString()} CFA / jour</p>
                 </div>
               )}
 
@@ -261,11 +299,6 @@ const ContractForm = ({ contract, onSave, onCancel, preselectedClientId, presele
                   <p className="text-2xl font-bold text-primary">{calculateTotal().toLocaleString()} CFA</p>
                 </div>
               )}
-
-              <div className="pt-3 border-t">
-                <p className="text-sm text-gray-600">Caution</p>
-                <p className="font-medium">{formData.caution.toLocaleString()} CFA</p>
-              </div>
             </CardContent>
           </Card>
         </div>
