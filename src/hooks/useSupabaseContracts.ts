@@ -89,14 +89,22 @@ export const useSupabaseContracts = () => {
     if (!user) return null;
 
     try {
+      // Préparer les données pour l'insertion en excluant numerocontrat (généré par le trigger)
+      const insertData = {
+        user_id: user.id,
+        clientid: contractData.clientid,
+        vehicleid: contractData.vehicleid,
+        datedebut: contractData.datedebut,
+        datefin: contractData.datefin,
+        prixtotal: contractData.prixtotal,
+        caution: contractData.caution || 300000,
+        statut: contractData.statut || 'actif',
+        notes: contractData.notes || null,
+      };
+
       const { data, error } = await supabase
         .from('contracts')
-        .insert({
-          user_id: user.id,
-          ...contractData,
-          caution: contractData.caution || 300000,
-          statut: contractData.statut || 'actif',
-        })
+        .insert(insertData)
         .select(`
           *,
           clients:clientid (nom, prenom, email, telephone),
@@ -121,6 +129,7 @@ export const useSupabaseContracts = () => {
       
       return mappedContract;
     } catch (error: any) {
+      console.error('Erreur lors de la création du contrat:', error);
       toast({
         title: "Erreur",
         description: "Impossible de créer le contrat",
