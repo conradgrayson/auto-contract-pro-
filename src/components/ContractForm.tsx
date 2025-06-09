@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Save, Calculator } from 'lucide-react';
+import { useSupabaseClients } from '@/hooks/useSupabaseClients';
+import { useSupabaseVehicles } from '@/hooks/useSupabaseVehicles';
 
 interface Contract {
   id: string;
@@ -33,18 +36,8 @@ interface ContractFormProps {
 }
 
 const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
-  // Données fictives pour les clients et véhicules
-  const clients = [
-    { id: '1', nom: 'Dupont', prenom: 'Jean' },
-    { id: '2', nom: 'Martin', prenom: 'Marie' },
-    { id: '3', nom: 'Durand', prenom: 'Pierre' }
-  ];
-
-  const vehicles = [
-    { id: '1', marque: 'Peugeot', modele: '308', immatriculation: 'AA-123-BB', prixJour: 25000 },
-    { id: '2', marque: 'Renault', modele: 'Clio', immatriculation: 'CC-456-DD', prixJour: 20000 },
-    { id: '3', marque: 'BMW', modele: 'Série 3', immatriculation: 'EE-789-FF', prixJour: 45000 }
-  ];
+  const { clients, loading: clientsLoading } = useSupabaseClients();
+  const { vehicles, loading: vehiclesLoading } = useSupabaseVehicles();
 
   const [formData, setFormData] = useState({
     clientId: contract?.clientId || '',
@@ -107,7 +100,7 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
         vehicleMarque: selectedVehicle.marque,
         vehicleModele: selectedVehicle.modele,
         vehicleImmatriculation: selectedVehicle.immatriculation,
-        prixJour: selectedVehicle.prixJour
+        prixJour: selectedVehicle.prixParJour
       }));
     }
   };
@@ -115,6 +108,15 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
   const handleChange = (field: string, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  if (clientsLoading || vehiclesLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+        <p className="ml-4 text-lg text-gray-600">Chargement des données...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -149,11 +151,17 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
                         <SelectValue placeholder="Sélectionnez un client" />
                       </SelectTrigger>
                       <SelectContent>
-                        {clients.map(client => (
-                          <SelectItem key={client.id} value={client.id}>
-                            {client.prenom} {client.nom}
+                        {clients.length === 0 ? (
+                          <SelectItem value="no-clients" disabled>
+                            Aucun client disponible
                           </SelectItem>
-                        ))}
+                        ) : (
+                          clients.map(client => (
+                            <SelectItem key={client.id} value={client.id}>
+                              {client.prenom} {client.nom}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -165,11 +173,19 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
                         <SelectValue placeholder="Sélectionnez un véhicule" />
                       </SelectTrigger>
                       <SelectContent>
-                        {vehicles.map(vehicle => (
-                          <SelectItem key={vehicle.id} value={vehicle.id}>
-                            {vehicle.marque} {vehicle.modele} - {vehicle.immatriculation}
+                        {vehicles.length === 0 ? (
+                          <SelectItem value="no-vehicles" disabled>
+                            Aucun véhicule disponible
                           </SelectItem>
-                        ))}
+                        ) : (
+                          vehicles
+                            .filter(vehicle => vehicle.statut === 'disponible')
+                            .map(vehicle => (
+                              <SelectItem key={vehicle.id} value={vehicle.id}>
+                                {vehicle.marque} {vehicle.modele} - {vehicle.immatriculation}
+                              </SelectItem>
+                            ))
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
