@@ -93,7 +93,7 @@ export const useSupabaseContracts = () => {
 
       const { data, error } = await supabase
         .from('contracts')
-        .insert([dbData])
+        .insert(dbData)
         .select()
         .single();
 
@@ -159,7 +159,6 @@ export const useSupabaseContracts = () => {
         .from('contracts')
         .update(dbData)
         .eq('id', id)
-        .eq('user_id', user.id)
         .select()
         .single();
 
@@ -208,8 +207,7 @@ export const useSupabaseContracts = () => {
       const { error } = await supabase
         .from('contracts')
         .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('id', id);
 
       if (error) throw error;
 

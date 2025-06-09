@@ -11,6 +11,16 @@ import { useSupabaseContracts, Contract } from '@/hooks/useSupabaseContracts';
 import { useSupabaseClients } from '@/hooks/useSupabaseClients';
 import { useSupabaseVehicles } from '@/hooks/useSupabaseVehicles';
 
+interface EnrichedContract extends Contract {
+  clientNom: string;
+  clientPrenom: string;
+  vehicleMarque: string;
+  vehicleModele: string;
+  vehicleImmatriculation: string;
+  prixJour: number;
+  nbJours: number;
+}
+
 const ContractManagement = () => {
   const { contracts, loading, addContract, updateContract, deleteContract } = useSupabaseContracts();
   const { clients } = useSupabaseClients();
@@ -19,10 +29,10 @@ const ContractManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
-  const [previewContract, setPreviewContract] = useState<Contract | null>(null);
+  const [previewContract, setPreviewContract] = useState<EnrichedContract | null>(null);
 
   // Enrichir les contrats avec les données des clients et véhicules
-  const enrichedContracts = contracts.map(contract => {
+  const enrichedContracts: EnrichedContract[] = contracts.map(contract => {
     const client = clients.find(c => c.id === contract.clientId);
     const vehicle = vehicles.find(v => v.id === contract.vehicleId);
     
@@ -85,7 +95,7 @@ const ContractManagement = () => {
     }
   };
 
-  const handlePreviewContract = (contract: any) => {
+  const handlePreviewContract = (contract: EnrichedContract) => {
     setPreviewContract(contract);
   };
 
