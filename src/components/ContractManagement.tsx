@@ -1,79 +1,44 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Edit, Trash2, FileText, Printer, Eye, Calendar } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, FileText, Eye, Calendar } from 'lucide-react';
 import ContractForm from './ContractForm';
 import ContractPreview from './ContractPreview';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useToast } from '@/components/ui/use-toast';
-
-interface Contract {
-  id: string;
-  clientId: string;
-  clientNom: string;
-  clientPrenom: string;
-  vehicleId: string;
-  vehicleMarque: string;
-  vehicleModele: string;
-  vehicleImmatriculation: string;
-  dateDebut: string;
-  dateFin: string;
-  prixJour: number;
-  nbJours: number;
-  montantTotal: number;
-  statut: 'actif' | 'termine' | 'annule';
-  dateCreation: string;
-  conditions?: string;
-}
+import { useSupabaseContracts, Contract } from '@/hooks/useSupabaseContracts';
+import { useSupabaseClients } from '@/hooks/useSupabaseClients';
+import { useSupabaseVehicles } from '@/hooks/useSupabaseVehicles';
 
 const ContractManagement = () => {
-  const { toast } = useToast();
-  const [contracts, setContracts] = useLocalStorage<Contract[]>('contracts', [
-    {
-      id: '1',
-      clientId: '1',
-      clientNom: 'Dupont',
-      clientPrenom: 'Jean',
-      vehicleId: '1',
-      vehicleMarque: 'Peugeot',
-      vehicleModele: '308',
-      vehicleImmatriculation: 'AA-123-BB',
-      dateDebut: '2024-06-06',
-      dateFin: '2024-06-13',
-      prixJour: 25000,
-      nbJours: 7,
-      montantTotal: 175000,
-      statut: 'actif',
-      dateCreation: '2024-06-06',
-      conditions: 'Véhicule à retourner avec le plein de carburant'
-    },
-    {
-      id: '2',
-      clientId: '2',
-      clientNom: 'Martin',
-      clientPrenom: 'Marie',
-      vehicleId: '2',
-      vehicleMarque: 'Renault',
-      vehicleModele: 'Clio',
-      vehicleImmatriculation: 'CC-456-DD',
-      dateDebut: '2024-05-15',
-      dateFin: '2024-05-22',
-      prixJour: 20000,
-      nbJours: 7,
-      montantTotal: 140000,
-      statut: 'termine',
-      dateCreation: '2024-05-15'
-    }
-  ]);
-
+  const { contracts, loading, addContract, updateContract, deleteContract } = useSupabaseContracts();
+  const { clients } = useSupabaseClients();
+  const { vehicles } = useSupabaseVehicles();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
   const [previewContract, setPreviewContract] = useState<Contract | null>(null);
 
-  const filteredContracts = contracts.filter(contract =>
+  // Enrichir les contrats avec les données des clients et véhicules
+  const enrichedContracts = contracts.map(contract => {
+    const client = clients.find(c => c.id === contract.clientId);
+    const vehicle = vehicles.find(v => v.id === contract.vehicleId);
+    
+    return {
+      ...contract,
+      clientNom: client?.nom || '',
+      clientPrenom: client?.prenom || '',
+      vehicleMarque: vehicle?.marque || '',
+      vehicleModele: vehicle?.modele || '',
+      vehicleImmatriculation: vehicle?.immatriculation || '',
+      prixJour: vehicle?.prixParJour || 0,
+      nbJours: Math.ceil((new Date(contract.dateFin).getTime() - new Date(contract.dateDebut).getTime()) / (1000 * 60 * 60 * 24))
+    };
+  });
+
+  const filteredContracts = enrichedContracts.filter(contract =>
     contract.clientNom.toLowerCase().includes(searchTerm.toLowerCase()) ||
     contract.clientPrenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
     contract.vehicleMarque.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -99,35 +64,11 @@ const ContractManagement = () => {
     }
   };
 
-  const handleSaveContract = (contractData: Omit<Contract, 'id' | 'dateCreation' | 'montantTotal' | 'nbJours'>) => {
-    const dateDebut = new Date(contractData.dateDebut);
-    const dateFin = new Date(contractData.dateFin);
-    const nbJours = Math.ceil((dateFin.getTime() - dateDebut.getTime()) / (1000 * 60 * 60 * 24));
-    const montantTotal = nbJours * contractData.prixJour;
-
+  const handleSaveContract = async (contractData: Omit<Contract, 'id' | 'dateCreation' | 'numeroContrat'>) => {
     if (editingContract) {
-      setContracts(prev => prev.map(c => 
-        c.id === editingContract.id 
-          ? { ...contractData, id: editingContract.id, dateCreation: editingContract.dateCreation, nbJours, montantTotal }
-          : c
-      ));
-      toast({
-        title: "Contrat modifié",
-        description: "Les modifications ont été sauvegardées avec succès.",
-      });
+      await updateContract(editingContract.id, contractData);
     } else {
-      const newContract: Contract = {
-        ...contractData,
-        id: Date.now().toString(),
-        dateCreation: new Date().toISOString().split('T')[0],
-        nbJours,
-        montantTotal
-      };
-      setContracts(prev => [...prev, newContract]);
-      toast({
-        title: "Contrat créé",
-        description: "Le nouveau contrat a été créé avec succès.",
-      });
+      await addContract(contractData);
     }
     setShowForm(false);
     setEditingContract(null);
@@ -138,19 +79,24 @@ const ContractManagement = () => {
     setShowForm(true);
   };
 
-  const handleDeleteContract = (id: string) => {
+  const handleDeleteContract = async (id: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce contrat ?')) {
-      setContracts(prev => prev.filter(c => c.id !== id));
-      toast({
-        title: "Contrat supprimé",
-        description: "Le contrat a été supprimé avec succès.",
-      });
+      await deleteContract(id);
     }
   };
 
-  const handlePreviewContract = (contract: Contract) => {
+  const handlePreviewContract = (contract: any) => {
     setPreviewContract(contract);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+        <p className="ml-4 text-lg text-gray-600">Chargement des contrats...</p>
+      </div>
+    );
+  }
 
   if (showForm) {
     return (
@@ -234,8 +180,8 @@ const ContractManagement = () => {
                   </div>
                   
                   <div>
-                    <p className="text-lg font-semibold text-gray-900">{contract.montantTotal.toLocaleString()} CFA</p>
-                    <p className="text-sm text-gray-600">{contract.prixJour.toLocaleString()} CFA/jour</p>
+                    <p className="text-lg font-semibold text-gray-900">{contract.prixTotal.toLocaleString()} CFA</p>
+                    <p className="text-sm text-gray-600">{contract.numeroContrat}</p>
                   </div>
                 </div>
                 

@@ -9,29 +9,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Save, Calculator } from 'lucide-react';
 import { useSupabaseClients } from '@/hooks/useSupabaseClients';
 import { useSupabaseVehicles } from '@/hooks/useSupabaseVehicles';
-
-interface Contract {
-  id: string;
-  clientId: string;
-  clientNom: string;
-  clientPrenom: string;
-  vehicleId: string;
-  vehicleMarque: string;
-  vehicleModele: string;
-  vehicleImmatriculation: string;
-  dateDebut: string;
-  dateFin: string;
-  prixJour: number;
-  nbJours: number;
-  montantTotal: number;
-  statut: 'actif' | 'termine' | 'annule';
-  dateCreation: string;
-  conditions?: string;
-}
+import { Contract } from '@/hooks/useSupabaseContracts';
 
 interface ContractFormProps {
   contract?: Contract | null;
-  onSave: (contract: Omit<Contract, 'id' | 'dateCreation' | 'montantTotal' | 'nbJours'>) => void;
+  onSave: (contract: Omit<Contract, 'id' | 'dateCreation' | 'numeroContrat'>) => void;
   onCancel: () => void;
 }
 
@@ -41,25 +23,29 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
 
   const [formData, setFormData] = useState({
     clientId: contract?.clientId || '',
-    clientNom: contract?.clientNom || '',
-    clientPrenom: contract?.clientPrenom || '',
     vehicleId: contract?.vehicleId || '',
-    vehicleMarque: contract?.vehicleMarque || '',
-    vehicleModele: contract?.vehicleModele || '',
-    vehicleImmatriculation: contract?.vehicleImmatriculation || '',
     dateDebut: contract?.dateDebut || '',
     dateFin: contract?.dateFin || '',
-    prixJour: contract?.prixJour || 0,
+    prixTotal: 0,
+    caution: contract?.caution || 300000,
+    kilometrageDepart: contract?.kilometrageDepart || undefined,
+    kilometrageRetour: contract?.kilometrageRetour || undefined,
     statut: contract?.statut || 'actif' as const,
-    conditions: contract?.conditions || ''
+    etatVehiculeDepart: contract?.etatVehiculeDepart || '',
+    etatVehiculeRetour: contract?.etatVehiculeRetour || '',
+    notes: contract?.notes || ''
   });
 
   const calculateTotal = () => {
-    if (formData.dateDebut && formData.dateFin && formData.prixJour) {
+    if (formData.dateDebut && formData.dateFin) {
       const dateDebut = new Date(formData.dateDebut);
       const dateFin = new Date(formData.dateFin);
       const nbJours = Math.ceil((dateFin.getTime() - dateDebut.getTime()) / (1000 * 60 * 60 * 24));
-      return nbJours > 0 ? nbJours * formData.prixJour : 0;
+      
+      const selectedVehicle = vehicles.find(v => v.id === formData.vehicleId);
+      if (selectedVehicle && nbJours > 0) {
+        return nbJours * selectedVehicle.prixParJour;
+      }
     }
     return 0;
   };
@@ -74,35 +60,35 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
     return 0;
   };
 
+  const getSelectedClient = () => {
+    return clients.find(c => c.id === formData.clientId);
+  };
+
+  const getSelectedVehicle = () => {
+    return vehicles.find(v => v.id === formData.vehicleId);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    const total = calculateTotal();
+    onSave({
+      ...formData,
+      prixTotal: total
+    });
   };
 
   const handleClientChange = (clientId: string) => {
-    const selectedClient = clients.find(c => c.id === clientId);
-    if (selectedClient) {
-      setFormData(prev => ({
-        ...prev,
-        clientId,
-        clientNom: selectedClient.nom,
-        clientPrenom: selectedClient.prenom
-      }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      clientId
+    }));
   };
 
   const handleVehicleChange = (vehicleId: string) => {
-    const selectedVehicle = vehicles.find(v => v.id === vehicleId);
-    if (selectedVehicle) {
-      setFormData(prev => ({
-        ...prev,
-        vehicleId,
-        vehicleMarque: selectedVehicle.marque,
-        vehicleModele: selectedVehicle.modele,
-        vehicleImmatriculation: selectedVehicle.immatriculation,
-        prixJour: selectedVehicle.prixParJour
-      }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      vehicleId
+    }));
   };
 
   const handleChange = (field: string, value: string | number) => {
@@ -214,16 +200,15 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="prixJour">Prix par jour (CFA) *</Label>
+                    <Label htmlFor="caution">Caution (CFA)</Label>
                     <Input
-                      id="prixJour"
+                      id="caution"
                       type="number"
-                      value={formData.prixJour}
-                      onChange={(e) => handleChange('prixJour', parseFloat(e.target.value) || 0)}
-                      placeholder="0"
+                      value={formData.caution}
+                      onChange={(e) => handleChange('caution', parseFloat(e.target.value) || 0)}
+                      placeholder="300000"
                       min="0"
-                      step="100"
-                      required
+                      step="1000"
                     />
                   </div>
 
@@ -243,12 +228,12 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="conditions">Conditions particulières</Label>
+                  <Label htmlFor="notes">Notes particulières</Label>
                   <Textarea
-                    id="conditions"
-                    value={formData.conditions}
-                    onChange={(e) => handleChange('conditions', e.target.value)}
-                    placeholder="Ajoutez des conditions particulières pour ce contrat..."
+                    id="notes"
+                    value={formData.notes}
+                    onChange={(e) => handleChange('notes', e.target.value)}
+                    placeholder="Ajoutez des notes particulières pour ce contrat..."
                     rows={3}
                   />
                 </div>
@@ -277,18 +262,18 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {formData.clientNom && (
+              {getSelectedClient() && (
                 <div>
                   <p className="text-sm text-gray-600">Client</p>
-                  <p className="font-medium">{formData.clientPrenom} {formData.clientNom}</p>
+                  <p className="font-medium">{getSelectedClient()?.prenom} {getSelectedClient()?.nom}</p>
                 </div>
               )}
 
-              {formData.vehicleMarque && (
+              {getSelectedVehicle() && (
                 <div>
                   <p className="text-sm text-gray-600">Véhicule</p>
-                  <p className="font-medium">{formData.vehicleMarque} {formData.vehicleModele}</p>
-                  <p className="text-sm text-gray-500">{formData.vehicleImmatriculation}</p>
+                  <p className="font-medium">{getSelectedVehicle()?.marque} {getSelectedVehicle()?.modele}</p>
+                  <p className="text-sm text-gray-500">{getSelectedVehicle()?.immatriculation}</p>
                 </div>
               )}
 
@@ -302,10 +287,10 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
                 </div>
               )}
 
-              {formData.prixJour > 0 && (
+              {getSelectedVehicle() && (
                 <div>
                   <p className="text-sm text-gray-600">Prix</p>
-                  <p className="font-medium">{formData.prixJour.toLocaleString()} CFA / jour</p>
+                  <p className="font-medium">{getSelectedVehicle()?.prixParJour.toLocaleString()} CFA / jour</p>
                 </div>
               )}
 
@@ -315,6 +300,11 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
                   <p className="text-2xl font-bold text-primary">{calculateTotal().toLocaleString()} CFA</p>
                 </div>
               )}
+
+              <div className="pt-3 border-t">
+                <p className="text-sm text-gray-600">Caution</p>
+                <p className="font-medium">{formData.caution.toLocaleString()} CFA</p>
+              </div>
             </CardContent>
           </Card>
         </div>
