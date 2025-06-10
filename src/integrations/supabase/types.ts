@@ -9,6 +9,48 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      chauffeurs: {
+        Row: {
+          created_at: string
+          dateexpiration: string
+          id: string
+          nom: string
+          numeropermis: string
+          prenom: string
+          referencechauffeur: string
+          statut: string
+          telephone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dateexpiration: string
+          id?: string
+          nom: string
+          numeropermis: string
+          prenom: string
+          referencechauffeur: string
+          statut?: string
+          telephone: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dateexpiration?: string
+          id?: string
+          nom?: string
+          numeropermis?: string
+          prenom?: string
+          referencechauffeur?: string
+          statut?: string
+          telephone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           adresse: string
@@ -19,7 +61,9 @@ export type Database = {
           email: string
           id: string
           nom: string
+          numerocarteid: string | null
           numeropermis: string
+          photocarteid: string | null
           prenom: string
           statut: string
           telephone: string
@@ -36,7 +80,9 @@ export type Database = {
           email: string
           id?: string
           nom: string
+          numerocarteid?: string | null
           numeropermis: string
+          photocarteid?: string | null
           prenom: string
           statut?: string
           telephone: string
@@ -53,7 +99,9 @@ export type Database = {
           email?: string
           id?: string
           nom?: string
+          numerocarteid?: string | null
           numeropermis?: string
+          photocarteid?: string | null
           prenom?: string
           statut?: string
           telephone?: string
@@ -95,16 +143,23 @@ export type Database = {
       }
       contracts: {
         Row: {
+          adresselivraison: string | null
           caution: number
+          chauffeurid: string | null
           clientid: string
+          conditions: string | null
           created_at: string
           datedebut: string
           datefin: string
           etatvehiculedepart: string | null
           etatvehiculeretour: string | null
+          heurerecuperation: string | null
+          heurerendu: string | null
           id: string
           kilometragedepart: number | null
           kilometrageretour: number | null
+          niveaucarburantdepart: string | null
+          niveaucarburantretour: string | null
           notes: string | null
           numerocontrat: string
           prixtotal: number
@@ -114,16 +169,23 @@ export type Database = {
           vehicleid: string
         }
         Insert: {
+          adresselivraison?: string | null
           caution?: number
+          chauffeurid?: string | null
           clientid: string
+          conditions?: string | null
           created_at?: string
           datedebut: string
           datefin: string
           etatvehiculedepart?: string | null
           etatvehiculeretour?: string | null
+          heurerecuperation?: string | null
+          heurerendu?: string | null
           id?: string
           kilometragedepart?: number | null
           kilometrageretour?: number | null
+          niveaucarburantdepart?: string | null
+          niveaucarburantretour?: string | null
           notes?: string | null
           numerocontrat: string
           prixtotal: number
@@ -133,16 +195,23 @@ export type Database = {
           vehicleid: string
         }
         Update: {
+          adresselivraison?: string | null
           caution?: number
+          chauffeurid?: string | null
           clientid?: string
+          conditions?: string | null
           created_at?: string
           datedebut?: string
           datefin?: string
           etatvehiculedepart?: string | null
           etatvehiculeretour?: string | null
+          heurerecuperation?: string | null
+          heurerendu?: string | null
           id?: string
           kilometragedepart?: number | null
           kilometrageretour?: number | null
+          niveaucarburantdepart?: string | null
+          niveaucarburantretour?: string | null
           notes?: string | null
           numerocontrat?: string
           prixtotal?: number
