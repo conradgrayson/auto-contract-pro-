@@ -75,6 +75,7 @@ export const useSupabaseContracts = () => {
 
     try {
       // Mapper les données vers les noms de colonnes de la base
+      // Le numerocontrat sera généré automatiquement par le trigger
       const dbData = {
         user_id: user.id,
         clientid: contractData.clientId,
