@@ -1,11 +1,11 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from './useAuth';
 
 export interface Chauffeur {
   id: string;
+  user_id: string;
   nom: string;
   prenom: string;
   telephone: string;
@@ -19,16 +19,23 @@ export interface Chauffeur {
 export const useSupabaseChauffeurs = () => {
   const [chauffeurs, setChauffeurs] = useState<Chauffeur[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      fetchChauffeurs();
+    }
+  }, [user]);
 
   const fetchChauffeurs = async () => {
     if (!user) return;
-    
+
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('chauffeurs')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -36,6 +43,7 @@ export const useSupabaseChauffeurs = () => {
       // Mapper les données de la base vers notre interface
       const mappedChauffeurs = (data || []).map(chauffeur => ({
         id: chauffeur.id,
+        user_id: chauffeur.user_id,
         nom: chauffeur.nom,
         prenom: chauffeur.prenom,
         telephone: chauffeur.telephone,
@@ -47,18 +55,14 @@ export const useSupabaseChauffeurs = () => {
       }));
       
       setChauffeurs(mappedChauffeurs);
-    } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger les chauffeurs",
-        variant: "destructive",
-      });
+    } catch (error) {
+      console.error('Erreur lors de la récupération des chauffeurs:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const addChauffeur = async (chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur'>) => {
+  const addChauffeur = async (chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur' | 'user_id'>) => {
     if (!user) return null;
 
     try {
@@ -73,6 +77,7 @@ export const useSupabaseChauffeurs = () => {
         statut: chauffeurData.statut,
       };
 
+      // Utiliser une insertion sans contrainte de type strict pour éviter le problème avec referencechauffeur
       const { data, error } = await supabase
         .from('chauffeurs')
         .insert(dbData)
@@ -84,6 +89,7 @@ export const useSupabaseChauffeurs = () => {
       // Mapper les données retournées vers notre interface
       const mappedChauffeur = {
         id: data.id,
+        user_id: data.user_id,
         nom: data.nom,
         prenom: data.prenom,
         telephone: data.telephone,
@@ -95,23 +101,14 @@ export const useSupabaseChauffeurs = () => {
       };
 
       setChauffeurs(prev => [mappedChauffeur, ...prev]);
-      toast({
-        title: "Chauffeur créé",
-        description: `Le chauffeur ${data.referencechauffeur} a été créé avec succès.`,
-      });
-      
       return mappedChauffeur;
-    } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de créer le chauffeur",
-        variant: "destructive",
-      });
-      return null;
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du chauffeur:', error);
+      throw error;
     }
   };
 
-  const updateChauffeur = async (id: string, chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur'>) => {
+  const updateChauffeur = async (id: string, chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur' | 'user_id'>) => {
     if (!user) return null;
 
     try {
@@ -129,6 +126,7 @@ export const useSupabaseChauffeurs = () => {
         .from('chauffeurs')
         .update(dbData)
         .eq('id', id)
+        .eq('user_id', user.id)
         .select()
         .single();
 
@@ -137,6 +135,7 @@ export const useSupabaseChauffeurs = () => {
       // Mapper les données retournées vers notre interface
       const mappedChauffeur = {
         id: data.id,
+        user_id: data.user_id,
         nom: data.nom,
         prenom: data.prenom,
         telephone: data.telephone,
@@ -148,55 +147,31 @@ export const useSupabaseChauffeurs = () => {
       };
 
       setChauffeurs(prev => prev.map(c => c.id === id ? mappedChauffeur : c));
-      toast({
-        title: "Chauffeur modifié",
-        description: "Les modifications ont été sauvegardées avec succès.",
-      });
-      
       return mappedChauffeur;
-    } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de modifier le chauffeur",
-        variant: "destructive",
-      });
-      return null;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du chauffeur:', error);
+      throw error;
     }
   };
 
   const deleteChauffeur = async (id: string) => {
-    if (!user) return false;
+    if (!user) return;
 
     try {
       const { error } = await supabase
         .from('chauffeurs')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .eq('user_id', user.id);
 
       if (error) throw error;
 
       setChauffeurs(prev => prev.filter(c => c.id !== id));
-      toast({
-        title: "Chauffeur supprimé",
-        description: "Le chauffeur a été supprimé avec succès.",
-      });
-      
-      return true;
-    } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de supprimer le chauffeur",
-        variant: "destructive",
-      });
-      return false;
+    } catch (error) {
+      console.error('Erreur lors de la suppression du chauffeur:', error);
+      throw error;
     }
   };
-
-  useEffect(() => {
-    if (user) {
-      fetchChauffeurs();
-    }
-  }, [user]);
 
   return {
     chauffeurs,
@@ -204,6 +179,6 @@ export const useSupabaseChauffeurs = () => {
     addChauffeur,
     updateChauffeur,
     deleteChauffeur,
-    refetch: fetchChauffeurs
+    refreshChauffeurs: fetchChauffeurs,
   };
 };
