@@ -84,7 +84,7 @@ export const useSupabaseChauffeurs = () => {
 
       const { data, error } = await supabase
         .from('chauffeurs')
-        .insert(dbData)
+        .insert(dbData as any) // Type assertion pour contourner la contrainte referencechauffeur
         .select()
         .single();
 
