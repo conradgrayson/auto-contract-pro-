@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,7 @@ import { useSupabaseContracts, Contract } from '@/hooks/useSupabaseContracts';
 import { useSupabaseClients } from '@/hooks/useSupabaseClients';
 import { useSupabaseVehicles } from '@/hooks/useSupabaseVehicles';
 
-interface EnrichedContract extends Contract {
+interface EnrichedContract extends Omit<Contract, 'montantTotal'> {
   clientNom: string;
   clientPrenom: string;
   vehicleMarque: string;

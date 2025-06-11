@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { Chauffeur } from '@/hooks/useSupabaseChauffeurs';
 
 interface ChauffeurFormProps {
   chauffeur?: Chauffeur | null;
-  onSave: (chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur'>) => Promise<void>;
+  onSave: (chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur' | 'created_at' | 'updated_at'>) => Promise<void>;
   onCancel: () => void;
 }
 
