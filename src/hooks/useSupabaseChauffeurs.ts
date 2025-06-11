@@ -14,6 +14,8 @@ export interface Chauffeur {
   statut: 'actif' | 'inactif';
   referenceChauffeur: string;
   dateCreation: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const useSupabaseChauffeurs = () => {
@@ -52,6 +54,8 @@ export const useSupabaseChauffeurs = () => {
         statut: chauffeur.statut as 'actif' | 'inactif',
         referenceChauffeur: chauffeur.referencechauffeur,
         dateCreation: chauffeur.created_at,
+        created_at: chauffeur.created_at,
+        updated_at: chauffeur.updated_at,
       }));
       
       setChauffeurs(mappedChauffeurs);
@@ -62,7 +66,7 @@ export const useSupabaseChauffeurs = () => {
     }
   };
 
-  const addChauffeur = async (chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur' | 'user_id'>) => {
+  const addChauffeur = async (chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur' | 'user_id' | 'created_at' | 'updated_at'>) => {
     if (!user) return null;
 
     try {
@@ -75,9 +79,9 @@ export const useSupabaseChauffeurs = () => {
         numeropermis: chauffeurData.numeroPermis,
         dateexpiration: chauffeurData.dateExpiration,
         statut: chauffeurData.statut,
+        // Ne pas inclure referencechauffeur car il est auto-généré par le trigger
       };
 
-      // Utiliser une insertion sans contrainte de type strict pour éviter le problème avec referencechauffeur
       const { data, error } = await supabase
         .from('chauffeurs')
         .insert(dbData)
@@ -98,6 +102,8 @@ export const useSupabaseChauffeurs = () => {
         statut: data.statut as 'actif' | 'inactif',
         referenceChauffeur: data.referencechauffeur,
         dateCreation: data.created_at,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
       };
 
       setChauffeurs(prev => [mappedChauffeur, ...prev]);
@@ -108,7 +114,7 @@ export const useSupabaseChauffeurs = () => {
     }
   };
 
-  const updateChauffeur = async (id: string, chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur' | 'user_id'>) => {
+  const updateChauffeur = async (id: string, chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur' | 'user_id' | 'created_at' | 'updated_at'>) => {
     if (!user) return null;
 
     try {
@@ -144,6 +150,8 @@ export const useSupabaseChauffeurs = () => {
         statut: data.statut as 'actif' | 'inactif',
         referenceChauffeur: data.referencechauffeur,
         dateCreation: data.created_at,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
       };
 
       setChauffeurs(prev => prev.map(c => c.id === id ? mappedChauffeur : c));

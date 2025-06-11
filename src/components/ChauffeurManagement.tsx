@@ -21,7 +21,7 @@ const ChauffeurManagement = () => {
     chauffeur.referenceChauffeur.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSaveChauffeur = async (chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur'>) => {
+  const handleSaveChauffeur = async (chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur' | 'user_id' | 'created_at' | 'updated_at'>) => {
     if (editingChauffeur) {
       await updateChauffeur(editingChauffeur.id, chauffeurData);
     } else {

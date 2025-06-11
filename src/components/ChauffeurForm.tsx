@@ -10,7 +10,7 @@ import { Chauffeur } from '@/hooks/useSupabaseChauffeurs';
 
 interface ChauffeurFormProps {
   chauffeur?: Chauffeur | null;
-  onSave: (chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur' | 'created_at' | 'updated_at'>) => Promise<void>;
+  onSave: (chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur' | 'created_at' | 'updated_at' | 'user_id'>) => Promise<void>;
   onCancel: () => void;
 }
 
