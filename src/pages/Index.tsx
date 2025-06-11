@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import Dashboard from '@/components/Dashboard';
 import VehicleManagement from '@/components/VehicleManagement';
+import ChauffeurManagement from '@/components/ChauffeurManagement';
 import ClientManagement from '@/components/ClientManagement';
 import ContractManagement from '@/components/ContractManagement';
 import ContractTermsSettings from '@/components/ContractTermsSettings';
@@ -41,6 +42,8 @@ const Index = () => {
         return <Dashboard />;
       case 'vehicles':
         return <VehicleManagement />;
+      case 'chauffeurs':
+        return <ChauffeurManagement />;
       case 'clients':
         return <ClientManagement />;
       case 'contracts':
