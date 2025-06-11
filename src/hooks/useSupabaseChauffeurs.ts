@@ -16,6 +16,8 @@ export interface Chauffeur {
   dateCreation: string;
   created_at: string;
   updated_at: string;
+  photoPermis?: string;
+  urlPermis?: string;
 }
 
 export const useSupabaseChauffeurs = () => {
@@ -56,6 +58,8 @@ export const useSupabaseChauffeurs = () => {
         dateCreation: chauffeur.created_at,
         created_at: chauffeur.created_at,
         updated_at: chauffeur.updated_at,
+        photoPermis: chauffeur.photo_permis || undefined,
+        urlPermis: chauffeur.url_permis || undefined,
       }));
       
       setChauffeurs(mappedChauffeurs);
@@ -79,6 +83,8 @@ export const useSupabaseChauffeurs = () => {
         numeropermis: chauffeurData.numeroPermis,
         dateexpiration: chauffeurData.dateExpiration,
         statut: chauffeurData.statut,
+        photo_permis: chauffeurData.photoPermis || null,
+        url_permis: chauffeurData.urlPermis || null,
         // Ne pas inclure referencechauffeur car il est auto-généré par le trigger
       };
 
@@ -104,6 +110,8 @@ export const useSupabaseChauffeurs = () => {
         dateCreation: data.created_at,
         created_at: data.created_at,
         updated_at: data.updated_at,
+        photoPermis: data.photo_permis || undefined,
+        urlPermis: data.url_permis || undefined,
       };
 
       setChauffeurs(prev => [mappedChauffeur, ...prev]);
@@ -126,6 +134,8 @@ export const useSupabaseChauffeurs = () => {
         numeropermis: chauffeurData.numeroPermis,
         dateexpiration: chauffeurData.dateExpiration,
         statut: chauffeurData.statut,
+        photo_permis: chauffeurData.photoPermis || null,
+        url_permis: chauffeurData.urlPermis || null,
       };
 
       const { data, error } = await supabase
@@ -152,6 +162,8 @@ export const useSupabaseChauffeurs = () => {
         dateCreation: data.created_at,
         created_at: data.created_at,
         updated_at: data.updated_at,
+        photoPermis: data.photo_permis || undefined,
+        urlPermis: data.url_permis || undefined,
       };
 
       setChauffeurs(prev => prev.map(c => c.id === id ? mappedChauffeur : c));

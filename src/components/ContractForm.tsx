@@ -6,9 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft, Save, Calculator } from 'lucide-react';
 import { useSupabaseClients } from '@/hooks/useSupabaseClients';
 import { useSupabaseVehicles } from '@/hooks/useSupabaseVehicles';
+import { useSupabaseChauffeurs } from '@/hooks/useSupabaseChauffeurs';
 import { Contract } from '@/hooks/useSupabaseContracts';
 
 interface ContractFormProps {
@@ -20,6 +22,7 @@ interface ContractFormProps {
 const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
   const { clients, loading: clientsLoading } = useSupabaseClients();
   const { vehicles, loading: vehiclesLoading } = useSupabaseVehicles();
+  const { chauffeurs, loading: chauffeursLoading } = useSupabaseChauffeurs();
 
   const [formData, setFormData] = useState({
     clientId: contract?.clientId || '',
@@ -33,7 +36,9 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
     statut: contract?.statut || 'actif' as const,
     etatVehiculeDepart: contract?.etatVehiculeDepart || '',
     etatVehiculeRetour: contract?.etatVehiculeRetour || '',
-    notes: contract?.notes || ''
+    notes: contract?.notes || '',
+    avecChauffeur: contract?.avecChauffeur || false,
+    chauffeurId: contract?.chauffeurId || '',
   });
 
   const calculateTotal = () => {
@@ -68,6 +73,10 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
     return vehicles.find(v => v.id === formData.vehicleId);
   };
 
+  const getSelectedChauffeur = () => {
+    return chauffeurs.find(c => c.id === formData.chauffeurId);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const total = calculateTotal();
@@ -91,11 +100,18 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
     }));
   };
 
-  const handleChange = (field: string, value: string | number) => {
+  const handleChauffeurChange = (chauffeurId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      chauffeurId
+    }));
+  };
+
+  const handleChange = (field: string, value: string | number | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  if (clientsLoading || vehiclesLoading) {
+  if (clientsLoading || vehiclesLoading || chauffeursLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -227,6 +243,46 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
                   </div>
                 </div>
 
+                {/* Location avec chauffeur */}
+                <div className="space-y-4 p-4 border rounded-lg">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="avecChauffeur"
+                      checked={formData.avecChauffeur}
+                      onCheckedChange={(checked) => handleChange('avecChauffeur', checked)}
+                    />
+                    <Label htmlFor="avecChauffeur" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      Location avec chauffeur
+                    </Label>
+                  </div>
+
+                  {formData.avecChauffeur && (
+                    <div className="space-y-2">
+                      <Label htmlFor="chauffeur">Chauffeur</Label>
+                      <Select value={formData.chauffeurId} onValueChange={handleChauffeurChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionnez un chauffeur" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {chauffeurs.length === 0 ? (
+                            <SelectItem value="no-chauffeurs" disabled>
+                              Aucun chauffeur disponible
+                            </SelectItem>
+                          ) : (
+                            chauffeurs
+                              .filter(chauffeur => chauffeur.statut === 'actif')
+                              .map(chauffeur => (
+                                <SelectItem key={chauffeur.id} value={chauffeur.id}>
+                                  {chauffeur.prenom} {chauffeur.nom} ({chauffeur.referenceChauffeur})
+                                </SelectItem>
+                              ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="notes">Notes particulières</Label>
                   <Textarea
@@ -274,6 +330,14 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
                   <p className="text-sm text-gray-600">Véhicule</p>
                   <p className="font-medium">{getSelectedVehicle()?.marque} {getSelectedVehicle()?.modele}</p>
                   <p className="text-sm text-gray-500">{getSelectedVehicle()?.immatriculation}</p>
+                </div>
+              )}
+
+              {formData.avecChauffeur && getSelectedChauffeur() && (
+                <div>
+                  <p className="text-sm text-gray-600">Chauffeur</p>
+                  <p className="font-medium">{getSelectedChauffeur()?.prenom} {getSelectedChauffeur()?.nom}</p>
+                  <p className="text-sm text-gray-500">{getSelectedChauffeur()?.referenceChauffeur}</p>
                 </div>
               )}
 

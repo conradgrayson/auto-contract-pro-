@@ -4,8 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Edit, Trash2, User, Phone, Mail, MapPin } from 'lucide-react';
-import ClientForm from './ClientForm';
+import { Plus, Search, Edit, Trash2, User, Phone, Mail, MapPin, Eye } from 'lucide-react';
+import ClientFormWithImages from './ClientFormWithImages';
 import { useSupabaseClients, Client } from '@/hooks/useSupabaseClients';
 
 const ClientManagement = () => {
@@ -52,7 +52,7 @@ const ClientManagement = () => {
 
   if (showForm) {
     return (
-      <ClientForm
+      <ClientFormWithImages
         client={editingClient}
         onSave={handleSaveClient}
         onCancel={() => {
@@ -130,6 +130,18 @@ const ClientManagement = () => {
               <div className="pt-2 border-t">
                 <p className="text-sm text-gray-600">Permis: {client.numeroPermis}</p>
                 <p className="text-sm text-gray-600">Né(e) le: {new Date(client.dateNaissance).toLocaleDateString('fr-FR')}</p>
+                {client.urlCarteId && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(client.urlCarteId, '_blank')}
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      Voir carte ID
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-2 pt-2">

@@ -4,8 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Edit, Trash2, User, Phone, Calendar, IdCard } from 'lucide-react';
-import ChauffeurForm from './ChauffeurForm';
+import { Plus, Search, Edit, Trash2, User, Phone, Calendar, IdCard, Eye } from 'lucide-react';
+import ChauffeurFormWithImages from './ChauffeurFormWithImages';
 import { useSupabaseChauffeurs, Chauffeur } from '@/hooks/useSupabaseChauffeurs';
 
 const ChauffeurManagement = () => {
@@ -52,7 +52,7 @@ const ChauffeurManagement = () => {
 
   if (showForm) {
     return (
-      <ChauffeurForm
+      <ChauffeurFormWithImages
         chauffeur={editingChauffeur}
         onSave={handleSaveChauffeur}
         onCancel={() => {
@@ -125,6 +125,18 @@ const ChauffeurManagement = () => {
                   <Calendar className="h-4 w-4 text-gray-400" />
                   <span>Expire le: {new Date(chauffeur.dateExpiration).toLocaleDateString('fr-FR')}</span>
                 </div>
+                {chauffeur.urlPermis && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(chauffeur.urlPermis, '_blank')}
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      Voir permis
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-2 pt-2">

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
@@ -18,6 +19,7 @@ export interface Client {
   dateInscription: string;
   numeroCarteId?: string;
   photoCarteId?: string;
+  urlCarteId?: string;
 }
 
 export const useSupabaseClients = () => {
@@ -52,7 +54,8 @@ export const useSupabaseClients = () => {
         statut: client.statut as 'actif' | 'inactif',
         dateInscription: client.dateinscription,
         numeroCarteId: client.numerocarteid || undefined,
-        photoCarteId: client.photocarteid || undefined,
+        photoCarteId: client.photo_carte_id || undefined,
+        urlCarteId: client.url_carte_id || undefined,
       }));
       
       setClients(mappedClients);
@@ -85,7 +88,8 @@ export const useSupabaseClients = () => {
         datenaissance: clientData.dateNaissance,
         statut: clientData.statut,
         numerocarteid: clientData.numeroCarteId || null,
-        photocarteid: clientData.photoCarteId || null,
+        photo_carte_id: clientData.photoCarteId || null,
+        url_carte_id: clientData.urlCarteId || null,
       };
 
       const { data, error } = await supabase
@@ -111,7 +115,8 @@ export const useSupabaseClients = () => {
         statut: data.statut as 'actif' | 'inactif',
         dateInscription: data.dateinscription,
         numeroCarteId: data.numerocarteid || undefined,
-        photoCarteId: data.photocarteid || undefined,
+        photoCarteId: data.photo_carte_id || undefined,
+        urlCarteId: data.url_carte_id || undefined,
       };
 
       setClients(prev => [mappedClient, ...prev]);
@@ -148,7 +153,8 @@ export const useSupabaseClients = () => {
         datenaissance: clientData.dateNaissance,
         statut: clientData.statut,
         numerocarteid: clientData.numeroCarteId || null,
-        photocarteid: clientData.photoCarteId || null,
+        photo_carte_id: clientData.photoCarteId || null,
+        url_carte_id: clientData.urlCarteId || null,
       };
 
       const { data, error } = await supabase
@@ -176,7 +182,8 @@ export const useSupabaseClients = () => {
         statut: data.statut as 'actif' | 'inactif',
         dateInscription: data.dateinscription,
         numeroCarteId: data.numerocarteid || undefined,
-        photoCarteId: data.photocarteid || undefined,
+        photoCarteId: data.photo_carte_id || undefined,
+        urlCarteId: data.url_carte_id || undefined,
       };
 
       setClients(prev => prev.map(c => c.id === id ? mappedClient : c));

@@ -16,11 +16,13 @@ export type Database = {
           id: string
           nom: string
           numeropermis: string
+          photo_permis: string | null
           prenom: string
           referencechauffeur: string
           statut: string
           telephone: string
           updated_at: string
+          url_permis: string | null
           user_id: string
         }
         Insert: {
@@ -29,11 +31,13 @@ export type Database = {
           id?: string
           nom: string
           numeropermis: string
+          photo_permis?: string | null
           prenom: string
           referencechauffeur: string
           statut?: string
           telephone: string
           updated_at?: string
+          url_permis?: string | null
           user_id: string
         }
         Update: {
@@ -42,11 +46,13 @@ export type Database = {
           id?: string
           nom?: string
           numeropermis?: string
+          photo_permis?: string | null
           prenom?: string
           referencechauffeur?: string
           statut?: string
           telephone?: string
           updated_at?: string
+          url_permis?: string | null
           user_id?: string
         }
         Relationships: []
@@ -63,11 +69,13 @@ export type Database = {
           nom: string
           numerocarteid: string | null
           numeropermis: string
+          photo_carte_id: string | null
           photocarteid: string | null
           prenom: string
           statut: string
           telephone: string
           updated_at: string
+          url_carte_id: string | null
           user_id: string
           ville: string
         }
@@ -82,11 +90,13 @@ export type Database = {
           nom: string
           numerocarteid?: string | null
           numeropermis: string
+          photo_carte_id?: string | null
           photocarteid?: string | null
           prenom: string
           statut?: string
           telephone: string
           updated_at?: string
+          url_carte_id?: string | null
           user_id: string
           ville: string
         }
@@ -101,11 +111,13 @@ export type Database = {
           nom?: string
           numerocarteid?: string | null
           numeropermis?: string
+          photo_carte_id?: string | null
           photocarteid?: string | null
           prenom?: string
           statut?: string
           telephone?: string
           updated_at?: string
+          url_carte_id?: string | null
           user_id?: string
           ville?: string
         }
@@ -144,7 +156,9 @@ export type Database = {
       contracts: {
         Row: {
           adresselivraison: string | null
+          avec_chauffeur: boolean | null
           caution: number
+          chauffeur_id: string | null
           chauffeurid: string | null
           clientid: string
           conditions: string | null
@@ -170,7 +184,9 @@ export type Database = {
         }
         Insert: {
           adresselivraison?: string | null
+          avec_chauffeur?: boolean | null
           caution?: number
+          chauffeur_id?: string | null
           chauffeurid?: string | null
           clientid: string
           conditions?: string | null
@@ -196,7 +212,9 @@ export type Database = {
         }
         Update: {
           adresselivraison?: string | null
+          avec_chauffeur?: boolean | null
           caution?: number
+          chauffeur_id?: string | null
           chauffeurid?: string | null
           clientid?: string
           conditions?: string | null
@@ -221,6 +239,13 @@ export type Database = {
           vehicleid?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "contracts_chauffeur_id_fkey"
+            columns: ["chauffeur_id"]
+            isOneToOne: false
+            referencedRelation: "chauffeurs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "contracts_clientid_fkey"
             columns: ["clientid"]
