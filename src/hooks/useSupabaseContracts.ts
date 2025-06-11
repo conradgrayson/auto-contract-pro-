@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface Contract {
@@ -110,6 +111,7 @@ export const useSupabaseContracts = () => {
         heurerendu: contractData.heureRendu,
         niveaucarburantdepart: contractData.niveauCarburantDepart,
         niveaucarburantretour: contractData.niveauCarburantRetour,
+        numerocontrat: 'TEMP-' + Date.now(), // Temporary, will be overridden by trigger
       };
 
       const { data, error } = await supabase

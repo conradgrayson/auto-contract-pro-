@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,6 +18,7 @@ interface EnrichedContract extends Contract {
   vehicleImmatriculation: string;
   prixJour: number;
   nbJours: number;
+  montantTotal: number;
 }
 
 const ContractManagement = () => {
@@ -35,6 +35,8 @@ const ContractManagement = () => {
   const enrichedContracts: EnrichedContract[] = contracts.map(contract => {
     const client = clients.find(c => c.id === contract.clientId);
     const vehicle = vehicles.find(v => v.id === contract.vehicleId);
+    const nbJours = Math.ceil((new Date(contract.dateFin).getTime() - new Date(contract.dateDebut).getTime()) / (1000 * 60 * 60 * 24));
+    const prixJour = vehicle?.prixParJour || 0;
     
     return {
       ...contract,
@@ -43,8 +45,9 @@ const ContractManagement = () => {
       vehicleMarque: vehicle?.marque || '',
       vehicleModele: vehicle?.modele || '',
       vehicleImmatriculation: vehicle?.immatriculation || '',
-      prixJour: vehicle?.prixParJour || 0,
-      nbJours: Math.ceil((new Date(contract.dateFin).getTime() - new Date(contract.dateDebut).getTime()) / (1000 * 60 * 60 * 24))
+      prixJour,
+      nbJours,
+      montantTotal: contract.prixTotal
     };
   });
 

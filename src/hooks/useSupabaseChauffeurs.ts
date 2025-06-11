@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 
 export interface Chauffeur {
@@ -9,11 +9,12 @@ export interface Chauffeur {
   nom: string;
   prenom: string;
   telephone: string;
-  numeroPermis: string;
-  dateExpiration: string;
-  referenceChauffeur: string;
+  numeropermis: string;
+  dateexpiration: string;
   statut: 'actif' | 'inactif';
-  dateCreation: string;
+  referencechauffeur: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const useSupabaseChauffeurs = () => {
@@ -38,11 +39,12 @@ export const useSupabaseChauffeurs = () => {
         nom: chauffeur.nom,
         prenom: chauffeur.prenom,
         telephone: chauffeur.telephone,
-        numeroPermis: chauffeur.numeropermis,
-        dateExpiration: chauffeur.dateexpiration,
-        referenceChauffeur: chauffeur.referencechauffeur,
+        numeropermis: chauffeur.numeropermis,
+        dateexpiration: chauffeur.dateexpiration,
         statut: chauffeur.statut as 'actif' | 'inactif',
-        dateCreation: chauffeur.created_at,
+        referencechauffeur: chauffeur.referencechauffeur,
+        created_at: chauffeur.created_at,
+        updated_at: chauffeur.updated_at,
       }));
       
       setChauffeurs(mappedChauffeurs);
@@ -57,7 +59,7 @@ export const useSupabaseChauffeurs = () => {
     }
   };
 
-  const addChauffeur = async (chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur'>) => {
+  const addChauffeur = async (chauffeurData: Omit<Chauffeur, 'id' | 'created_at' | 'updated_at' | 'referencechauffeur'>) => {
     if (!user) return null;
 
     try {
@@ -66,14 +68,14 @@ export const useSupabaseChauffeurs = () => {
         nom: chauffeurData.nom,
         prenom: chauffeurData.prenom,
         telephone: chauffeurData.telephone,
-        numeropermis: chauffeurData.numeroPermis,
-        dateexpiration: chauffeurData.dateExpiration,
+        numeropermis: chauffeurData.numeropermis,
+        dateexpiration: chauffeurData.dateexpiration,
         statut: chauffeurData.statut,
       };
 
       const { data, error } = await supabase
         .from('chauffeurs')
-        .insert([dbData])
+        .insert(dbData)
         .select()
         .single();
 
@@ -84,31 +86,32 @@ export const useSupabaseChauffeurs = () => {
         nom: data.nom,
         prenom: data.prenom,
         telephone: data.telephone,
-        numeroPermis: data.numeropermis,
-        dateExpiration: data.dateexpiration,
-        referenceChauffeur: data.referencechauffeur,
+        numeropermis: data.numeropermis,
+        dateexpiration: data.dateexpiration,
         statut: data.statut as 'actif' | 'inactif',
-        dateCreation: data.created_at,
+        referencechauffeur: data.referencechauffeur,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
       };
 
       setChauffeurs(prev => [mappedChauffeur, ...prev]);
       toast({
-        title: "Chauffeur ajouté",
-        description: "Le nouveau chauffeur a été ajouté avec succès.",
+        title: "Chauffeur créé",
+        description: `Le chauffeur ${data.referencechauffeur} a été créé avec succès.`,
       });
       
       return mappedChauffeur;
     } catch (error: any) {
       toast({
         title: "Erreur",
-        description: "Impossible d'ajouter le chauffeur",
+        description: "Impossible de créer le chauffeur",
         variant: "destructive",
       });
       return null;
     }
   };
 
-  const updateChauffeur = async (id: string, chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur'>) => {
+  const updateChauffeur = async (id: string, chauffeurData: Omit<Chauffeur, 'id' | 'created_at' | 'updated_at' | 'referencechauffeur'>) => {
     if (!user) return null;
 
     try {
@@ -116,8 +119,8 @@ export const useSupabaseChauffeurs = () => {
         nom: chauffeurData.nom,
         prenom: chauffeurData.prenom,
         telephone: chauffeurData.telephone,
-        numeropermis: chauffeurData.numeroPermis,
-        dateexpiration: chauffeurData.dateExpiration,
+        numeropermis: chauffeurData.numeropermis,
+        dateexpiration: chauffeurData.dateexpiration,
         statut: chauffeurData.statut,
       };
 
@@ -125,7 +128,6 @@ export const useSupabaseChauffeurs = () => {
         .from('chauffeurs')
         .update(dbData)
         .eq('id', id)
-        .eq('user_id', user.id)
         .select()
         .single();
 
@@ -136,11 +138,12 @@ export const useSupabaseChauffeurs = () => {
         nom: data.nom,
         prenom: data.prenom,
         telephone: data.telephone,
-        numeroPermis: data.numeropermis,
-        dateExpiration: data.dateexpiration,
-        referenceChauffeur: data.referencechauffeur,
+        numeropermis: data.numeropermis,
+        dateexpiration: data.dateexpiration,
         statut: data.statut as 'actif' | 'inactif',
-        dateCreation: data.created_at,
+        referencechauffeur: data.referencechauffeur,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
       };
 
       setChauffeurs(prev => prev.map(c => c.id === id ? mappedChauffeur : c));
@@ -167,8 +170,7 @@ export const useSupabaseChauffeurs = () => {
       const { error } = await supabase
         .from('chauffeurs')
         .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
+        .eq('id', id);
 
       if (error) throw error;
 
