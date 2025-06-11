@@ -9,12 +9,11 @@ export interface Chauffeur {
   nom: string;
   prenom: string;
   telephone: string;
-  numeropermis: string;
-  dateexpiration: string;
+  numeroPermis: string;
+  dateExpiration: string;
   statut: 'actif' | 'inactif';
-  referencechauffeur: string;
-  created_at: string;
-  updated_at: string;
+  referenceChauffeur: string;
+  dateCreation: string;
 }
 
 export const useSupabaseChauffeurs = () => {
@@ -34,17 +33,17 @@ export const useSupabaseChauffeurs = () => {
 
       if (error) throw error;
       
+      // Mapper les données de la base vers notre interface
       const mappedChauffeurs = (data || []).map(chauffeur => ({
         id: chauffeur.id,
         nom: chauffeur.nom,
         prenom: chauffeur.prenom,
         telephone: chauffeur.telephone,
-        numeropermis: chauffeur.numeropermis,
-        dateexpiration: chauffeur.dateexpiration,
+        numeroPermis: chauffeur.numeropermis,
+        dateExpiration: chauffeur.dateexpiration,
         statut: chauffeur.statut as 'actif' | 'inactif',
-        referencechauffeur: chauffeur.referencechauffeur,
-        created_at: chauffeur.created_at,
-        updated_at: chauffeur.updated_at,
+        referenceChauffeur: chauffeur.referencechauffeur,
+        dateCreation: chauffeur.created_at,
       }));
       
       setChauffeurs(mappedChauffeurs);
@@ -59,17 +58,18 @@ export const useSupabaseChauffeurs = () => {
     }
   };
 
-  const addChauffeur = async (chauffeurData: Omit<Chauffeur, 'id' | 'created_at' | 'updated_at' | 'referencechauffeur'>) => {
+  const addChauffeur = async (chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur'>) => {
     if (!user) return null;
 
     try {
+      // Mapper les données vers les noms de colonnes de la base
       const dbData = {
         user_id: user.id,
         nom: chauffeurData.nom,
         prenom: chauffeurData.prenom,
         telephone: chauffeurData.telephone,
-        numeropermis: chauffeurData.numeropermis,
-        dateexpiration: chauffeurData.dateexpiration,
+        numeropermis: chauffeurData.numeroPermis,
+        dateexpiration: chauffeurData.dateExpiration,
         statut: chauffeurData.statut,
       };
 
@@ -81,17 +81,17 @@ export const useSupabaseChauffeurs = () => {
 
       if (error) throw error;
 
+      // Mapper les données retournées vers notre interface
       const mappedChauffeur = {
         id: data.id,
         nom: data.nom,
         prenom: data.prenom,
         telephone: data.telephone,
-        numeropermis: data.numeropermis,
-        dateexpiration: data.dateexpiration,
+        numeroPermis: data.numeropermis,
+        dateExpiration: data.dateexpiration,
         statut: data.statut as 'actif' | 'inactif',
-        referencechauffeur: data.referencechauffeur,
-        created_at: data.created_at,
-        updated_at: data.updated_at,
+        referenceChauffeur: data.referencechauffeur,
+        dateCreation: data.created_at,
       };
 
       setChauffeurs(prev => [mappedChauffeur, ...prev]);
@@ -111,16 +111,17 @@ export const useSupabaseChauffeurs = () => {
     }
   };
 
-  const updateChauffeur = async (id: string, chauffeurData: Omit<Chauffeur, 'id' | 'created_at' | 'updated_at' | 'referencechauffeur'>) => {
+  const updateChauffeur = async (id: string, chauffeurData: Omit<Chauffeur, 'id' | 'dateCreation' | 'referenceChauffeur'>) => {
     if (!user) return null;
 
     try {
+      // Mapper les données vers les noms de colonnes de la base
       const dbData = {
         nom: chauffeurData.nom,
         prenom: chauffeurData.prenom,
         telephone: chauffeurData.telephone,
-        numeropermis: chauffeurData.numeropermis,
-        dateexpiration: chauffeurData.dateexpiration,
+        numeropermis: chauffeurData.numeroPermis,
+        dateexpiration: chauffeurData.dateExpiration,
         statut: chauffeurData.statut,
       };
 
@@ -133,17 +134,17 @@ export const useSupabaseChauffeurs = () => {
 
       if (error) throw error;
 
+      // Mapper les données retournées vers notre interface
       const mappedChauffeur = {
         id: data.id,
         nom: data.nom,
         prenom: data.prenom,
         telephone: data.telephone,
-        numeropermis: data.numeropermis,
-        dateexpiration: data.dateexpiration,
+        numeroPermis: data.numeropermis,
+        dateExpiration: data.dateexpiration,
         statut: data.statut as 'actif' | 'inactif',
-        referencechauffeur: data.referencechauffeur,
-        created_at: data.created_at,
-        updated_at: data.updated_at,
+        referenceChauffeur: data.referencechauffeur,
+        dateCreation: data.created_at,
       };
 
       setChauffeurs(prev => prev.map(c => c.id === id ? mappedChauffeur : c));
