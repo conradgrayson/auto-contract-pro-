@@ -20,6 +20,10 @@ interface Contract {
   statut: 'actif' | 'termine' | 'annule';
   dateCreation: string;
   conditions?: string;
+  numeroContrat: string;
+  reductionType?: string;
+  reductionValue?: number;
+  montantReduction?: number;
 }
 
 interface ContractPreviewProps {
@@ -33,6 +37,8 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
   };
 
   const today = new Date().toLocaleDateString('fr-FR');
+  const subtotal = contract.nbJours * contract.prixJour;
+  const reduction = contract.montantReduction || 0;
 
   return (
     <div className="space-y-6">
@@ -44,7 +50,7 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
           </Button>
           <div>
             <h2 className="text-3xl font-bold text-gray-900">Contrat de Location</h2>
-            <p className="text-gray-600">Contrat N° {contract.id}</p>
+            <p className="text-gray-600">Contrat N° {contract.numeroContrat}</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -80,7 +86,7 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
               </div>
               <div className="text-right">
                 <h2 className="text-xl font-bold text-gray-900">CONTRAT DE LOCATION</h2>
-                <p className="text-gray-600">N° {contract.id}</p>
+                <p className="text-gray-600">N° {contract.numeroContrat}</p>
                 <p className="text-sm text-gray-500 mt-2">Date: {today}</p>
               </div>
             </div>
@@ -134,7 +140,7 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
               </div>
             </div>
 
-            {/* Facturation */}
+            {/* Facturation avec réduction */}
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
                 FACTURATION
@@ -142,8 +148,16 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="flex justify-between items-center mb-2">
                   <span>Location ({contract.nbJours} jour(s) × {contract.prixJour.toLocaleString()} CFA)</span>
-                  <span>{contract.montantTotal.toLocaleString()} CFA</span>
+                  <span>{subtotal.toLocaleString()} CFA</span>
                 </div>
+                
+                {reduction > 0 && (
+                  <div className="flex justify-between items-center mb-2 text-red-600">
+                    <span>Réduction {contract.reductionType === 'pourcentage' ? `(${contract.reductionValue}%)` : ''}</span>
+                    <span>-{reduction.toLocaleString()} CFA</span>
+                  </div>
+                )}
+                
                 <div className="flex justify-between items-center text-lg font-bold pt-2 border-t border-gray-300">
                   <span>TOTAL TTC</span>
                   <span className="text-primary">{contract.montantTotal.toLocaleString()} CFA</span>
@@ -190,12 +204,12 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
             {/* Pied de page */}
             <div className="mt-12 pt-4 border-t border-gray-200 text-center text-xs text-gray-500">
               <p>Pro-Excellence - RCCM: TG-LOM 2024 B 1234 - NIF: 1234567890123</p>
-              <p>Document généré automatiquement - Contrat N° {contract.id}</p>
+              <p>Document généré automatiquement - Contrat N° {contract.numeroContrat}</p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Proforma / Facture */}
+        {/* FACTURE (pas Proforma) */}
         <Card className="shadow-lg mt-8">
           <CardContent className="p-8">
             <div className="flex justify-between items-start mb-8">
@@ -211,8 +225,8 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
                 </div>
               </div>
               <div className="text-right">
-                <h2 className="text-xl font-bold text-gray-900">FACTURE PROFORMA</h2>
-                <p className="text-gray-600">N° P{contract.id}</p>
+                <h2 className="text-xl font-bold text-gray-900">FACTURE</h2>
+                <p className="text-gray-600">N° {contract.numeroContrat}</p>
                 <p className="text-sm text-gray-500 mt-2">Date: {today}</p>
               </div>
             </div>
@@ -224,7 +238,7 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
               </div>
               <div>
                 <h3 className="font-semibold mb-2">DÉTAILS:</h3>
-                <p>Contrat N° {contract.id}</p>
+                <p>Contrat N° {contract.numeroContrat}</p>
                 <p>Période: {new Date(contract.dateDebut).toLocaleDateString('fr-FR')} - {new Date(contract.dateFin).toLocaleDateString('fr-FR')}</p>
               </div>
             </div>
@@ -246,8 +260,19 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
                   </td>
                   <td className="text-center py-3">{contract.nbJours} jour(s)</td>
                   <td className="text-right py-3">{contract.prixJour.toLocaleString()} CFA</td>
-                  <td className="text-right py-3">{contract.montantTotal.toLocaleString()} CFA</td>
+                  <td className="text-right py-3">{subtotal.toLocaleString()} CFA</td>
                 </tr>
+                
+                {reduction > 0 && (
+                  <tr className="border-b border-gray-100">
+                    <td className="py-3 text-red-600">
+                      Réduction {contract.reductionType === 'pourcentage' ? `(${contract.reductionValue}%)` : ''}
+                    </td>
+                    <td className="text-center py-3">-</td>
+                    <td className="text-right py-3">-</td>
+                    <td className="text-right py-3 text-red-600">-{reduction.toLocaleString()} CFA</td>
+                  </tr>
+                )}
               </tbody>
               <tfoot>
                 <tr>

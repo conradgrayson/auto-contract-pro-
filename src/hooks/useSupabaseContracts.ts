@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -28,6 +27,9 @@ export interface Contract {
   niveauCarburantDepart?: string;
   niveauCarburantRetour?: string;
   avecChauffeur?: boolean;
+  reductionType?: 'aucune' | 'pourcentage' | 'montant';
+  reductionValue?: number;
+  montantReduction?: number;
 }
 
 export const useSupabaseContracts = () => {
@@ -72,10 +74,14 @@ export const useSupabaseContracts = () => {
         niveauCarburantDepart: contract.niveaucarburantdepart,
         niveauCarburantRetour: contract.niveaucarburantretour,
         avecChauffeur: contract.avec_chauffeur,
+        reductionType: contract.reduction_type as 'aucune' | 'pourcentage' | 'montant' || 'aucune',
+        reductionValue: contract.reduction_value || 0,
+        montantReduction: contract.montant_reduction || 0,
       }));
       
       setContracts(mappedContracts);
     } catch (error: any) {
+      console.error('Erreur lors du chargement des contrats:', error);
       toast({
         title: "Erreur",
         description: "Impossible de charger les contrats",
@@ -113,6 +119,9 @@ export const useSupabaseContracts = () => {
         niveaucarburantdepart: contractData.niveauCarburantDepart,
         niveaucarburantretour: contractData.niveauCarburantRetour,
         avec_chauffeur: contractData.avecChauffeur,
+        reduction_type: contractData.reductionType || 'aucune',
+        reduction_value: contractData.reductionValue || 0,
+        montant_reduction: contractData.montantReduction || 0,
         numerocontrat: 'TEMP-' + Date.now(), // Temporary, will be overridden by trigger
       };
 
@@ -149,6 +158,9 @@ export const useSupabaseContracts = () => {
         niveauCarburantDepart: data.niveaucarburantdepart,
         niveauCarburantRetour: data.niveaucarburantretour,
         avecChauffeur: data.avec_chauffeur,
+        reductionType: data.reduction_type as 'aucune' | 'pourcentage' | 'montant' || 'aucune',
+        reductionValue: data.reduction_value || 0,
+        montantReduction: data.montant_reduction || 0,
       };
 
       setContracts(prev => [mappedContract, ...prev]);
@@ -159,6 +171,7 @@ export const useSupabaseContracts = () => {
       
       return mappedContract;
     } catch (error: any) {
+      console.error('Erreur lors de la création du contrat:', error);
       toast({
         title: "Erreur",
         description: "Impossible de créer le contrat",
@@ -194,6 +207,9 @@ export const useSupabaseContracts = () => {
         niveaucarburantdepart: contractData.niveauCarburantDepart,
         niveaucarburantretour: contractData.niveauCarburantRetour,
         avec_chauffeur: contractData.avecChauffeur,
+        reduction_type: contractData.reductionType || 'aucune',
+        reduction_value: contractData.reductionValue || 0,
+        montant_reduction: contractData.montantReduction || 0,
       };
 
       const { data, error } = await supabase
@@ -230,6 +246,9 @@ export const useSupabaseContracts = () => {
         niveauCarburantDepart: data.niveaucarburantdepart,
         niveauCarburantRetour: data.niveaucarburantretour,
         avecChauffeur: data.avec_chauffeur,
+        reductionType: data.reduction_type as 'aucune' | 'pourcentage' | 'montant' || 'aucune',
+        reductionValue: data.reduction_value || 0,
+        montantReduction: data.montant_reduction || 0,
       };
 
       setContracts(prev => prev.map(c => c.id === id ? mappedContract : c));
@@ -240,6 +259,7 @@ export const useSupabaseContracts = () => {
       
       return mappedContract;
     } catch (error: any) {
+      console.error('Erreur lors de la modification du contrat:', error);
       toast({
         title: "Erreur",
         description: "Impossible de modifier le contrat",
@@ -268,6 +288,7 @@ export const useSupabaseContracts = () => {
       
       return true;
     } catch (error: any) {
+      console.error('Erreur lors de la suppression du contrat:', error);
       toast({
         title: "Erreur",
         description: "Impossible de supprimer le contrat",

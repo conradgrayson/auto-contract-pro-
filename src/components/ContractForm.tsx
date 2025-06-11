@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,7 +38,19 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
     notes: contract?.notes || '',
     avecChauffeur: contract?.avecChauffeur || false,
     chauffeurId: contract?.chauffeurId || '',
+    reductionType: contract?.reductionType || 'aucune' as const,
+    reductionValue: contract?.reductionValue || 0,
+    montantReduction: contract?.montantReduction || 0,
   });
+
+  const calculateReduction = (subtotal: number) => {
+    if (formData.reductionType === 'pourcentage') {
+      return (subtotal * formData.reductionValue) / 100;
+    } else if (formData.reductionType === 'montant') {
+      return formData.reductionValue;
+    }
+    return 0;
+  };
 
   const calculateTotal = () => {
     if (formData.dateDebut && formData.dateFin) {
@@ -49,7 +60,9 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
       
       const selectedVehicle = vehicles.find(v => v.id === formData.vehicleId);
       if (selectedVehicle && nbJours > 0) {
-        return nbJours * selectedVehicle.prixParJour;
+        const subtotal = nbJours * selectedVehicle.prixParJour;
+        const reduction = calculateReduction(subtotal);
+        return subtotal - reduction;
       }
     }
     return 0;
@@ -80,9 +93,11 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const total = calculateTotal();
+    const reduction = calculateReduction(getNbJours() * (getSelectedVehicle()?.prixParJour || 0));
     onSave({
       ...formData,
-      prixTotal: total
+      prixTotal: total,
+      montantReduction: reduction,
     });
   };
 
@@ -119,6 +134,9 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
       </div>
     );
   }
+
+  const subtotal = getNbJours() * (getSelectedVehicle()?.prixParJour || 0);
+  const reduction = calculateReduction(subtotal);
 
   return (
     <div className="space-y-6">
@@ -283,6 +301,52 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
                   )}
                 </div>
 
+                {/* Réduction */}
+                <div className="space-y-4 p-4 border rounded-lg">
+                  <h4 className="font-medium">Réduction</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="reductionType">Type de réduction</Label>
+                      <Select value={formData.reductionType} onValueChange={(value) => handleChange('reductionType', value)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="aucune">Aucune réduction</SelectItem>
+                          <SelectItem value="pourcentage">Pourcentage (%)</SelectItem>
+                          <SelectItem value="montant">Montant fixe (CFA)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {formData.reductionType !== 'aucune' && (
+                      <div className="space-y-2">
+                        <Label htmlFor="reductionValue">
+                          {formData.reductionType === 'pourcentage' ? 'Pourcentage (%)' : 'Montant (CFA)'}
+                        </Label>
+                        <Input
+                          id="reductionValue"
+                          type="number"
+                          value={formData.reductionValue}
+                          onChange={(e) => handleChange('reductionValue', parseFloat(e.target.value) || 0)}
+                          min="0"
+                          max={formData.reductionType === 'pourcentage' ? '100' : undefined}
+                          step={formData.reductionType === 'pourcentage' ? '0.1' : '1000'}
+                        />
+                      </div>
+                    )}
+
+                    {formData.reductionType !== 'aucune' && reduction > 0 && (
+                      <div className="space-y-2">
+                        <Label>Montant de la réduction</Label>
+                        <div className="p-2 bg-gray-100 rounded border">
+                          {reduction.toLocaleString()} CFA
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="notes">Notes particulières</Label>
                   <Textarea
@@ -358,10 +422,24 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
                 </div>
               )}
 
-              {calculateTotal() > 0 && (
-                <div className="pt-3 border-t">
-                  <p className="text-sm text-gray-600">Total</p>
-                  <p className="text-2xl font-bold text-primary">{calculateTotal().toLocaleString()} CFA</p>
+              {subtotal > 0 && (
+                <div className="pt-3 border-t space-y-2">
+                  <div className="flex justify-between">
+                    <p className="text-sm text-gray-600">Sous-total</p>
+                    <p className="font-medium">{subtotal.toLocaleString()} CFA</p>
+                  </div>
+                  
+                  {reduction > 0 && (
+                    <div className="flex justify-between text-red-600">
+                      <p className="text-sm">Réduction</p>
+                      <p className="font-medium">-{reduction.toLocaleString()} CFA</p>
+                    </div>
+                  )}
+                  
+                  <div className="flex justify-between border-t pt-2">
+                    <p className="text-sm text-gray-600">Total</p>
+                    <p className="text-2xl font-bold text-primary">{calculateTotal().toLocaleString()} CFA</p>
+                  </div>
                 </div>
               )}
 
