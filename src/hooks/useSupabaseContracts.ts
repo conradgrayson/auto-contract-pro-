@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
@@ -20,6 +19,13 @@ export interface Contract {
   etatVehiculeRetour?: string;
   notes?: string;
   dateCreation: string;
+  conditions?: string;
+  adresseLivraison?: string;
+  chauffeurId?: string;
+  heureRecuperation?: string;
+  heureRendu?: string;
+  niveauCarburantDepart?: string;
+  niveauCarburantRetour?: string;
 }
 
 export const useSupabaseContracts = () => {
@@ -56,6 +62,13 @@ export const useSupabaseContracts = () => {
         etatVehiculeRetour: contract.etatvehiculeretour,
         notes: contract.notes,
         dateCreation: contract.created_at,
+        conditions: contract.conditions,
+        adresseLivraison: contract.adresselivraison,
+        chauffeurId: contract.chauffeurid,
+        heureRecuperation: contract.heurerecuperation,
+        heureRendu: contract.heurerendu,
+        niveauCarburantDepart: contract.niveaucarburantdepart,
+        niveauCarburantRetour: contract.niveaucarburantretour,
       }));
       
       setContracts(mappedContracts);
@@ -90,6 +103,13 @@ export const useSupabaseContracts = () => {
         etatvehiculedepart: contractData.etatVehiculeDepart,
         etatvehiculeretour: contractData.etatVehiculeRetour,
         notes: contractData.notes,
+        conditions: contractData.conditions,
+        adresselivraison: contractData.adresseLivraison,
+        chauffeurid: contractData.chauffeurId,
+        heurerecuperation: contractData.heureRecuperation,
+        heurerendu: contractData.heureRendu,
+        niveaucarburantdepart: contractData.niveauCarburantDepart,
+        niveaucarburantretour: contractData.niveauCarburantRetour,
       };
 
       const { data, error } = await supabase
@@ -117,6 +137,13 @@ export const useSupabaseContracts = () => {
         etatVehiculeRetour: data.etatvehiculeretour,
         notes: data.notes,
         dateCreation: data.created_at,
+        conditions: data.conditions,
+        adresseLivraison: data.adresselivraison,
+        chauffeurId: data.chauffeurid,
+        heureRecuperation: data.heurerecuperation,
+        heureRendu: data.heurerendu,
+        niveauCarburantDepart: data.niveaucarburantdepart,
+        niveauCarburantRetour: data.niveaucarburantretour,
       };
 
       setContracts(prev => [mappedContract, ...prev]);
@@ -154,6 +181,13 @@ export const useSupabaseContracts = () => {
         etatvehiculedepart: contractData.etatVehiculeDepart,
         etatvehiculeretour: contractData.etatVehiculeRetour,
         notes: contractData.notes,
+        conditions: contractData.conditions,
+        adresselivraison: contractData.adresseLivraison,
+        chauffeurid: contractData.chauffeurId,
+        heurerecuperation: contractData.heureRecuperation,
+        heurerendu: contractData.heureRendu,
+        niveaucarburantdepart: contractData.niveauCarburantDepart,
+        niveaucarburantretour: contractData.niveauCarburantRetour,
       };
 
       const { data, error } = await supabase
@@ -182,6 +216,13 @@ export const useSupabaseContracts = () => {
         etatVehiculeRetour: data.etatvehiculeretour,
         notes: data.notes,
         dateCreation: data.created_at,
+        conditions: data.conditions,
+        adresseLivraison: data.adresselivraison,
+        chauffeurId: data.chauffeurid,
+        heureRecuperation: data.heurerecuperation,
+        heureRendu: data.heurerendu,
+        niveauCarburantDepart: data.niveaucarburantdepart,
+        niveauCarburantRetour: data.niveaucarburantretour,
       };
 
       setContracts(prev => prev.map(c => c.id === id ? mappedContract : c));
