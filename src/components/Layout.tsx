@@ -1,6 +1,6 @@
 
 import React, { ReactNode } from 'react';
-import { Car, Users, FileText, BarChart3, Settings, LogOut, UserCheck } from 'lucide-react';
+import { Car, Users, FileText, BarChart3, Settings, LogOut, UserCheck, Receipt } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,6 +20,7 @@ const Layout = ({ children, activeTab, onTabChange }: LayoutProps) => {
     { id: 'chauffeurs', label: 'Chauffeurs', icon: UserCheck },
     { id: 'clients', label: 'Clients', icon: Users },
     { id: 'contracts', label: 'Contrats', icon: FileText },
+    { id: 'factures', label: 'Factures', icon: Receipt },
     { id: 'settings', label: 'Paramètres', icon: Settings },
   ];
 
