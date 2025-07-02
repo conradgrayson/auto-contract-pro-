@@ -74,9 +74,9 @@ export const useSupabaseContracts = () => {
         niveauCarburantDepart: contract.niveaucarburantdepart,
         niveauCarburantRetour: contract.niveaucarburantretour,
         avecChauffeur: contract.avec_chauffeur,
-        reductionType: contract.reduction_type as 'aucune' | 'pourcentage' | 'montant' || 'aucune',
-        reductionValue: contract.reduction_value || 0,
-        montantReduction: contract.montant_reduction || 0,
+        reductionType: (contract as any).reduction_type as 'aucune' | 'pourcentage' | 'montant' || 'aucune',
+        reductionValue: (contract as any).reduction_value || 0,
+        montantReduction: (contract as any).montant_reduction || 0,
       }));
       
       setContracts(mappedContracts);
@@ -158,9 +158,9 @@ export const useSupabaseContracts = () => {
         niveauCarburantDepart: data.niveaucarburantdepart,
         niveauCarburantRetour: data.niveaucarburantretour,
         avecChauffeur: data.avec_chauffeur,
-        reductionType: data.reduction_type as 'aucune' | 'pourcentage' | 'montant' || 'aucune',
-        reductionValue: data.reduction_value || 0,
-        montantReduction: data.montant_reduction || 0,
+        reductionType: (data as any).reduction_type as 'aucune' | 'pourcentage' | 'montant' || 'aucune',
+        reductionValue: (data as any).reduction_value || 0,
+        montantReduction: (data as any).montant_reduction || 0,
       };
 
       setContracts(prev => [mappedContract, ...prev]);
@@ -246,9 +246,9 @@ export const useSupabaseContracts = () => {
         niveauCarburantDepart: data.niveaucarburantdepart,
         niveauCarburantRetour: data.niveaucarburantretour,
         avecChauffeur: data.avec_chauffeur,
-        reductionType: data.reduction_type as 'aucune' | 'pourcentage' | 'montant' || 'aucune',
-        reductionValue: data.reduction_value || 0,
-        montantReduction: data.montant_reduction || 0,
+        reductionType: (data as any).reduction_type as 'aucune' | 'pourcentage' | 'montant' || 'aucune',
+        reductionValue: (data as any).reduction_value || 0,
+        montantReduction: (data as any).montant_reduction || 0,
       };
 
       setContracts(prev => prev.map(c => c.id === id ? mappedContract : c));
