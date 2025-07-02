@@ -111,10 +111,11 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
                   <h1 className="text-2xl font-bold text-primary">PRO-EXCELLENCE</h1>
                   <p className="text-gray-600">Location de Véhicules</p>
                   <p className="text-sm text-gray-500 mt-2">
-                    123 Avenue des Champs-Élysées<br />
-                    75008 Paris, France<br />
-                    Tél: +33 1 23 45 67 89<br />
-                    Email: contact@pro-excellence.fr
+                    127 Rue AFG DJIDJOLE<br />
+                    Lomé, Togo<br />
+                    Tél: 00228 70 62 45 75 / 99 07 52 06<br />
+                    Email: proexcellence.tg@gmail.com<br />
+                    www.pro-excellence.com
                   </p>
                 </div>
               </div>
@@ -278,7 +279,8 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
 
             {/* Pied de page */}
             <div className="mt-12 pt-4 border-t border-gray-200 text-center text-xs text-gray-500">
-              <p>Pro-Excellence - RCCM: TG-LOM 2024 B 1234 - NIF: 1234567890123</p>
+              <p>Pro-Excellence - N° RCCM : TG-LFW-01-2022-A10-00507</p>
+              <p>Prestation de service - Nettoyage de Bureau -Achat/Vente/Location d'Appartement – Achat/Vente/Location de Voiture- Réalisation de jardin</p>
               <p>Document généré automatiquement - Contrat N° {contract.numeroContrat}</p>
             </div>
           </CardContent>
@@ -359,7 +361,13 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
 
             <div className="text-sm text-gray-600">
               <p><strong>Conditions de paiement:</strong> Paiement à la prise du véhicule</p>
-              <p><strong>Modalités:</strong> Espèces, mobile money, chèque acceptés</p>
+              <p><strong>Modalités:</strong> Espèces, mobile money (Flooz, T-Money), chèque acceptés</p>
+            </div>
+
+            <div className="mt-8 pt-4 border-t border-gray-200 text-center text-xs text-gray-500">
+              <p>Pro-Excellence - N° RCCM : TG-LFW-01-2022-A10-00507</p>
+              <p>Prestation de service - Nettoyage de Bureau -Achat/Vente/Location d'Appartement – Achat/Vente/Location de Voiture- Réalisation de jardin</p>
+              <p>Document généré automatiquement - Facture N° {contract.numeroContrat}</p>
             </div>
           </CardContent>
         </Card>

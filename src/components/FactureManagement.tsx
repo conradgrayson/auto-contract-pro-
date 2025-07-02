@@ -97,10 +97,11 @@ const FactureManagement = () => {
               <h1 className="text-2xl font-bold text-primary">PRO-EXCELLENCE</h1>
               <p className="text-gray-600">Location de Véhicules</p>
               <p className="text-sm text-gray-500 mt-2">
-                123 Avenue de la Paix<br />
+                127 Rue AFG DJIDJOLE<br />
                 Lomé, Togo<br />
-                Tél: +228 22 12 34 56<br />
-                Email: contact@pro-excellence.tg
+                Tél: 00228 70 62 45 75 / 99 07 52 06<br />
+                Email: proexcellence.tg@gmail.com<br />
+                www.pro-excellence.com
               </p>
             </div>
           </div>
@@ -168,7 +169,8 @@ const FactureManagement = () => {
         </div>
 
         <div className="mt-8 pt-4 border-t border-gray-200 text-center text-xs text-gray-500">
-          <p>Pro-Excellence - RCCM: TG-LOM 2024 B 1234 - NIF: 1234567890123</p>
+          <p>Pro-Excellence - N° RCCM : TG-LFW-01-2022-A10-00507</p>
+          <p>Prestation de service - Nettoyage de Bureau -Achat/Vente/Location d'Appartement – Achat/Vente/Location de Voiture- Réalisation de jardin</p>
           <p>Document généré automatiquement - Facture N° {facture.numeroContrat}</p>
         </div>
       </div>
