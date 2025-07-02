@@ -42,12 +42,19 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
     const element = document.getElementById('contract-content');
     if (!element) return;
 
-    const canvas = await html2canvas(element);
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      height: element.scrollHeight,
+      width: element.scrollWidth
+    });
+    
     const imgData = canvas.toDataURL('image/png');
     
-    const pdf = new jsPDF();
+    const pdf = new jsPDF('p', 'mm', 'a4');
     const imgWidth = 210;
-    const pageHeight = 295;
+    const pageHeight = 297;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     let heightLeft = imgHeight;
     

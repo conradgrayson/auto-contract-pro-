@@ -57,12 +57,27 @@ const FactureManagement = () => {
     const factureElement = document.getElementById(`facture-${facture.id}`);
     if (!factureElement) return;
 
-    const canvas = await html2canvas(factureElement);
+    // Temporarily show the element for capture
+    factureElement.style.display = 'block';
+    factureElement.style.position = 'absolute';
+    factureElement.style.left = '-9999px';
+
+    const canvas = await html2canvas(factureElement, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff'
+    });
+    
+    // Hide the element again
+    factureElement.style.display = 'none';
+    factureElement.style.position = '';
+    factureElement.style.left = '';
+
     const imgData = canvas.toDataURL('image/png');
     
-    const pdf = new jsPDF();
+    const pdf = new jsPDF('p', 'mm', 'a4');
     const imgWidth = 210;
-    const pageHeight = 295;
+    const pageHeight = 297;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     let heightLeft = imgHeight;
     
@@ -85,7 +100,7 @@ const FactureManagement = () => {
     const today = new Date().toLocaleDateString('fr-FR');
 
     return (
-      <div id={`facture-${facture.id}`} className="bg-white p-8 hidden print-content">
+      <div id={`facture-${facture.id}`} className="bg-white p-8" style={{ display: 'none' }}>
         <div className="flex justify-between items-start mb-8">
           <div className="flex items-center gap-4">
             <img 
