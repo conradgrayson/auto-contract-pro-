@@ -43,34 +43,67 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
     if (!element) return;
 
     const canvas = await html2canvas(element, {
-      scale: 2,
+      scale: 1.5,
       useCORS: true,
       backgroundColor: '#ffffff',
-      height: element.scrollHeight,
-      width: element.scrollWidth
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: element.scrollWidth,
+      windowHeight: element.scrollHeight
     });
     
     const imgData = canvas.toDataURL('image/png');
     
     const pdf = new jsPDF('p', 'mm', 'a4');
-    const imgWidth = 210;
-    const pageHeight = 297;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    
-    let position = 0;
-    
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-    
-    while (heightLeft >= 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+    const imgX = (pdfWidth - imgWidth * ratio) / 2;
+    const imgY = 0;
+
+    const scaledWidth = imgWidth * ratio;
+    const scaledHeight = imgHeight * ratio;
+
+    if (scaledHeight <= pdfHeight) {
+      // Le contenu tient sur une page
+      pdf.addImage(imgData, 'PNG', imgX, imgY, scaledWidth, scaledHeight);
+    } else {
+      // Le contenu nécessite plusieurs pages
+      let position = 0;
+      const pageHeight = pdfHeight;
+      
+      while (position < scaledHeight) {
+        const pageCanvas = document.createElement('canvas');
+        const pageCtx = pageCanvas.getContext('2d');
+        const sourceY = position / ratio;
+        const sourceHeight = Math.min(pageHeight / ratio, imgHeight - sourceY);
+        
+        pageCanvas.width = imgWidth;
+        pageCanvas.height = sourceHeight;
+        
+        const img = new Image();
+        img.onload = () => {
+          pageCtx.drawImage(img, 0, sourceY, imgWidth, sourceHeight, 0, 0, imgWidth, sourceHeight);
+          const pageImgData = pageCanvas.toDataURL('image/png');
+          
+          if (position > 0) {
+            pdf.addPage();
+          }
+          
+          pdf.addImage(pageImgData, 'PNG', imgX, 0, scaledWidth, sourceHeight * ratio);
+        };
+        img.src = imgData;
+        
+        position += pageHeight;
+      }
     }
     
-    pdf.save(`contrat-${contract.numeroContrat}.pdf`);
+    // Utiliser setTimeout pour s'assurer que toutes les images sont traitées
+    setTimeout(() => {
+      pdf.save(`contrat-${contract.numeroContrat}.pdf`);
+    }, 1000);
   };
 
   const today = new Date().toLocaleDateString('fr-FR');
