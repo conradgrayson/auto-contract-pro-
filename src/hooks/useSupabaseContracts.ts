@@ -96,6 +96,8 @@ export const useSupabaseContracts = () => {
     if (!user) return null;
 
     try {
+      console.log('Creating contract with data:', contractData);
+      
       // Mapper les données vers les noms de colonnes de la base
       const dbData = {
         user_id: user.id,
@@ -105,25 +107,28 @@ export const useSupabaseContracts = () => {
         datefin: contractData.dateFin,
         prixtotal: contractData.prixTotal,
         caution: contractData.caution,
-        kilometragedepart: contractData.kilometrageDepart,
-        kilometrageretour: contractData.kilometrageRetour,
+        kilometragedepart: contractData.kilometrageDepart || null,
+        kilometrageretour: contractData.kilometrageRetour || null,
         statut: contractData.statut,
-        etatvehiculedepart: contractData.etatVehiculeDepart,
-        etatvehiculeretour: contractData.etatVehiculeRetour,
-        notes: contractData.notes,
-        conditions: contractData.conditions,
-        adresselivraison: contractData.adresseLivraison,
-        chauffeur_id: contractData.chauffeurId,
-        heurerecuperation: contractData.heureRecuperation,
-        heurerendu: contractData.heureRendu,
-        niveaucarburantdepart: contractData.niveauCarburantDepart,
-        niveaucarburantretour: contractData.niveauCarburantRetour,
-        avec_chauffeur: contractData.avecChauffeur,
+        etatvehiculedepart: contractData.etatVehiculeDepart || null,
+        etatvehiculeretour: contractData.etatVehiculeRetour || null,
+        notes: contractData.notes || null,
+        conditions: contractData.conditions || null,
+        adresselivraison: contractData.adresseLivraison || null,
+        chauffeur_id: contractData.chauffeurId || null,
+        heurerecuperation: contractData.heureRecuperation || null,
+        heurerendu: contractData.heureRendu || null,
+        niveaucarburantdepart: contractData.niveauCarburantDepart || null,
+        niveaucarburantretour: contractData.niveauCarburantRetour || null,
+        avec_chauffeur: contractData.avecChauffeur || false,
         reduction_type: contractData.reductionType || 'aucune',
         reduction_value: contractData.reductionValue || 0,
         montant_reduction: contractData.montantReduction || 0,
-        numerocontrat: 'TEMP-' + Date.now(), // Temporary, will be overridden by trigger
+        // Le trigger générera le vrai numéro
+        numerocontrat: 'TEMP-' + Date.now(),
       };
+
+      console.log('Mapped DB data:', dbData);
 
       const { data, error } = await supabase
         .from('contracts')
@@ -131,7 +136,10 @@ export const useSupabaseContracts = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
       // Mapper les données retournées vers notre interface
       const mappedContract = {
