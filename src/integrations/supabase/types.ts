@@ -164,7 +164,6 @@ export type Database = {
           avec_chauffeur: boolean | null
           caution: number
           chauffeur_id: string | null
-          chauffeurid: string | null
           clientid: string
           conditions: string | null
           created_at: string
@@ -195,7 +194,6 @@ export type Database = {
           avec_chauffeur?: boolean | null
           caution?: number
           chauffeur_id?: string | null
-          chauffeurid?: string | null
           clientid: string
           conditions?: string | null
           created_at?: string
@@ -226,7 +224,6 @@ export type Database = {
           avec_chauffeur?: boolean | null
           caution?: number
           chauffeur_id?: string | null
-          chauffeurid?: string | null
           clientid?: string
           conditions?: string | null
           created_at?: string
