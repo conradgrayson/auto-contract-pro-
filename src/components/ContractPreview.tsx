@@ -42,68 +42,85 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
     const element = document.getElementById('contract-content');
     if (!element) return;
 
+    // Améliorer la qualité de capture pour éviter les coupures
     const canvas = await html2canvas(element, {
-      scale: 1.5,
+      scale: 2,
       useCORS: true,
       backgroundColor: '#ffffff',
       scrollX: 0,
       scrollY: 0,
-      windowWidth: element.scrollWidth,
-      windowHeight: element.scrollHeight
+      logging: false,
+      allowTaint: true,
+      foreignObjectRendering: true,
+      imageTimeout: 0,
+      removeContainer: true
     });
     
-    const imgData = canvas.toDataURL('image/png');
+    const imgData = canvas.toDataURL('image/png', 1.0);
     
     const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const imgWidth = canvas.width;
-    const imgHeight = canvas.height;
-    const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-    const imgX = (pdfWidth - imgWidth * ratio) / 2;
-    const imgY = 0;
-
-    const scaledWidth = imgWidth * ratio;
-    const scaledHeight = imgHeight * ratio;
-
-    if (scaledHeight <= pdfHeight) {
-      // Le contenu tient sur une page
-      pdf.addImage(imgData, 'PNG', imgX, imgY, scaledWidth, scaledHeight);
+    const pageWidth = 210; // A4 width in mm
+    const pageHeight = 297; // A4 height in mm
+    const margin = 15; // Marge plus large pour un rendu professionnel
+    const contentWidth = pageWidth - (2 * margin);
+    
+    // Calculer la hauteur en fonction du ratio
+    const imgAspectRatio = canvas.height / canvas.width;
+    const contentHeight = contentWidth * imgAspectRatio;
+    
+    // Si le contenu tient sur une page
+    if (contentHeight <= pageHeight - (2 * margin)) {
+      pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, contentHeight);
     } else {
-      // Le contenu nécessite plusieurs pages
-      let position = 0;
-      const pageHeight = pdfHeight;
+      // Diviser le contenu sur plusieurs pages avec des espaces appropriés
+      const usableHeight = pageHeight - (2 * margin) - 20; // Espace pour numéro de page
+      const totalPages = Math.ceil(contentHeight / usableHeight);
       
-      while (position < scaledHeight) {
-        const pageCanvas = document.createElement('canvas');
-        const pageCtx = pageCanvas.getContext('2d');
-        const sourceY = position / ratio;
-        const sourceHeight = Math.min(pageHeight / ratio, imgHeight - sourceY);
+      for (let pageNum = 0; pageNum < totalPages; pageNum++) {
+        if (pageNum > 0) {
+          pdf.addPage();
+        }
         
-        pageCanvas.width = imgWidth;
-        pageCanvas.height = sourceHeight;
+        // Calculer la position Y pour cette page
+        const yPosition = -(pageNum * usableHeight);
         
-        const img = new Image();
-        img.onload = () => {
-          pageCtx.drawImage(img, 0, sourceY, imgWidth, sourceHeight, 0, 0, imgWidth, sourceHeight);
-          const pageImgData = pageCanvas.toDataURL('image/png');
-          
-          if (position > 0) {
-            pdf.addPage();
-          }
-          
-          pdf.addImage(pageImgData, 'PNG', imgX, 0, scaledWidth, sourceHeight * ratio);
-        };
-        img.src = imgData;
+        // Ajouter l'image avec un positionnement précis
+        pdf.addImage(
+          imgData, 
+          'PNG', 
+          margin, 
+          margin + yPosition, 
+          contentWidth, 
+          contentHeight
+        );
         
-        position += pageHeight;
+        // Ajouter numéro de page avec style professionnel
+        pdf.setFontSize(10);
+        pdf.setTextColor(150, 150, 150);
+        pdf.text(
+          `Page ${pageNum + 1} sur ${totalPages}`, 
+          pageWidth / 2, 
+          pageHeight - 10, 
+          { align: 'center' }
+        );
+        
+        // Ajouter ligne de séparation en bas de page
+        pdf.setDrawColor(200, 200, 200);
+        pdf.setLineWidth(0.1);
+        pdf.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
       }
     }
     
-    // Utiliser setTimeout pour s'assurer que toutes les images sont traitées
-    setTimeout(() => {
-      pdf.save(`contrat-${contract.numeroContrat}.pdf`);
-    }, 1000);
+    // Métadonnées du PDF
+    pdf.setProperties({
+      title: `Contrat de Location - ${contract.numeroContrat}`,
+      subject: 'Contrat de location de véhicule',
+      author: 'Pro-Excellence',
+      keywords: 'contrat, location, véhicule',
+      creator: 'Pro-Excellence - Système de gestion'
+    });
+    
+    pdf.save(`contrat-${contract.numeroContrat}.pdf`);
   };
 
   const today = new Date().toLocaleDateString('fr-FR');
@@ -137,6 +154,37 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
 
       {/* Document imprimable */}
       <div id="contract-content" className="print-page bg-white">
+        <style>
+          {`
+            @media print {
+              .print-page {
+                page-break-inside: avoid;
+                margin: 0;
+                padding: 0;
+              }
+              .print-section {
+                page-break-inside: avoid;
+                margin-bottom: 20px;
+              }
+              .print-conditions {
+                font-size: 11px;
+                line-height: 1.4;
+              }
+              .print-conditions p {
+                margin-bottom: 8px;
+                page-break-inside: avoid;
+              }
+              .print-signature-section {
+                page-break-before: auto;
+                margin-top: 30px;
+              }
+            }
+            @page {
+              margin: 15mm;
+              size: A4;
+            }
+          `}
+        </style>
         <Card className="shadow-lg">
           <CardContent className="p-8">
             {/* En-tête avec logo */}
@@ -167,7 +215,7 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
             </div>
 
             {/* Informations client et véhicule */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 print-section">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
                   INFORMATIONS CLIENT
@@ -191,7 +239,7 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
             </div>
 
             {/* Détails de la location */}
-            <div className="mb-8">
+            <div className="mb-8 print-section">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
                 DÉTAILS DE LA LOCATION
               </h3>
@@ -216,7 +264,7 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
             </div>
 
             {/* Facturation avec réduction */}
-            <div className="mb-8">
+            <div className="mb-8 print-section">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
                 FACTURATION
               </h3>
@@ -245,7 +293,7 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
                 CONDITIONS DE LOCATION
               </h3>
-              <div className="text-sm text-gray-700 space-y-2">
+              <div className="text-sm text-gray-700 space-y-2 print-conditions">
                 <p><strong>NB :</strong> La caution est restituée à la fin du contrat de location en intégralité / Déduction s'il y'a de dégâts résultant de la location.</p>
                 <p>La voiture doit être utilisée uniquement à ………………................................................................……………… Et demeure sous la responsabilité du locataire durant toute la durée de ce présent contrat.</p>
                 
@@ -298,7 +346,7 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
             </div>
 
             {/* Signatures */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 print-signature-section">
               <div>
                 <p className="text-sm font-medium text-gray-900 mb-2">Signature du locataire</p>
                 <p className="text-xs text-gray-500 mb-8">Lu et approuvé</p>
