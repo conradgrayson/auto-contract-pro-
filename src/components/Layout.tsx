@@ -20,6 +20,7 @@ const Layout = ({ children, activeTab, onTabChange }: LayoutProps) => {
     { id: 'chauffeurs', label: 'Chauffeurs', icon: UserCheck },
     { id: 'clients', label: 'Clients', icon: Users },
     { id: 'contracts', label: 'Contrats', icon: FileText },
+    { id: 'contrats-partenaires', label: 'Contrats Partenaires', icon: FileText },
     { id: 'factures', label: 'Factures', icon: Receipt },
     { id: 'settings', label: 'Paramètres', icon: Settings },
   ];

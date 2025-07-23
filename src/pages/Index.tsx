@@ -8,6 +8,7 @@ import VehicleManagement from '@/components/VehicleManagement';
 import ChauffeurManagement from '@/components/ChauffeurManagement';
 import ClientManagement from '@/components/ClientManagement';
 import ContractManagement from '@/components/ContractManagement';
+import ContratPartenaireManagement from '@/components/ContratPartenaireManagement';
 import FactureManagement from '@/components/FactureManagement';
 import ContractTermsSettings from '@/components/ContractTermsSettings';
 
@@ -49,6 +50,8 @@ const Index = () => {
         return <ClientManagement />;
       case 'contracts':
         return <ContractManagement />;
+      case 'contrats-partenaires':
+        return <ContratPartenaireManagement />;
       case 'factures':
         return <FactureManagement />;
       case 'settings':

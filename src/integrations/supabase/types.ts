@@ -273,6 +273,63 @@ export type Database = {
           },
         ]
       }
+      contrats_partenaires: {
+        Row: {
+          adresse_partenaire: string
+          conditions_particulieres: string | null
+          created_at: string
+          date_debut: string
+          date_fin: string
+          email_partenaire: string
+          id: string
+          montant_total: number
+          nom_partenaire: string
+          numero_contrat: string
+          objet_contrat: string
+          statut: string
+          telephone_partenaire: string
+          type_partenariat: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          adresse_partenaire: string
+          conditions_particulieres?: string | null
+          created_at?: string
+          date_debut: string
+          date_fin: string
+          email_partenaire: string
+          id?: string
+          montant_total?: number
+          nom_partenaire: string
+          numero_contrat: string
+          objet_contrat: string
+          statut?: string
+          telephone_partenaire: string
+          type_partenariat: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          adresse_partenaire?: string
+          conditions_particulieres?: string | null
+          created_at?: string
+          date_debut?: string
+          date_fin?: string
+          email_partenaire?: string
+          id?: string
+          montant_total?: number
+          nom_partenaire?: string
+          numero_contrat?: string
+          objet_contrat?: string
+          statut?: string
+          telephone_partenaire?: string
+          type_partenariat?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       vehicles: {
         Row: {
           annee: number
