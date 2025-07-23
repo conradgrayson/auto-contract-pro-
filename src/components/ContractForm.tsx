@@ -28,6 +28,8 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
     vehicleId: contract?.vehicleId || '',
     dateDebut: contract?.dateDebut || '',
     dateFin: contract?.dateFin || '',
+    heureRecuperation: contract?.heureRecuperation || '',
+    heureRendu: contract?.heureRendu || '',
     prixTotal: 0,
     caution: contract?.caution || 300000,
     kilometrageDepart: contract?.kilometrageDepart || undefined,
@@ -234,6 +236,28 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
                   </div>
 
                   <div className="space-y-2">
+                    <Label htmlFor="heureRecuperation">Heure de récupération</Label>
+                    <Input
+                      id="heureRecuperation"
+                      type="time"
+                      value={formData.heureRecuperation}
+                      onChange={(e) => handleChange('heureRecuperation', e.target.value)}
+                      placeholder="08:00"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="heureRendu">Heure de rendu</Label>
+                    <Input
+                      id="heureRendu"
+                      type="time"
+                      value={formData.heureRendu}
+                      onChange={(e) => handleChange('heureRendu', e.target.value)}
+                      placeholder="18:00"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
                     <Label htmlFor="caution">Caution (CFA)</Label>
                     <Input
                       id="caution"
@@ -412,6 +436,13 @@ const ContractForm = ({ contract, onSave, onCancel }: ContractFormProps) => {
                     {new Date(formData.dateDebut).toLocaleDateString('fr-FR')} - {new Date(formData.dateFin).toLocaleDateString('fr-FR')}
                   </p>
                   <p className="text-sm text-gray-500">{getNbJours()} jour(s)</p>
+                  {(formData.heureRecuperation || formData.heureRendu) && (
+                    <p className="text-sm text-gray-500">
+                      {formData.heureRecuperation && `Récupération: ${formData.heureRecuperation}`}
+                      {formData.heureRecuperation && formData.heureRendu && ' | '}
+                      {formData.heureRendu && `Rendu: ${formData.heureRendu}`}
+                    </p>
+                  )}
                 </div>
               )}
 
