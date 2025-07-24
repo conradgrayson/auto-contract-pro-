@@ -3,10 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, Download } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useSupabaseContratsPartenaires, ContratPartenaire } from '@/hooks/useSupabaseContratsPartenaires';
 import ContratPartenaireForm from './ContratPartenaireForm';
+import ContratPartenairePreview from './ContratPartenairePreview';
 import { useAuth } from '@/hooks/useAuth';
 
 const ContratPartenaireManagement = () => {
@@ -17,6 +18,7 @@ const ContratPartenaireManagement = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingContrat, setEditingContrat] = useState<ContratPartenaire | null>(null);
   const [previewContrat, setPreviewContrat] = useState<ContratPartenaire | null>(null);
+  const [pdfPreviewContrat, setPdfPreviewContrat] = useState<ContratPartenaire | null>(null);
 
   const filteredContrats = contratsPartenaires.filter(contrat =>
     contrat.nom_partenaire.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -92,6 +94,14 @@ const ContratPartenaireManagement = () => {
     setPreviewContrat(contrat);
     setShowForm(false);
     setEditingContrat(null);
+    setPdfPreviewContrat(null);
+  };
+
+  const handlePdfPreview = (contrat: ContratPartenaire) => {
+    setPdfPreviewContrat(contrat);
+    setShowForm(false);
+    setEditingContrat(null);
+    setPreviewContrat(null);
   };
 
   if (loading) {
@@ -111,6 +121,15 @@ const ContratPartenaireManagement = () => {
           setShowForm(false);
           setEditingContrat(null);
         }}
+      />
+    );
+  }
+
+  if (pdfPreviewContrat) {
+    return (
+      <ContratPartenairePreview
+        contrat={pdfPreviewContrat}
+        onBack={() => setPdfPreviewContrat(null)}
       />
     );
   }
@@ -185,6 +204,10 @@ const ContratPartenaireManagement = () => {
                 <Edit className="h-4 w-4" />
                 Modifier
               </Button>
+              <Button onClick={() => handlePdfPreview(previewContrat)} variant="outline" className="flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Version PDF
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -257,6 +280,15 @@ const ContratPartenaireManagement = () => {
                     >
                       <Eye className="h-4 w-4" />
                       Voir
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePdfPreview(contrat)}
+                      className="flex items-center gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      PDF
                     </Button>
                     <Button
                       variant="outline"
