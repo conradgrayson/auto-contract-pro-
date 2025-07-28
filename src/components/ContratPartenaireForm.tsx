@@ -27,6 +27,8 @@ const ContratPartenaireForm = ({ contrat, onSave, onCancel }: ContratPartenaireF
     objet_contrat: contrat?.objet_contrat || '',
     date_debut: contrat?.date_debut || '',
     date_fin: contrat?.date_fin || '',
+    heure_debut: contrat?.heure_debut || '',
+    heure_fin: contrat?.heure_fin || '',
     montant_total: contrat?.montant_total || 0,
     statut: contrat?.statut || 'actif',
     conditions_particulieres: contrat?.conditions_particulieres || '',
@@ -226,6 +228,28 @@ const ContratPartenaireForm = ({ contrat, onSave, onCancel }: ContratPartenaireF
                     onChange={(e) => handleChange('date_fin', e.target.value)}
                     min={formData.date_debut}
                     required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="heure_debut">Heure de début</Label>
+                  <Input
+                    id="heure_debut"
+                    type="time"
+                    value={formData.heure_debut}
+                    onChange={(e) => handleChange('heure_debut', e.target.value)}
+                    placeholder="08:00"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="heure_fin">Heure de fin</Label>
+                  <Input
+                    id="heure_fin"
+                    type="time"
+                    value={formData.heure_fin}
+                    onChange={(e) => handleChange('heure_fin', e.target.value)}
+                    placeholder="18:00"
                   />
                 </div>
               </div>

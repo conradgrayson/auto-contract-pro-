@@ -14,6 +14,8 @@ export interface ContratPartenaire {
   objet_contrat: string;
   date_debut: string;
   date_fin: string;
+  heure_debut?: string;
+  heure_fin?: string;
   montant_total: number;
   statut: string;
   conditions_particulieres?: string;
@@ -57,6 +59,8 @@ export const useSupabaseContratsPartenaires = () => {
         objet_contrat: item.objet_contrat,
         date_debut: item.date_debut,
         date_fin: item.date_fin,
+        heure_debut: item.heure_debut,
+        heure_fin: item.heure_fin,
         montant_total: item.montant_total,
         statut: item.statut,
         conditions_particulieres: item.conditions_particulieres,
@@ -90,6 +94,8 @@ export const useSupabaseContratsPartenaires = () => {
         objet_contrat: contratData.objet_contrat,
         date_debut: contratData.date_debut,
         date_fin: contratData.date_fin,
+        heure_debut: contratData.heure_debut || null,
+        heure_fin: contratData.heure_fin || null,
         montant_total: contratData.montant_total,
         statut: contratData.statut,
         conditions_particulieres: contratData.conditions_particulieres || null,
@@ -123,6 +129,8 @@ export const useSupabaseContratsPartenaires = () => {
         objet_contrat: data.objet_contrat,
         date_debut: data.date_debut,
         date_fin: data.date_fin,
+        heure_debut: data.heure_debut,
+        heure_fin: data.heure_fin,
         montant_total: data.montant_total,
         statut: data.statut,
         conditions_particulieres: data.conditions_particulieres,
@@ -158,6 +166,8 @@ export const useSupabaseContratsPartenaires = () => {
         objet_contrat: contratData.objet_contrat,
         date_debut: contratData.date_debut,
         date_fin: contratData.date_fin,
+        heure_debut: contratData.heure_debut || null,
+        heure_fin: contratData.heure_fin || null,
         montant_total: contratData.montant_total,
         statut: contratData.statut,
         conditions_particulieres: contratData.conditions_particulieres || null,

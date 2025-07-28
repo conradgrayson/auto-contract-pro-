@@ -281,6 +281,8 @@ export type Database = {
           date_debut: string
           date_fin: string
           email_partenaire: string
+          heure_debut: string | null
+          heure_fin: string | null
           id: string
           montant_total: number
           nom_partenaire: string
@@ -299,6 +301,8 @@ export type Database = {
           date_debut: string
           date_fin: string
           email_partenaire: string
+          heure_debut?: string | null
+          heure_fin?: string | null
           id?: string
           montant_total?: number
           nom_partenaire: string
@@ -317,6 +321,8 @@ export type Database = {
           date_debut?: string
           date_fin?: string
           email_partenaire?: string
+          heure_debut?: string | null
+          heure_fin?: string | null
           id?: string
           montant_total?: number
           nom_partenaire?: string
