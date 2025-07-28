@@ -2,8 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Download } from 'lucide-react';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { generateContractPDF } from './ContractPDFGenerator';
 
 interface Contract {
   id: string;
@@ -39,85 +38,22 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
   };
 
   const handleDownloadPDF = async () => {
-    const element = document.getElementById('contract-content');
-    if (!element) return;
-
-    // Améliorer la qualité de capture pour éviter les coupures
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      scrollX: 0,
-      scrollY: 0,
-      logging: false,
-      allowTaint: true,
-      foreignObjectRendering: true,
-      imageTimeout: 0,
-      removeContainer: true
-    });
-    
-    const imgData = canvas.toDataURL('image/png', 1.0);
-    
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = 210; // A4 width in mm
-    const pageHeight = 297; // A4 height in mm
-    const margin = 15; // Marge plus large pour un rendu professionnel
-    const contentWidth = pageWidth - (2 * margin);
-    
-    // Calculer la hauteur en fonction du ratio
-    const imgAspectRatio = canvas.height / canvas.width;
-    const contentHeight = contentWidth * imgAspectRatio;
-    
-    // Si le contenu tient sur une page
-    if (contentHeight <= pageHeight - (2 * margin)) {
-      pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, contentHeight);
-    } else {
-      // Diviser le contenu sur plusieurs pages avec des espaces appropriés
-      const usableHeight = pageHeight - (2 * margin) - 20; // Espace pour numéro de page
-      const totalPages = Math.ceil(contentHeight / usableHeight);
-      
-      for (let pageNum = 0; pageNum < totalPages; pageNum++) {
-        if (pageNum > 0) {
-          pdf.addPage();
-        }
-        
-        // Calculer la position Y pour cette page
-        const yPosition = -(pageNum * usableHeight);
-        
-        // Ajouter l'image avec un positionnement précis
-        pdf.addImage(
-          imgData, 
-          'PNG', 
-          margin, 
-          margin + yPosition, 
-          contentWidth, 
-          contentHeight
-        );
-        
-        // Ajouter numéro de page avec style professionnel
-        pdf.setFontSize(10);
-        pdf.setTextColor(150, 150, 150);
-        pdf.text(
-          `Page ${pageNum + 1} sur ${totalPages}`, 
-          pageWidth / 2, 
-          pageHeight - 10, 
-          { align: 'center' }
-        );
-        
-        // Ajouter ligne de séparation en bas de page
-        pdf.setDrawColor(200, 200, 200);
-        pdf.setLineWidth(0.1);
-        pdf.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
-      }
-    }
-    
-    // Métadonnées du PDF
-    pdf.setProperties({
-      title: `Contrat de Location - ${contract.numeroContrat}`,
-      subject: 'Contrat de location de véhicule',
-      author: 'Pro-Excellence',
-      keywords: 'contrat, location, véhicule',
-      creator: 'Pro-Excellence - Système de gestion'
+    const pdf = generateContractPDF({
+      id: contract.id,
+      clientNom: contract.clientNom,
+      clientPrenom: contract.clientPrenom,
+      vehicleMarque: contract.vehicleMarque,
+      vehicleModele: contract.vehicleModele,
+      vehicleImmatriculation: contract.vehicleImmatriculation,
+      dateDebut: contract.dateDebut,
+      dateFin: contract.dateFin,
+      prixJour: contract.prixJour,
+      nbJours: contract.nbJours,
+      montantTotal: contract.montantTotal,
+      numeroContrat: contract.numeroContrat,
+      reductionType: contract.reductionType,
+      reductionValue: contract.reductionValue,
+      montantReduction: contract.montantReduction,
     });
     
     pdf.save(`contrat-${contract.numeroContrat}.pdf`);

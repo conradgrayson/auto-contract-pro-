@@ -1,9 +1,8 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Download } from 'lucide-react';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { ContratPartenaire } from '@/hooks/useSupabaseContratsPartenaires';
+import { generateContratPartenairePDF } from './ContratPartenairePDFGenerator';
 
 interface ContratPartenairePreviewProps {
   contrat: ContratPartenaire;
@@ -16,41 +15,7 @@ const ContratPartenairePreview = ({ contrat, onBack }: ContratPartenairePreviewP
   };
 
   const handleSavePDF = async () => {
-    const element = document.getElementById('contrat-partenaire-content');
-    if (!element) return;
-
-    // Configuration pour une meilleure qualité et gestion des pages
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#ffffff',
-      width: element.scrollWidth,
-      height: element.scrollHeight,
-    });
-
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = 210; // A4 width in mm
-    const pageHeight = 297; // A4 height in mm
-    const imgWidth = pageWidth - 20; // 10mm margin on each side
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    let heightLeft = imgHeight;
-    let position = 10; // Top margin
-
-    // Première page
-    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight - 20; // 20mm for margins
-
-    // Pages supplémentaires si nécessaire
-    while (heightLeft >= 0) {
-      position = heightLeft - imgHeight + 10;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight - 20;
-    }
-
+    const pdf = generateContratPartenairePDF(contrat);
     pdf.save(`contrat-partenaire-${contrat.numero_contrat}.pdf`);
   };
 
