@@ -7,6 +7,29 @@ interface ContratPartenairePDFGeneratorProps {
 }
 
 export const generateContratPartenairePDF = (contrat: ContratPartenaire) => {
+  // Récupérer les termes personnalisés depuis localStorage
+  const getContractTerms = () => {
+    const savedTerms = localStorage.getItem('contractTerms');
+    const defaultTerms = {
+      generalTerms: '',
+      companyInfo: `Pro-Excellence - Location de Véhicules
+123 Avenue de la Paix, Lomé, Togo
+Tél: +228 22 12 34 56
+Email: contact@pro-excellence.tg`,
+      paymentTerms: ''
+    };
+    
+    if (savedTerms) {
+      try {
+        return { ...defaultTerms, ...JSON.parse(savedTerms) };
+      } catch (e) {
+        return defaultTerms;
+      }
+    }
+    return defaultTerms;
+  };
+
+  const contractTerms = getContractTerms();
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pageWidth = 210;
   const pageHeight = 297;
@@ -58,16 +81,26 @@ export const generateContratPartenairePDF = (contrat: ContratPartenaire) => {
     }
   };
 
-  // En-tête avec logo textuel
+  // En-tête avec informations personnalisées de l'entreprise
+  const companyLines = contractTerms.companyInfo.split('\n');
+  
   pdf.setTextColor(0, 102, 204);
-  pdf.setFontSize(24);
+  pdf.setFontSize(20);
   pdf.setFont('helvetica', 'bold');
-  pdf.text('PRO-EXCELLENCE', pageWidth / 2, currentY, { align: 'center' });
+  pdf.text(companyLines[0] || 'PRO-EXCELLENCE', pageWidth / 2, currentY, { align: 'center' });
   
   currentY += 8;
-  pdf.setFontSize(12);
+  pdf.setFontSize(10);
   pdf.setFont('helvetica', 'normal');
-  pdf.text('Location de Véhicules Premium', pageWidth / 2, currentY, { align: 'center' });
+  pdf.setTextColor(64, 64, 64);
+  
+  // Afficher les autres lignes des informations de l'entreprise
+  for (let i = 1; i < companyLines.length; i++) {
+    if (companyLines[i].trim()) {
+      pdf.text(companyLines[i].trim(), pageWidth / 2, currentY, { align: 'center' });
+      currentY += 4;
+    }
+  }
   
   currentY += 15;
   

@@ -22,11 +22,45 @@ interface Contract {
   caution?: number;
 }
 
+interface ContractTerms {
+  generalTerms: string;
+  companyInfo: string;
+  paymentTerms: string;
+}
+
 interface ContractPDFGeneratorProps {
   contract: Contract;
 }
 
 export const generateContractPDF = (contract: Contract) => {
+  // Récupérer les termes personnalisés depuis localStorage
+  const getContractTerms = (): ContractTerms => {
+    const savedTerms = localStorage.getItem('contractTerms');
+    const defaultTerms = {
+      generalTerms: `• Le véhicule doit être retourné avec le même niveau de carburant qu'au départ.
+• Tout retard dans la restitution du véhicule sera facturé une journée supplémentaire.
+• Le locataire s'engage à respecter le code de la route et à utiliser le véhicule dans les conditions normales.
+• Une caution de 300,000 CFA est demandée et sera restituée après vérification de l'état du véhicule.
+• En cas d'accident, le locataire doit immédiatement contacter Pro-Excellence et les autorités compétentes.`,
+      companyInfo: `Pro-Excellence - Location de Véhicules
+123 Avenue de la Paix, Lomé, Togo
+Tél: +228 22 12 34 56
+Email: contact@pro-excellence.tg`,
+      paymentTerms: `Paiement à la prise du véhicule. Espèces, mobile money acceptés.
+Caution de 300,000 CFA exigée.`
+    };
+    
+    if (savedTerms) {
+      try {
+        return { ...defaultTerms, ...JSON.parse(savedTerms) };
+      } catch (e) {
+        return defaultTerms;
+      }
+    }
+    return defaultTerms;
+  };
+
+  const contractTerms = getContractTerms();
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pageWidth = 210;
   const pageHeight = 297;
@@ -55,16 +89,26 @@ export const generateContractPDF = (contract: Contract) => {
     return y + (lines.length * (options.fontSize || 10) * 0.4) + (options.spacing || 5);
   };
 
-  // En-tête avec logo textuel
+  // En-tête avec informations personnalisées de l'entreprise
+  const companyLines = contractTerms.companyInfo.split('\n');
+  
   pdf.setTextColor(0, 102, 204);
-  pdf.setFontSize(24);
+  pdf.setFontSize(20);
   pdf.setFont('helvetica', 'bold');
-  pdf.text('PRO-EXCELLENCE', pageWidth / 2, currentY, { align: 'center' });
+  pdf.text(companyLines[0] || 'PRO-EXCELLENCE', pageWidth / 2, currentY, { align: 'center' });
   
   currentY += 8;
-  pdf.setFontSize(12);
+  pdf.setFontSize(10);
   pdf.setFont('helvetica', 'normal');
-  pdf.text('Location de Véhicules Premium', pageWidth / 2, currentY, { align: 'center' });
+  pdf.setTextColor(64, 64, 64);
+  
+  // Afficher les autres lignes des informations de l'entreprise
+  for (let i = 1; i < companyLines.length; i++) {
+    if (companyLines[i].trim()) {
+      pdf.text(companyLines[i].trim(), pageWidth / 2, currentY, { align: 'center' });
+      currentY += 4;
+    }
+  }
   
   currentY += 15;
   
@@ -241,49 +285,54 @@ export const generateContractPDF = (contract: Contract) => {
   
   currentY += 15;
 
-  const conditions = [
-    {
-      title: "1. UTILISATION DU VÉHICULE",
-      content: "Le véhicule doit être utilisé dans le respect du code de la route et des bonnes pratiques de conduite. Le locataire s'engage à en faire un usage normal et prudent."
-    },
-    {
-      title: "2. RESTITUTION",
-      content: "Le véhicule doit être restitué avec le même niveau de carburant qu'au départ et dans le même état de propreté. Tout retard sera facturé selon nos tarifs en vigueur."
-    },
-    {
-      title: "3. CAUTION",
-      content: "Une caution est demandée à la prise du véhicule. Elle sera restituée après vérification de l'état du véhicule, déduction faite des éventuels dommages."
-    },
-    {
-      title: "4. ASSURANCE",
-      content: "Le véhicule est assuré au tiers. Le locataire reste responsable des dommages causés au véhicule loué et des franchises applicables."
-    },
-    {
-      title: "5. INTERDICTIONS",
-      content: "Il est formellement interdit de sous-louer le véhicule, de le conduire sous l'emprise d'alcool ou de stupéfiants, ou de l'utiliser pour des activités illégales."
-    }
-  ];
+  // Utiliser les conditions personnalisées
+  const generalTermsLines = contractTerms.generalTerms.split('\n').filter(line => line.trim());
+  const paymentTermsLines = contractTerms.paymentTerms.split('\n').filter(line => line.trim());
 
   pdf.setTextColor(64, 64, 64);
   pdf.setFontSize(10);
   pdf.setFont('helvetica', 'normal');
 
-  conditions.forEach((condition) => {
-    if (currentY > pageHeight - 50) {
+  // Afficher les conditions générales personnalisées
+  generalTermsLines.forEach((line, index) => {
+    if (currentY > pageHeight - 40) {
+      pdf.addPage();
+      currentY = 30;
+    }
+    
+    currentY = addText(line, margin, currentY, { 
+      fontSize: 10, 
+      spacing: 5,
+      maxWidth: pageWidth - 2 * margin
+    });
+  });
+
+  // Ajouter les conditions de paiement si elles existent
+  if (paymentTermsLines.length > 0) {
+    currentY += 10;
+    
+    if (currentY > pageHeight - 60) {
       pdf.addPage();
       currentY = 30;
     }
     
     pdf.setFont('helvetica', 'bold');
-    currentY = addText(condition.title, margin, currentY, { fontSize: 11, spacing: 5 });
+    currentY = addText("CONDITIONS DE PAIEMENT", margin, currentY, { fontSize: 11, spacing: 8 });
     
     pdf.setFont('helvetica', 'normal');
-    currentY = addText(condition.content, margin, currentY, { 
-      fontSize: 10, 
-      spacing: 10,
-      maxWidth: pageWidth - 2 * margin
+    paymentTermsLines.forEach((line) => {
+      if (currentY > pageHeight - 40) {
+        pdf.addPage();
+        currentY = 30;
+      }
+      
+      currentY = addText(line, margin, currentY, { 
+        fontSize: 10, 
+        spacing: 5,
+        maxWidth: pageWidth - 2 * margin
+      });
     });
-  });
+  }
 
   // Section signatures
   if (currentY > pageHeight - 80) {
