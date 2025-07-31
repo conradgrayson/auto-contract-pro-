@@ -11,18 +11,32 @@ export const generateContratPartenairePDF = (contrat: ContratPartenaire) => {
   const getContractTerms = () => {
     const savedTerms = localStorage.getItem('contractTerms');
     const defaultTerms = {
-      generalTerms: '',
+      generalTerms: `• Respect des clauses contractuelles définies
+• Obligation de confidentialité sur les informations échangées
+• Respect des délais et standards de qualité convenus
+• Communication régulière sur l'avancement des prestations`,
       companyInfo: `Pro-Excellence - Location de Véhicules
-123 Avenue de la Paix, Lomé, Togo
+123 Avenue de la Paix
+Lomé, Togo
 Tél: +228 22 12 34 56
-Email: contact@pro-excellence.tg`,
-      paymentTerms: ''
+Email: contact@pro-excellence.tg
+RCCM: TG-LOM 2024 B 1234
+NIF: 1234567890123`,
+      paymentTerms: `Conditions de paiement: Paiement selon échéancier convenu
+Modalités: Espèces, mobile money (Flooz, T-Money), virement bancaire acceptés
+Facturation mensuelle avec délai de règlement de 30 jours.`
     };
     
     if (savedTerms) {
       try {
-        return { ...defaultTerms, ...JSON.parse(savedTerms) };
+        const parsedTerms = JSON.parse(savedTerms);
+        return {
+          generalTerms: parsedTerms.generalTerms || defaultTerms.generalTerms,
+          companyInfo: parsedTerms.companyInfo || defaultTerms.companyInfo,
+          paymentTerms: parsedTerms.paymentTerms || defaultTerms.paymentTerms
+        };
       } catch (e) {
+        console.error('Erreur lors du parsing des termes du contrat:', e);
         return defaultTerms;
       }
     }

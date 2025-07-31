@@ -41,19 +41,32 @@ export const generateContractPDF = (contract: Contract) => {
 • Tout retard dans la restitution du véhicule sera facturé une journée supplémentaire.
 • Le locataire s'engage à respecter le code de la route et à utiliser le véhicule dans les conditions normales.
 • Une caution de 300,000 CFA est demandée et sera restituée après vérification de l'état du véhicule.
-• En cas d'accident, le locataire doit immédiatement contacter Pro-Excellence et les autorités compétentes.`,
+• En cas d'accident, le locataire doit immédiatement contacter Pro-Excellence et les autorités compétentes.
+• Les frais de péage, d'essence et de stationnement sont à la charge du locataire.
+• Il est interdit de sous-louer le véhicule ou de le prêter à un tiers.
+• Le locataire doit être âgé d'au moins 23 ans et posséder un permis de conduire valide depuis au moins 2 ans.`,
       companyInfo: `Pro-Excellence - Location de Véhicules
-123 Avenue de la Paix, Lomé, Togo
+123 Avenue de la Paix
+Lomé, Togo
 Tél: +228 22 12 34 56
-Email: contact@pro-excellence.tg`,
-      paymentTerms: `Paiement à la prise du véhicule. Espèces, mobile money acceptés.
-Caution de 300,000 CFA exigée.`
+Email: contact@pro-excellence.tg
+RCCM: TG-LOM 2024 B 1234
+NIF: 1234567890123`,
+      paymentTerms: `Conditions de paiement: Paiement à la prise du véhicule
+Modalités: Espèces, mobile money (Flooz, T-Money), chèque acceptés
+Une caution de 300,000 CFA est exigée et sera restituée après restitution du véhicule en bon état.`
     };
     
     if (savedTerms) {
       try {
-        return { ...defaultTerms, ...JSON.parse(savedTerms) };
+        const parsedTerms = JSON.parse(savedTerms);
+        return {
+          generalTerms: parsedTerms.generalTerms || defaultTerms.generalTerms,
+          companyInfo: parsedTerms.companyInfo || defaultTerms.companyInfo,
+          paymentTerms: parsedTerms.paymentTerms || defaultTerms.paymentTerms
+        };
       } catch (e) {
+        console.error('Erreur lors du parsing des termes du contrat:', e);
         return defaultTerms;
       }
     }
