@@ -10,37 +10,21 @@ export const generateContratPartenairePDF = (contrat: ContratPartenaire) => {
   // Récupérer les termes personnalisés depuis localStorage
   const getContractTerms = () => {
     const savedTerms = localStorage.getItem('contractTerms');
-    const defaultTerms = {
-      generalTerms: `• Respect des clauses contractuelles définies
-• Obligation de confidentialité sur les informations échangées
-• Respect des délais et standards de qualité convenus
-• Communication régulière sur l'avancement des prestations`,
-      companyInfo: `Pro-Excellence - Location de Véhicules
-123 Avenue de la Paix
-Lomé, Togo
-Tél: +228 22 12 34 56
-Email: contact@pro-excellence.tg
-RCCM: TG-LOM 2024 B 1234
-NIF: 1234567890123`,
-      paymentTerms: `Conditions de paiement: Paiement selon échéancier convenu
-Modalités: Espèces, mobile money (Flooz, T-Money), virement bancaire acceptés
-Facturation mensuelle avec délai de règlement de 30 jours.`
-    };
     
     if (savedTerms) {
       try {
-        const parsedTerms = JSON.parse(savedTerms);
-        return {
-          generalTerms: parsedTerms.generalTerms || defaultTerms.generalTerms,
-          companyInfo: parsedTerms.companyInfo || defaultTerms.companyInfo,
-          paymentTerms: parsedTerms.paymentTerms || defaultTerms.paymentTerms
-        };
+        return JSON.parse(savedTerms);
       } catch (e) {
         console.error('Erreur lors du parsing des termes du contrat:', e);
-        return defaultTerms;
       }
     }
-    return defaultTerms;
+    
+    // Valeurs par défaut si aucune donnée sauvegardée
+    return {
+      generalTerms: '',
+      companyInfo: '',
+      paymentTerms: ''
+    };
   };
 
   const contractTerms = getContractTerms();
@@ -50,9 +34,13 @@ Facturation mensuelle avec délai de règlement de 30 jours.`
   const margin = 20;
   let currentY = 30;
 
-  // Fonction pour ajouter du texte avec contrôle de page
+  // Fonction pour ajouter du texte avec contrôle de page et meilleure gestion des polices
   const addText = (text: string, x: number, y: number, options: any = {}) => {
-    if (y > pageHeight - 30) {
+    const fontSize = options.fontSize || 9;
+    const lineHeight = options.lineHeight || 1.2;
+    const maxWidth = options.maxWidth || pageWidth - 2 * margin;
+    
+    if (y > pageHeight - 40) {
       pdf.addPage();
       currentY = 30;
       return currentY;
@@ -63,13 +51,13 @@ Facturation mensuelle avec délai de règlement de 30 jours.`
     } else {
       pdf.setTextColor(0, 0, 0);
     }
-    pdf.setFontSize(options.fontSize || 10);
+    pdf.setFontSize(fontSize);
     pdf.setFont('helvetica', options.fontStyle || 'normal');
     
-    const lines = pdf.splitTextToSize(text, options.maxWidth || pageWidth - 2 * margin);
+    const lines = pdf.splitTextToSize(text, maxWidth);
     pdf.text(lines, x, y);
     
-    return y + (lines.length * (options.fontSize || 10) * 0.4) + (options.spacing || 5);
+    return y + (lines.length * fontSize * lineHeight) + (options.spacing || 3);
   };
 
   const getTypeLabel = (type: string) => {
@@ -96,27 +84,29 @@ Facturation mensuelle avec délai de règlement de 30 jours.`
   };
 
   // En-tête avec informations personnalisées de l'entreprise
-  const companyLines = contractTerms.companyInfo.split('\n');
-  
-  pdf.setTextColor(0, 102, 204);
-  pdf.setFontSize(20);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text(companyLines[0] || 'PRO-EXCELLENCE', pageWidth / 2, currentY, { align: 'center' });
-  
-  currentY += 8;
-  pdf.setFontSize(10);
-  pdf.setFont('helvetica', 'normal');
-  pdf.setTextColor(64, 64, 64);
-  
-  // Afficher les autres lignes des informations de l'entreprise
-  for (let i = 1; i < companyLines.length; i++) {
-    if (companyLines[i].trim()) {
-      pdf.text(companyLines[i].trim(), pageWidth / 2, currentY, { align: 'center' });
-      currentY += 4;
+  if (contractTerms.companyInfo.trim()) {
+    const companyLines = contractTerms.companyInfo.split('\n').filter(line => line.trim());
+    
+    if (companyLines.length > 0) {
+      pdf.setTextColor(0, 102, 204);
+      pdf.setFontSize(16);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(companyLines[0], pageWidth / 2, currentY, { align: 'center' });
+      
+      currentY += 6;
+      pdf.setFontSize(9);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(64, 64, 64);
+      
+      // Afficher les autres lignes des informations de l'entreprise
+      for (let i = 1; i < companyLines.length; i++) {
+        pdf.text(companyLines[i].trim(), pageWidth / 2, currentY, { align: 'center' });
+        currentY += 3.5;
+      }
     }
   }
   
-  currentY += 15;
+  currentY += 12;
   
   // Ligne de séparation
   pdf.setDrawColor(0, 102, 204);
