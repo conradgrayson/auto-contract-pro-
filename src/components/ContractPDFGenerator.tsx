@@ -67,17 +67,23 @@ Modalités: Espèces, mobile money, chèque acceptés`
   const pageWidth = 210;
   const pageHeight = 297;
   const margin = 20;
-  let currentY = 30;
+  let currentY = 25;
 
-  // Fonction pour ajouter du texte avec contrôle de page et meilleure gestion des polices
+  // Couleurs du design professionnel
+  const primaryBlue = [0, 102, 204]; // Bleu principal
+  const darkGray = [64, 64, 64]; // Gris foncé
+  const lightGray = [128, 128, 128]; // Gris clair
+  const bgGray = [248, 248, 248]; // Gris de fond
+
+  // Fonction pour ajouter du texte avec contrôle de page
   const addText = (text: string, x: number, y: number, options: any = {}) => {
-    const fontSize = options.fontSize || 9;
-    const lineHeight = options.lineHeight || 1.2;
+    const fontSize = options.fontSize || 10;
+    const lineHeight = options.lineHeight || 1.4;
     const maxWidth = options.maxWidth || pageWidth - 2 * margin;
     
-    if (y > pageHeight - 40) {
+    if (y > pageHeight - 30) {
       pdf.addPage();
-      currentY = 30;
+      currentY = 25;
       return currentY;
     }
     
@@ -92,304 +98,295 @@ Modalités: Espèces, mobile money, chèque acceptés`
     const lines = pdf.splitTextToSize(text, maxWidth);
     pdf.text(lines, x, y);
     
-    return y + (lines.length * fontSize * lineHeight) + (options.spacing || 3);
+    return y + (lines.length * fontSize * lineHeight * 0.35) + (options.spacing || 4);
   };
 
-  // En-tête avec informations personnalisées de l'entreprise
+  // EN-TÊTE PROFESSIONNEL avec logo et informations
+  // Rectangle de fond pour l'en-tête
+  pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
+  pdf.rect(0, 0, pageWidth, 70, 'F');
+
+  // Logo placeholder (position réservée pour le logo)
+  pdf.setFillColor(255, 255, 255);
+  pdf.rect(margin, 15, 40, 25, 'F');
+  pdf.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+  pdf.rect(margin, 15, 40, 25);
+  pdf.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+  pdf.setFontSize(8);
+  pdf.text('LOGO', margin + 20, 30, { align: 'center' });
+
+  // Titre de l'entreprise - style professionnel
+  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.setFontSize(20);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('PRO-EXCELLENCE', margin + 50, 25);
+  
+  pdf.setFontSize(12);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  pdf.text('Location de Véhicules', margin + 50, 32);
+
+  // Informations de contact de l'entreprise
   if (contractTerms.companyInfo.trim()) {
     const companyLines = contractTerms.companyInfo.split('\n').filter(line => line.trim());
+    pdf.setFontSize(9);
+    pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
     
-    if (companyLines.length > 0) {
-      pdf.setTextColor(0, 102, 204);
-      pdf.setFontSize(16);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(companyLines[0], pageWidth / 2, currentY, { align: 'center' });
-      
-      currentY += 6;
-      pdf.setFontSize(9);
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(64, 64, 64);
-      
-      // Afficher les autres lignes des informations de l'entreprise
-      for (let i = 1; i < companyLines.length; i++) {
-        pdf.text(companyLines[i].trim(), pageWidth / 2, currentY, { align: 'center' });
-        currentY += 3.5;
-      }
-    }
+    let infoY = 38;
+    companyLines.slice(1).forEach((line) => {
+      pdf.text(line.trim(), margin + 50, infoY);
+      infoY += 3.5;
+    });
   }
-  
-  currentY += 12;
-  
-  // Ligne de séparation
-  pdf.setDrawColor(0, 102, 204);
-  pdf.setLineWidth(0.5);
-  pdf.line(margin, currentY, pageWidth - margin, currentY);
-  currentY += 10;
 
-  // Titre du contrat
-  pdf.setTextColor(64, 64, 64);
-  pdf.setFontSize(18);
+  // Informations du contrat à droite
+  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.setFontSize(16);
   pdf.setFont('helvetica', 'bold');
-  pdf.text('CONTRAT DE LOCATION', pageWidth / 2, currentY, { align: 'center' });
+  pdf.text('CONTRAT DE LOCATION', pageWidth - margin, 25, { align: 'right' });
   
-  currentY += 8;
   pdf.setFontSize(12);
   pdf.setFont('helvetica', 'normal');
-  pdf.text(`N° ${contract.numeroContrat}`, pageWidth / 2, currentY, { align: 'center' });
+  pdf.text(`N° ${contract.numeroContrat}`, pageWidth - margin, 32, { align: 'right' });
   
-  currentY += 15;
+  pdf.setFontSize(9);
+  pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  pdf.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, pageWidth - margin, 38, { align: 'right' });
 
-  // Informations en deux colonnes
+  currentY = 80;
+
+  // SECTION CLIENT ET VÉHICULE
   const colWidth = (pageWidth - 3 * margin) / 2;
   
-  // Colonne gauche - Client
-  let leftY = currentY;
-  pdf.setTextColor(0, 102, 204);
+  // Encadré Client
+  pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
+  pdf.rect(margin, currentY, colWidth, 35, 'F');
+  pdf.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+  pdf.rect(margin, currentY, colWidth, 35);
+  
+  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
   pdf.setFontSize(12);
   pdf.setFont('helvetica', 'bold');
-  pdf.text('INFORMATIONS CLIENT', margin, leftY);
+  pdf.text('INFORMATIONS CLIENT', margin + 5, currentY + 8);
   
-  leftY += 8;
-  pdf.setTextColor(64, 64, 64);
+  pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
   pdf.setFontSize(10);
   pdf.setFont('helvetica', 'normal');
-  
-  leftY = addText(`Nom: ${contract.clientNom}`, margin, leftY, { spacing: 3 });
-  leftY = addText(`Prénom: ${contract.clientPrenom}`, margin, leftY, { spacing: 3 });
-  leftY = addText(`Date du contrat: ${new Date().toLocaleDateString('fr-FR')}`, margin, leftY, { spacing: 3 });
+  pdf.text(`Nom: ${contract.clientNom}`, margin + 5, currentY + 16);
+  pdf.text(`Prénom: ${contract.clientPrenom}`, margin + 5, currentY + 22);
+  pdf.text(`Date du contrat: ${new Date().toLocaleDateString('fr-FR')}`, margin + 5, currentY + 28);
 
-  // Colonne droite - Véhicule
-  let rightY = currentY;
-  pdf.setTextColor(0, 102, 204);
+  // Encadré Véhicule
+  pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
+  pdf.rect(margin + colWidth + 10, currentY, colWidth, 35, 'F');
+  pdf.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+  pdf.rect(margin + colWidth + 10, currentY, colWidth, 35);
+  
+  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
   pdf.setFontSize(12);
   pdf.setFont('helvetica', 'bold');
-  pdf.text('VÉHICULE LOUÉ', margin + colWidth + 10, rightY);
+  pdf.text('VÉHICULE LOUÉ', margin + colWidth + 15, currentY + 8);
   
-  rightY += 8;
-  pdf.setTextColor(64, 64, 64);
+  pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
   pdf.setFontSize(10);
   pdf.setFont('helvetica', 'normal');
-  
-  rightY = addText(`Marque: ${contract.vehicleMarque}`, margin + colWidth + 10, rightY, { spacing: 3 });
-  rightY = addText(`Modèle: ${contract.vehicleModele}`, margin + colWidth + 10, rightY, { spacing: 3 });
-  rightY = addText(`Immatriculation: ${contract.vehicleImmatriculation}`, margin + colWidth + 10, rightY, { spacing: 3 });
+  pdf.text(`Marque: ${contract.vehicleMarque}`, margin + colWidth + 15, currentY + 16);
+  pdf.text(`Modèle: ${contract.vehicleModele}`, margin + colWidth + 15, currentY + 22);
+  pdf.text(`Immatriculation: ${contract.vehicleImmatriculation}`, margin + colWidth + 15, currentY + 28);
 
-  currentY = Math.max(leftY, rightY) + 10;
+  currentY += 50;
 
-  // Détails de la location
-  pdf.setTextColor(0, 102, 204);
-  pdf.setFontSize(12);
+  // TABLEAU DES DÉTAILS DE LOCATION - Style professionnel
+  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.setFontSize(14);
   pdf.setFont('helvetica', 'bold');
   pdf.text('DÉTAILS DE LA LOCATION', margin, currentY);
   
-  currentY += 10;
+  currentY += 12;
+
+  // En-tête du tableau
+  pdf.setFillColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.rect(margin, currentY, pageWidth - 2 * margin, 8, 'F');
   
-  // Ligne de séparation
-  pdf.setDrawColor(128, 128, 128);
-  pdf.setLineWidth(0.2);
-  pdf.line(margin, currentY, pageWidth - margin, currentY);
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFontSize(10);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Description', margin + 5, currentY + 5.5);
+  pdf.text('Quantité', margin + 80, currentY + 5.5, { align: 'center' });
+  pdf.text('Prix unitaire', margin + 120, currentY + 5.5, { align: 'right' });
+  pdf.text('Total', pageWidth - margin - 5, currentY + 5.5, { align: 'right' });
+
   currentY += 8;
 
-  // Tableau des détails
+  // Lignes du tableau
   const tableData = [
-    ['Date de début', new Date(contract.dateDebut).toLocaleDateString('fr-FR')],
-    ['Date de fin', new Date(contract.dateFin).toLocaleDateString('fr-FR')],
-    ['Durée', `${contract.nbJours} jour(s)`],
-    ['Prix par jour', `${contract.prixJour.toLocaleString()} CFA`],
+    [`Location (${new Date(contract.dateDebut).toLocaleDateString('fr-FR')} - ${new Date(contract.dateFin).toLocaleDateString('fr-FR')})`, `${contract.nbJours} jour(s)`, `${contract.prixJour.toLocaleString()} CFA`, `${(contract.nbJours * contract.prixJour).toLocaleString()} CFA`]
   ];
 
   if (contract.heureRecuperation) {
-    tableData.push(['Heure de récupération', contract.heureRecuperation]);
+    tableData.push([`Heure de récupération: ${contract.heureRecuperation}`, '', '', '']);
   }
   if (contract.heureRendu) {
-    tableData.push(['Heure de rendu', contract.heureRendu]);
+    tableData.push([`Heure de rendu: ${contract.heureRendu}`, '', '', '']);
   }
 
-  pdf.setTextColor(64, 64, 64);
+  pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
   pdf.setFontSize(10);
   pdf.setFont('helvetica', 'normal');
 
-  tableData.forEach(([label, value]) => {
-    pdf.text(label + ':', margin, currentY);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(value, margin + 50, currentY);
-    pdf.setFont('helvetica', 'normal');
-    currentY += 6;
+  tableData.forEach((row, index) => {
+    if (index % 2 === 0) {
+      pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
+      pdf.rect(margin, currentY, pageWidth - 2 * margin, 8, 'F');
+    }
+    
+    pdf.text(row[0], margin + 5, currentY + 5.5);
+    if (row[1]) pdf.text(row[1], margin + 80, currentY + 5.5, { align: 'center' });
+    if (row[2]) pdf.text(row[2], margin + 120, currentY + 5.5, { align: 'right' });
+    if (row[3]) pdf.text(row[3], pageWidth - margin - 5, currentY + 5.5, { align: 'right' });
+    
+    currentY += 8;
   });
 
-  currentY += 10;
-
-  // Facturation
-  pdf.setTextColor(0, 102, 204);
-  pdf.setFontSize(12);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('FACTURATION', margin, currentY);
-  
-  currentY += 10;
-  
-  // Encadré facturation
-  const factBox = {
-    x: margin,
-    y: currentY,
-    width: pageWidth - 2 * margin,
-    height: 30
-  };
-  
-  pdf.setFillColor(248, 248, 248);
-  pdf.rect(factBox.x, factBox.y, factBox.width, factBox.height, 'F');
-  pdf.setDrawColor(128, 128, 128);
-  pdf.rect(factBox.x, factBox.y, factBox.width, factBox.height);
-  
-  currentY += 8;
-  
-  const subtotal = contract.nbJours * contract.prixJour;
-  const reduction = contract.montantReduction || 0;
-  
-  pdf.setTextColor(64, 64, 64);
-  pdf.setFontSize(10);
-  pdf.setFont('helvetica', 'normal');
-  
-  pdf.text(`Location (${contract.nbJours} jour(s) × ${contract.prixJour.toLocaleString()} CFA)`, margin + 5, currentY);
-  pdf.text(`${subtotal.toLocaleString()} CFA`, pageWidth - margin - 5, currentY, { align: 'right' });
-  
-  currentY += 6;
-  
-  if (reduction > 0) {
+  // Réduction si applicable
+  if (contract.montantReduction && contract.montantReduction > 0) {
     pdf.setTextColor(220, 53, 69);
-    const reductionText = `Réduction ${contract.reductionType === 'pourcentage' ? `(${contract.reductionValue}%)` : ''}`;
-    pdf.text(reductionText, margin + 5, currentY);
-    pdf.text(`-${reduction.toLocaleString()} CFA`, pageWidth - margin - 5, currentY, { align: 'right' });
-    currentY += 6;
-  }
-  
-  // Total
-  pdf.setDrawColor(128, 128, 128);
-  pdf.line(margin + 5, currentY, pageWidth - margin - 5, currentY);
-  currentY += 6;
-  
-  pdf.setTextColor(0, 102, 204);
-  pdf.setFontSize(12);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('TOTAL TTC', margin + 5, currentY);
-  pdf.text(`${contract.montantTotal.toLocaleString()} CFA`, pageWidth - margin - 5, currentY, { align: 'right' });
-  
-  if (contract.caution) {
+    pdf.text(`Réduction ${contract.reductionType === 'pourcentage' ? `(${contract.reductionValue}%)` : ''}`, margin + 5, currentY + 5.5);
+    pdf.text(`-${contract.montantReduction.toLocaleString()} CFA`, pageWidth - margin - 5, currentY + 5.5, { align: 'right' });
     currentY += 8;
-    pdf.setTextColor(64, 64, 64);
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(`Caution: ${contract.caution.toLocaleString()} CFA`, margin + 5, currentY);
   }
 
-  // Nouvelle page pour les conditions
+  // Ligne de séparation
+  pdf.setDrawColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.setLineWidth(1);
+  pdf.line(margin, currentY + 2, pageWidth - margin, currentY + 2);
+  currentY += 8;
+
+  // Total
+  pdf.setFillColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.rect(margin, currentY, pageWidth - 2 * margin, 10, 'F');
+  
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFontSize(12);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('TOTAL TTC', margin + 5, currentY + 6.5);
+  pdf.text(`${contract.montantTotal.toLocaleString()} CFA`, pageWidth - margin - 5, currentY + 6.5, { align: 'right' });
+
+  currentY += 20;
+
+  if (contract.caution) {
+    pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(`Caution: ${contract.caution.toLocaleString()} CFA`, margin, currentY);
+    currentY += 10;
+  }
+
+  // CONDITIONS DE PAIEMENT
+  if (contractTerms.paymentTerms.trim()) {
+    pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'bold');
+    currentY = addText('CONDITIONS DE PAIEMENT', margin, currentY, { spacing: 8 });
+    
+    pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'normal');
+    currentY = addText(contractTerms.paymentTerms, margin, currentY, { spacing: 15 });
+  }
+
+  // NOUVELLE PAGE POUR CONDITIONS GÉNÉRALES
   pdf.addPage();
-  currentY = 30;
+  currentY = 25;
+
+  // En-tête de page 2
+  pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
+  pdf.rect(0, 0, pageWidth, 25, 'F');
+  
+  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.setFontSize(16);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('CONDITIONS GÉNÉRALES DE LOCATION', pageWidth / 2, 15, { align: 'center' });
+
+  currentY = 40;
 
   // Conditions générales
-  pdf.setTextColor(0, 102, 204);
-  pdf.setFontSize(14);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('CONDITIONS GÉNÉRALES DE LOCATION', pageWidth / 2, currentY, { align: 'center' });
-  
-  currentY += 15;
-
-  // Utiliser les conditions personnalisées
   if (contractTerms.generalTerms.trim()) {
     const generalTermsLines = contractTerms.generalTerms.split('\n').filter(line => line.trim());
 
-    pdf.setTextColor(64, 64, 64);
-    pdf.setFontSize(9);
+    pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    pdf.setFontSize(10);
     pdf.setFont('helvetica', 'normal');
 
-    // Afficher les conditions générales personnalisées
     generalTermsLines.forEach((line) => {
       if (currentY > pageHeight - 40) {
         pdf.addPage();
-        currentY = 30;
+        currentY = 25;
       }
       
       currentY = addText(line, margin, currentY, { 
-        fontSize: 9, 
-        spacing: 3,
-        lineHeight: 1.3,
-        maxWidth: pageWidth - 2 * margin
+        fontSize: 10, 
+        spacing: 5,
+        lineHeight: 1.4
       });
     });
   }
 
-  // Ajouter les conditions de paiement si elles existent
-  if (contractTerms.paymentTerms.trim()) {
-    const paymentTermsLines = contractTerms.paymentTerms.split('\n').filter(line => line.trim());
-    
-    if (paymentTermsLines.length > 0) {
-      currentY += 8;
-      
-      if (currentY > pageHeight - 60) {
-        pdf.addPage();
-        currentY = 30;
-      }
-      
-      pdf.setFont('helvetica', 'bold');
-      currentY = addText("CONDITIONS DE PAIEMENT", margin, currentY, { fontSize: 10, spacing: 6 });
-      
-      pdf.setFont('helvetica', 'normal');
-      paymentTermsLines.forEach((line) => {
-        if (currentY > pageHeight - 40) {
-          pdf.addPage();
-          currentY = 30;
-        }
-        
-        currentY = addText(line, margin, currentY, { 
-          fontSize: 9, 
-          spacing: 3,
-          lineHeight: 1.3,
-          maxWidth: pageWidth - 2 * margin
-        });
-      });
-    }
-  }
-
-  // Section signatures
-  if (currentY > pageHeight - 80) {
+  // SIGNATURES
+  if (currentY > pageHeight - 70) {
     pdf.addPage();
-    currentY = 30;
+    currentY = 40;
   } else {
     currentY += 20;
   }
 
-  pdf.setTextColor(0, 102, 204);
-  pdf.setFontSize(12);
+  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.setFontSize(14);
   pdf.setFont('helvetica', 'bold');
   pdf.text('SIGNATURES', pageWidth / 2, currentY, { align: 'center' });
   
-  currentY += 20;
+  currentY += 15;
   
-  pdf.setTextColor(64, 64, 64);
+  pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
   pdf.setFontSize(10);
   pdf.setFont('helvetica', 'normal');
   pdf.text(`Fait à Lomé, le ${new Date().toLocaleDateString('fr-FR')}`, pageWidth / 2, currentY, { align: 'center' });
   
   currentY += 30;
   
-  // Signatures en deux colonnes
-  const sigColWidth = (pageWidth - 3 * margin) / 2;
+  // Zones de signature
+  const sigWidth = 60;
+  const leftSigX = margin + 20;
+  const rightSigX = pageWidth - margin - sigWidth - 20;
   
-  pdf.text('Le Locataire', margin + sigColWidth / 2, currentY, { align: 'center' });
-  pdf.text('Pro-Excellence', margin + sigColWidth + 10 + sigColWidth / 2, currentY, { align: 'center' });
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Le Locataire', leftSigX + sigWidth/2, currentY, { align: 'center' });
+  pdf.text('Pro-Excellence', rightSigX + sigWidth/2, currentY, { align: 'center' });
   
-  currentY += 20;
+  currentY += 25;
   
   // Lignes de signature
-  pdf.setDrawColor(128, 128, 128);
-  pdf.line(margin, currentY, margin + sigColWidth, currentY);
-  pdf.line(margin + sigColWidth + 10, currentY, pageWidth - margin, currentY);
+  pdf.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+  pdf.line(leftSigX, currentY, leftSigX + sigWidth, currentY);
+  pdf.line(rightSigX, currentY, rightSigX + sigWidth, currentY);
+
+  // Pied de page professionnel
+  currentY = pageHeight - 20;
+  pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
+  pdf.rect(0, currentY - 10, pageWidth, 30, 'F');
+  
+  pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  pdf.setFontSize(8);
+  pdf.setFont('helvetica', 'normal');
+  pdf.text('Pro-Excellence - N° RCCM : TG-LFW-01-2022-A10-00507', pageWidth / 2, currentY, { align: 'center' });
+  pdf.text(`Document généré automatiquement - Contrat N° ${contract.numeroContrat}`, pageWidth / 2, currentY + 5, { align: 'center' });
 
   // Métadonnées
   pdf.setProperties({
     title: `Contrat de Location - ${contract.numeroContrat}`,
     subject: 'Contrat de location de véhicule',
     author: 'Pro-Excellence',
-    keywords: 'contrat, location, véhicule',
+    keywords: 'contrat, location, véhicule, pro-excellence',
     creator: 'Pro-Excellence - Système de gestion'
   });
 
