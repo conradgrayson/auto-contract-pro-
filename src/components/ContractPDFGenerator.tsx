@@ -140,6 +140,9 @@ Modalités: Espèces, mobile money, chèque acceptés`
   }
 
   // Informations du contrat à droite
+  const now = new Date();
+  const dateTime = `${now.toLocaleDateString('fr-FR')} à ${now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
+  
   pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
   pdf.setFontSize(16);
   pdf.setFont('helvetica', 'bold');
@@ -151,7 +154,7 @@ Modalités: Espèces, mobile money, chèque acceptés`
   
   pdf.setFontSize(9);
   pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-  pdf.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, pageWidth - margin, 38, { align: 'right' });
+  pdf.text(`Créé le: ${dateTime}`, pageWidth - margin, 38, { align: 'right' });
 
   currentY = 80;
 
