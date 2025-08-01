@@ -10,10 +10,13 @@ export const generateContratPartenairePDF = (contrat: ContratPartenaire) => {
   // Récupérer les termes personnalisés depuis localStorage
   const getContractTerms = () => {
     const savedTerms = localStorage.getItem('contractTerms');
+    console.log('Données récupérées du localStorage pour partenaire:', savedTerms);
     
     if (savedTerms) {
       try {
-        return JSON.parse(savedTerms);
+        const parsed = JSON.parse(savedTerms);
+        console.log('Données parsées pour partenaire:', parsed);
+        return parsed;
       } catch (e) {
         console.error('Erreur lors du parsing des termes du contrat:', e);
       }
@@ -21,9 +24,12 @@ export const generateContratPartenairePDF = (contrat: ContratPartenaire) => {
     
     // Valeurs par défaut si aucune donnée sauvegardée
     return {
-      generalTerms: '',
-      companyInfo: '',
-      paymentTerms: ''
+      generalTerms: `Conditions générales par défaut`,
+      companyInfo: `Pro-Excellence - Location de Véhicules
+123 Avenue de la Paix
+Lomé, Togo
+Tél: +228 22 12 34 56`,
+      paymentTerms: `Paiement selon modalités convenues`
     };
   };
 

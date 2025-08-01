@@ -36,10 +36,13 @@ export const generateContractPDF = (contract: Contract) => {
   // Récupérer les termes personnalisés depuis localStorage
   const getContractTerms = (): ContractTerms => {
     const savedTerms = localStorage.getItem('contractTerms');
+    console.log('Données récupérées du localStorage:', savedTerms);
     
     if (savedTerms) {
       try {
-        return JSON.parse(savedTerms);
+        const parsed = JSON.parse(savedTerms);
+        console.log('Données parsées:', parsed);
+        return parsed;
       } catch (e) {
         console.error('Erreur lors du parsing des termes du contrat:', e);
       }
@@ -47,9 +50,15 @@ export const generateContractPDF = (contract: Contract) => {
     
     // Valeurs par défaut si aucune donnée sauvegardée
     return {
-      generalTerms: '',
-      companyInfo: '',
-      paymentTerms: ''
+      generalTerms: `• Le véhicule doit être retourné avec le même niveau de carburant qu'au départ.
+• Tout retard dans la restitution du véhicule sera facturé une journée supplémentaire.
+• Le locataire s'engage à respecter le code de la route et à utiliser le véhicule dans les conditions normales.`,
+      companyInfo: `Pro-Excellence - Location de Véhicules
+123 Avenue de la Paix
+Lomé, Togo
+Tél: +228 22 12 34 56`,
+      paymentTerms: `Paiement à la prise du véhicule
+Modalités: Espèces, mobile money, chèque acceptés`
     };
   };
 
