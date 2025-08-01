@@ -101,62 +101,94 @@ Modalités: Espèces, mobile money, chèque acceptés`
     return y + (lines.length * fontSize * lineHeight * 0.35) + (options.spacing || 4);
   };
 
-  // EN-TÊTE PROFESSIONNEL avec logo et informations
+  // EN-TÊTE PROFESSIONNEL restructuré
   // Rectangle de fond pour l'en-tête
   pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
-  pdf.rect(0, 0, pageWidth, 70, 'F');
+  pdf.rect(0, 0, pageWidth, 75, 'F');
 
-  // Logo placeholder (position réservée pour le logo)
+  // SECTION GAUCHE - Logo et informations entreprise
+  // Logo placeholder
   pdf.setFillColor(255, 255, 255);
-  pdf.rect(margin, 15, 40, 25, 'F');
+  pdf.rect(margin, 15, 35, 20, 'F');
   pdf.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
-  pdf.rect(margin, 15, 40, 25);
+  pdf.rect(margin, 15, 35, 20);
   pdf.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-  pdf.setFontSize(8);
-  pdf.text('LOGO', margin + 20, 30, { align: 'center' });
+  pdf.setFontSize(7);
+  pdf.text('LOGO', margin + 17.5, 26, { align: 'center' });
 
-  // Titre de l'entreprise - style professionnel
+  // Nom de l'entreprise et sous-titre
   pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.setFontSize(20);
+  pdf.setFontSize(18);
   pdf.setFont('helvetica', 'bold');
-  pdf.text('PRO-EXCELLENCE', margin + 50, 25);
+  pdf.text('PRO-EXCELLENCE', margin + 40, 22);
   
-  pdf.setFontSize(12);
+  pdf.setFontSize(10);
   pdf.setFont('helvetica', 'normal');
   pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-  pdf.text('Location de Véhicules', margin + 50, 32);
+  pdf.text('Location de Véhicules', margin + 40, 29);
 
-  // Informations de contact de l'entreprise
+  // Informations de contact (si disponibles)
   if (contractTerms.companyInfo.trim()) {
     const companyLines = contractTerms.companyInfo.split('\n').filter(line => line.trim());
-    pdf.setFontSize(9);
+    pdf.setFontSize(8);
     pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
     
-    let infoY = 38;
-    companyLines.slice(1).forEach((line) => {
-      pdf.text(line.trim(), margin + 50, infoY);
-      infoY += 3.5;
+    let contactY = 36;
+    // Prendre seulement les 4 premières lignes après le nom de l'entreprise
+    companyLines.slice(1, 5).forEach((line) => {
+      pdf.text(line.trim(), margin + 40, contactY);
+      contactY += 3.2;
     });
   }
 
-  // Informations du contrat à droite
+  // SECTION DROITE - Informations du contrat
   const now = new Date();
-  const dateTime = `${now.toLocaleDateString('fr-FR')} à ${now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
+  const dateOnly = now.toLocaleDateString('fr-FR');
+  const timeOnly = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   
-  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.setFontSize(16);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('CONTRAT DE LOCATION', pageWidth - margin, 25, { align: 'right' });
+  // Encadré pour les infos du contrat
+  const infoBoxX = pageWidth - margin - 85;
+  const infoBoxY = 15;
+  const infoBoxWidth = 80;
+  const infoBoxHeight = 45;
   
-  pdf.setFontSize(12);
-  pdf.setFont('helvetica', 'normal');
-  pdf.text(`N° ${contract.numeroContrat}`, pageWidth - margin, 32, { align: 'right' });
-  
-  pdf.setFontSize(9);
-  pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-  pdf.text(`Créé le: ${dateTime}`, pageWidth - margin, 38, { align: 'right' });
+  pdf.setFillColor(255, 255, 255);
+  pdf.rect(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight, 'F');
+  pdf.setDrawColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.setLineWidth(1);
+  pdf.rect(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
 
-  currentY = 80;
+  // Titre du document
+  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.setFontSize(14);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('CONTRAT DE', infoBoxX + infoBoxWidth/2, infoBoxY + 8, { align: 'center' });
+  pdf.text('LOCATION', infoBoxX + infoBoxWidth/2, infoBoxY + 15, { align: 'center' });
+  
+  // Numéro du contrat
+  pdf.setFontSize(10);
+  pdf.setFont('helvetica', 'bold');
+  pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  pdf.text('N°:', infoBoxX + 5, infoBoxY + 25);
+  pdf.setFont('helvetica', 'normal');
+  pdf.text(contract.numeroContrat, infoBoxX + 15, infoBoxY + 25);
+  
+  // Date de création
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Date:', infoBoxX + 5, infoBoxY + 32);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(9);
+  pdf.text(dateOnly, infoBoxX + 20, infoBoxY + 32);
+  
+  // Heure de création
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(10);
+  pdf.text('Heure:', infoBoxX + 5, infoBoxY + 39);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(9);
+  pdf.text(timeOnly, infoBoxX + 23, infoBoxY + 39);
+
+  currentY = 85;
 
   // SECTION CLIENT ET VÉHICULE
   const colWidth = (pageWidth - 3 * margin) / 2;
