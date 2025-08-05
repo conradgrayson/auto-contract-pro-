@@ -50,9 +50,34 @@ export const generateContractPDF = (contract: Contract) => {
     
     // Valeurs par défaut si aucune donnée sauvegardée
     return {
-      generalTerms: `• Le véhicule doit être retourné avec le même niveau de carburant qu'au départ.
-• Tout retard dans la restitution du véhicule sera facturé une journée supplémentaire.
-• Le locataire s'engage à respecter le code de la route et à utiliser le véhicule dans les conditions normales.`,
+      generalTerms: `ARTICLE 1 - OBJET DU CONTRAT
+Le présent contrat a pour objet la location d'un véhicule automobile par Pro-Excellence au locataire, dans les conditions définies ci-après.
+
+ARTICLE 2 - ÉTAT DU VÉHICULE
+Le véhicule est remis en bon état de fonctionnement et d'entretien. Le locataire reconnaît l'avoir reçu en parfait état.
+
+ARTICLE 3 - UTILISATION DU VÉHICULE
+• Le véhicule doit être utilisé conformément à sa destination normale
+• Le locataire s'engage à respecter le code de la route et toutes les réglementations en vigueur
+• La conduite est strictement interdite sous l'emprise d'alcool ou de stupéfiants
+• Le véhicule ne peut être confié à des tiers sans autorisation écrite de Pro-Excellence
+
+ARTICLE 4 - CARBURANT ET ENTRETIEN
+• Le véhicule doit être retourné avec le même niveau de carburant qu'au départ
+• Les frais de carburant sont à la charge du locataire
+• Aucune réparation ne doit être effectuée sans l'accord préalable de Pro-Excellence
+
+ARTICLE 5 - RETARD ET PROLONGATION
+• Tout retard dans la restitution du véhicule sera facturé une journée supplémentaire
+• Toute prolongation doit faire l'objet d'un accord préalable
+
+ARTICLE 6 - RESPONSABILITÉ
+• Le locataire est responsable de tous les dommages causés au véhicule
+• En cas d'accident, le locataire doit immédiatement prévenir Pro-Excellence et les autorités compétentes
+• Les amendes et contraventions sont à la charge du locataire
+
+ARTICLE 7 - ASSURANCE
+Le véhicule est couvert par une assurance responsabilité civile. Le locataire reste responsable des franchises en cas de sinistre.`,
       companyInfo: `Pro-Excellence - Location de Véhicules
 123 Avenue de la Paix
 Lomé, Togo
