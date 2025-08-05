@@ -114,7 +114,7 @@ Modalités: Espèces, mobile money, chèque acceptés`
   
   pdf.setFontSize(14);
   pdf.setFont('helvetica', 'normal');
-  pdf.text('Location de Véhicules Premium', margin, 35);
+  pdf.text('Location de Véhicules', margin, 35);
   
   pdf.setFontSize(10);
   pdf.text('Lomé, Togo • Tél: +228 22 12 34 56', margin, 45);
