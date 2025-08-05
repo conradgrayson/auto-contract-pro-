@@ -158,37 +158,46 @@ Modalités: Espèces, mobile money, chèque acceptés`
   pdf.setLineWidth(1);
   pdf.rect(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
 
-  // Titre du document
-  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.setFontSize(14);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('CONTRAT DE', infoBoxX + infoBoxWidth/2, infoBoxY + 8, { align: 'center' });
-  pdf.text('LOCATION', infoBoxX + infoBoxWidth/2, infoBoxY + 15, { align: 'center' });
-  
   // Numéro du contrat
-  pdf.setFontSize(10);
+  pdf.setFontSize(12);
   pdf.setFont('helvetica', 'bold');
-  pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-  pdf.text('N°:', infoBoxX + 5, infoBoxY + 25);
+  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.text('N°:', infoBoxX + 5, infoBoxY + 12);
   pdf.setFont('helvetica', 'normal');
-  pdf.text(contract.numeroContrat, infoBoxX + 15, infoBoxY + 25);
+  pdf.setFontSize(11);
+  pdf.text(contract.numeroContrat, infoBoxX + 18, infoBoxY + 12);
   
   // Date de création
   pdf.setFont('helvetica', 'bold');
-  pdf.text('Date:', infoBoxX + 5, infoBoxY + 32);
+  pdf.setFontSize(10);
+  pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  pdf.text('Créé le:', infoBoxX + 5, infoBoxY + 24);
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(9);
-  pdf.text(dateOnly, infoBoxX + 20, infoBoxY + 32);
+  pdf.text(dateOnly, infoBoxX + 25, infoBoxY + 24);
   
   // Heure de création
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(10);
-  pdf.text('Heure:', infoBoxX + 5, infoBoxY + 39);
+  pdf.text('à', infoBoxX + 5, infoBoxY + 32);
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(9);
-  pdf.text(timeOnly, infoBoxX + 23, infoBoxY + 39);
+  pdf.text(timeOnly, infoBoxX + 12, infoBoxY + 32);
 
   currentY = 85;
+
+  // TITRE DU DOCUMENT - Section séparée
+  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.setFontSize(18);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('CONTRAT DE LOCATION', pageWidth / 2, currentY, { align: 'center' });
+  
+  // Ligne décorative sous le titre
+  pdf.setDrawColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.setLineWidth(1);
+  pdf.line(margin + 60, currentY + 5, pageWidth - margin - 60, currentY + 5);
+
+  currentY += 20;
 
   // SECTION CLIENT ET VÉHICULE
   const colWidth = (pageWidth - 3 * margin) / 2;
