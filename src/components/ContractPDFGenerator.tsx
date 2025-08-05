@@ -101,103 +101,107 @@ Modalités: Espèces, mobile money, chèque acceptés`
     return y + (lines.length * fontSize * lineHeight * 0.35) + (options.spacing || 4);
   };
 
-  // EN-TÊTE PROFESSIONNEL restructuré
-  // Rectangle de fond pour l'en-tête
-  pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
-  pdf.rect(0, 0, pageWidth, 75, 'F');
-
-  // SECTION GAUCHE - Logo et informations entreprise
-  // Logo placeholder
-  pdf.setFillColor(255, 255, 255);
-  pdf.rect(margin, 15, 35, 20, 'F');
-  pdf.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
-  pdf.rect(margin, 15, 35, 20);
-  pdf.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-  pdf.setFontSize(7);
-  pdf.text('LOGO', margin + 17.5, 26, { align: 'center' });
-
-  // Nom de l'entreprise et sous-titre
-  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.setFontSize(18);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('PRO-EXCELLENCE', margin + 40, 22);
+  // EN-TÊTE PROFESSIONNEL AMÉLIORÉ
+  // Rectangle de fond pour l'en-tête avec dégradé
+  pdf.setFillColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.rect(0, 0, pageWidth, 70, 'F');
   
-  pdf.setFontSize(10);
+  // Section blanche pour le contenu
+  pdf.setFillColor(255, 255, 255);
+  pdf.rect(margin, 10, pageWidth - 2 * margin, 50, 'F');
+  pdf.setDrawColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.setLineWidth(2);
+  pdf.rect(margin, 10, pageWidth - 2 * margin, 50);
+
+  // LOGO AMÉLIORÉ - Zone circulaire
+  const logoX = margin + 15;
+  const logoY = 20;
+  const logoSize = 30;
+  
+  // Cercle pour le logo
+  pdf.setFillColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.circle(logoX + logoSize/2, logoY + logoSize/2, logoSize/2, 'F');
+  
+  // Texte dans le logo
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFontSize(14);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('PE', logoX + logoSize/2, logoY + logoSize/2 + 3, { align: 'center' });
+
+  // INFORMATIONS ENTREPRISE - Section gauche
+  const companyStartX = logoX + logoSize + 15;
+  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.setFontSize(20);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('PRO-EXCELLENCE', companyStartX, 28);
+  
+  pdf.setFontSize(11);
   pdf.setFont('helvetica', 'normal');
   pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-  pdf.text('Location de Véhicules', margin + 40, 29);
+  pdf.text('Location de Véhicules Premium', companyStartX, 36);
+  
+  // Informations de contact compactes
+  pdf.setFontSize(8);
+  pdf.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+  pdf.text('Lomé, Togo • Tél: +228 22 12 34 56', companyStartX, 44);
 
-  // Informations de contact (si disponibles)
-  if (contractTerms.companyInfo.trim()) {
-    const companyLines = contractTerms.companyInfo.split('\n').filter(line => line.trim());
-    pdf.setFontSize(8);
-    pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-    
-    let contactY = 36;
-    // Prendre seulement les 4 premières lignes après le nom de l'entreprise
-    companyLines.slice(1, 5).forEach((line) => {
-      pdf.text(line.trim(), margin + 40, contactY);
-      contactY += 3.2;
-    });
-  }
-
-  // SECTION DROITE - Informations du contrat
+  // SECTION DROITE - Informations du contrat dans un encadré élégant
   const now = new Date();
   const dateOnly = now.toLocaleDateString('fr-FR');
   const timeOnly = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   
-  // Encadré pour les infos du contrat
-  const infoBoxX = pageWidth - margin - 85;
+  const infoBoxX = pageWidth - margin - 75;
   const infoBoxY = 15;
-  const infoBoxWidth = 80;
-  const infoBoxHeight = 45;
+  const infoBoxWidth = 70;
+  const infoBoxHeight = 40;
   
+  // Encadré avec ombre
+  pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
+  pdf.rect(infoBoxX + 2, infoBoxY + 2, infoBoxWidth, infoBoxHeight, 'F');
   pdf.setFillColor(255, 255, 255);
   pdf.rect(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight, 'F');
   pdf.setDrawColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.setLineWidth(1);
+  pdf.setLineWidth(1.5);
   pdf.rect(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
 
-  // Numéro du contrat
-  pdf.setFontSize(12);
-  pdf.setFont('helvetica', 'bold');
-  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.text('N°:', infoBoxX + 5, infoBoxY + 12);
-  pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(11);
-  pdf.text(contract.numeroContrat, infoBoxX + 18, infoBoxY + 12);
-  
-  // Date de création
-  pdf.setFont('helvetica', 'bold');
+  // En-tête de l'encadré
+  pdf.setFillColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.rect(infoBoxX, infoBoxY, infoBoxWidth, 12, 'F');
+  pdf.setTextColor(255, 255, 255);
   pdf.setFontSize(10);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('DOCUMENT', infoBoxX + infoBoxWidth/2, infoBoxY + 7, { align: 'center' });
+
+  // Contenu de l'encadré
   pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-  pdf.text('Créé le:', infoBoxX + 5, infoBoxY + 24);
-  pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(9);
-  pdf.text(dateOnly, infoBoxX + 25, infoBoxY + 24);
-  
-  // Heure de création
   pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(10);
-  pdf.text('à', infoBoxX + 5, infoBoxY + 32);
+  pdf.text('N°:', infoBoxX + 5, infoBoxY + 20);
   pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(9);
-  pdf.text(timeOnly, infoBoxX + 12, infoBoxY + 32);
+  pdf.text(contract.numeroContrat, infoBoxX + 15, infoBoxY + 20);
+  
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('Date:', infoBoxX + 5, infoBoxY + 28);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(8);
+  pdf.text(`${dateOnly} à ${timeOnly}`, infoBoxX + 22, infoBoxY + 28);
 
-  currentY = 85;
+  currentY = 80;
 
-  // TITRE DU DOCUMENT - Section séparée
+  // TITRE DU DOCUMENT - Section séparée avec style professionnel
   pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.setFontSize(18);
+  pdf.setFontSize(22);
   pdf.setFont('helvetica', 'bold');
   pdf.text('CONTRAT DE LOCATION', pageWidth / 2, currentY, { align: 'center' });
   
-  // Ligne décorative sous le titre
+  // Double ligne décorative
   pdf.setDrawColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.setLineWidth(1);
-  pdf.line(margin + 60, currentY + 5, pageWidth - margin - 60, currentY + 5);
+  pdf.setLineWidth(2);
+  pdf.line(margin + 50, currentY + 5, pageWidth - margin - 50, currentY + 5);
+  pdf.setLineWidth(0.5);
+  pdf.line(margin + 60, currentY + 8, pageWidth - margin - 60, currentY + 8);
 
-  currentY += 20;
+  currentY += 25;
 
   // SECTION CLIENT ET VÉHICULE
   const colWidth = (pageWidth - 3 * margin) / 2;
