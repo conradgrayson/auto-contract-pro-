@@ -101,92 +101,44 @@ Modalités: Espèces, mobile money, chèque acceptés`
     return y + (lines.length * fontSize * lineHeight * 0.35) + (options.spacing || 4);
   };
 
-  // EN-TÊTE PROFESSIONNEL AMÉLIORÉ
-  // Rectangle de fond pour l'en-tête avec dégradé
+  // EN-TÊTE PROFESSIONNEL SIMPLE ET EFFICACE
+  // Fond bleu pour l'en-tête
   pdf.setFillColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.rect(0, 0, pageWidth, 70, 'F');
-  
-  // Section blanche pour le contenu
-  pdf.setFillColor(255, 255, 255);
-  pdf.rect(margin, 10, pageWidth - 2 * margin, 50, 'F');
-  pdf.setDrawColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.setLineWidth(2);
-  pdf.rect(margin, 10, pageWidth - 2 * margin, 50);
+  pdf.rect(0, 0, pageWidth, 55, 'F');
 
-  // LOGO AMÉLIORÉ - Zone circulaire
-  const logoX = margin + 15;
-  const logoY = 20;
-  const logoSize = 30;
-  
-  // Cercle pour le logo
-  pdf.setFillColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.circle(logoX + logoSize/2, logoY + logoSize/2, logoSize/2, 'F');
-  
-  // Texte dans le logo
+  // SECTION GAUCHE - Nom de l'entreprise très visible
   pdf.setTextColor(255, 255, 255);
+  pdf.setFontSize(28);
+  pdf.setFont('helvetica', 'bold');
+  pdf.text('PRO-EXCELLENCE', margin, 25);
+  
   pdf.setFontSize(14);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('PE', logoX + logoSize/2, logoY + logoSize/2 + 3, { align: 'center' });
-
-  // INFORMATIONS ENTREPRISE - Section gauche
-  const companyStartX = logoX + logoSize + 15;
-  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.setFontSize(20);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('PRO-EXCELLENCE', companyStartX, 28);
-  
-  pdf.setFontSize(11);
   pdf.setFont('helvetica', 'normal');
-  pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-  pdf.text('Location de Véhicules Premium', companyStartX, 36);
+  pdf.text('Location de Véhicules Premium', margin, 35);
   
-  // Informations de contact compactes
-  pdf.setFontSize(8);
-  pdf.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
-  pdf.text('Lomé, Togo • Tél: +228 22 12 34 56', companyStartX, 44);
+  pdf.setFontSize(10);
+  pdf.text('Lomé, Togo • Tél: +228 22 12 34 56', margin, 45);
 
-  // SECTION DROITE - Informations du contrat dans un encadré élégant
+  // SECTION DROITE - Informations du contrat alignées
   const now = new Date();
   const dateOnly = now.toLocaleDateString('fr-FR');
   const timeOnly = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   
-  const infoBoxX = pageWidth - margin - 75;
-  const infoBoxY = 15;
-  const infoBoxWidth = 70;
-  const infoBoxHeight = 40;
+  const rightX = pageWidth - margin;
   
-  // Encadré avec ombre
-  pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
-  pdf.rect(infoBoxX + 2, infoBoxY + 2, infoBoxWidth, infoBoxHeight, 'F');
-  pdf.setFillColor(255, 255, 255);
-  pdf.rect(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight, 'F');
-  pdf.setDrawColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.setLineWidth(1.5);
-  pdf.rect(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
-
-  // En-tête de l'encadré
-  pdf.setFillColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.rect(infoBoxX, infoBoxY, infoBoxWidth, 12, 'F');
   pdf.setTextColor(255, 255, 255);
-  pdf.setFontSize(10);
+  pdf.setFontSize(12);
   pdf.setFont('helvetica', 'bold');
-  pdf.text('DOCUMENT', infoBoxX + infoBoxWidth/2, infoBoxY + 7, { align: 'center' });
-
-  // Contenu de l'encadré
-  pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-  pdf.setFontSize(9);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('N°:', infoBoxX + 5, infoBoxY + 20);
-  pdf.setFont('helvetica', 'normal');
-  pdf.text(contract.numeroContrat, infoBoxX + 15, infoBoxY + 20);
   
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('Date:', infoBoxX + 5, infoBoxY + 28);
+  // Numéro de contrat
+  pdf.text(`Contrat N° ${contract.numeroContrat}`, rightX, 25, { align: 'right' });
+  
+  // Date et heure
+  pdf.setFontSize(10);
   pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(8);
-  pdf.text(`${dateOnly} à ${timeOnly}`, infoBoxX + 22, infoBoxY + 28);
+  pdf.text(`Créé le ${dateOnly} à ${timeOnly}`, rightX, 35, { align: 'right' });
 
-  currentY = 80;
+  currentY = 70;
 
   // TITRE DU DOCUMENT - Section séparée avec style professionnel
   pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
