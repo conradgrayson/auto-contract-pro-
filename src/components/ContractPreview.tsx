@@ -34,6 +34,7 @@ interface ContractPreviewProps {
 
 const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
   const invoiceInputRef = React.useRef<HTMLInputElement>(null);
+  const [mergedUrl, setMergedUrl] = React.useState<string | null>(null);
 
   const handlePrint = () => {
     window.print();
@@ -61,7 +62,7 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
     pdf.save(`contrat-${contract.numeroContrat}.pdf`);
   };
 
-  const handleDownloadPDFWithInvoice = () => {
+  const handleImportInvoice = () => {
     if (invoiceInputRef.current) {
       invoiceInputRef.current.value = '';
       invoiceInputRef.current.click();
@@ -91,16 +92,42 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
         montantReduction: contract.montantReduction,
       } as any, bytes);
 
+      // Crée une URL Blob pour permettre Télécharger ou Imprimer plus tard
       const blob = new Blob([mergedBytes], { type: 'application/pdf' });
+      if (mergedUrl) URL.revokeObjectURL(mergedUrl);
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `contrat-${contract.numeroContrat}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
+      setMergedUrl(url);
     } catch (err) {
       console.error('Erreur lors de la fusion du PDF de facture:', err);
     }
+  };
+
+  const downloadMerged = () => {
+    if (!mergedUrl) return;
+    const a = document.createElement('a');
+    a.href = mergedUrl;
+    a.download = `contrat-${contract.numeroContrat}.pdf`;
+    a.click();
+  };
+
+  const printMerged = () => {
+    if (!mergedUrl) return;
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.src = mergedUrl;
+    document.body.appendChild(iframe);
+    iframe.onload = () => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 1000);
+    };
   };
   const today = new Date().toLocaleDateString('fr-FR');
   const subtotal = contract.nbJours * contract.prixJour;
@@ -128,10 +155,22 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
             <Download className="h-4 w-4" />
             PDF
           </Button>
-          <Button onClick={handleDownloadPDFWithInvoice} variant="outline" className="flex items-center gap-2">
+          <Button onClick={handleImportInvoice} variant="outline" className="flex items-center gap-2">
             <Download className="h-4 w-4" />
-            PDF + Facture
+            Importer Facture (PDF)
           </Button>
+          {mergedUrl && (
+            <>
+              <Button onClick={downloadMerged} variant="outline" className="flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Télécharger PDF + Facture
+              </Button>
+              <Button onClick={printMerged} variant="outline" className="flex items-center gap-2">
+                <Printer className="h-4 w-4" />
+                Imprimer PDF + Facture
+              </Button>
+            </>
+          )}
           <input
             ref={invoiceInputRef}
             type="file"
