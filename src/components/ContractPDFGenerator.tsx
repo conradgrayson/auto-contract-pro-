@@ -295,64 +295,69 @@ Modalités: Espèces, mobile money, chèque acceptés`
     currentY = addText(contractTerms.paymentTerms, margin, currentY, { spacing: 15 });
   }
 
-  // NOUVELLE PAGE POUR CONDITIONS GÉNÉRALES
+  // NOUVELLE PAGE POUR CONDITIONS GÉNÉRALES (optimisée pour tenir sur 2 pages)
   pdf.addPage();
-  currentY = 25;
+  currentY = 20;
 
-  // En-tête de page 2
+  // En-tête de page 2 (compact)
   pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
-  pdf.rect(0, 0, pageWidth, 25, 'F');
+  pdf.rect(0, 0, pageWidth, 20, 'F');
   
-  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.setFontSize(16);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('CONDITIONS GÉNÉRALES DE LOCATION', pageWidth / 2, 15, { align: 'center' });
-
-  currentY = 40;
-
-  // Conditions générales
-  if (contractTerms.generalTerms.trim()) {
-    const generalTermsLines = contractTerms.generalTerms.split('\n').filter(line => line.trim());
-
-    pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'normal');
-
-    generalTermsLines.forEach((line) => {
-      if (currentY > pageHeight - 40) {
-        pdf.addPage();
-        currentY = 25;
-      }
-      
-      currentY = addText(line, margin, currentY, { 
-        fontSize: 10, 
-        spacing: 5,
-        lineHeight: 1.4
-      });
-    });
-  }
-
-  // SIGNATURES
-  if (currentY > pageHeight - 70) {
-    pdf.addPage();
-    currentY = 40;
-  } else {
-    currentY += 20;
-  }
-
   pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
   pdf.setFontSize(14);
   pdf.setFont('helvetica', 'bold');
+  pdf.text('CONDITIONS GÉNÉRALES DE LOCATION', pageWidth / 2, 13, { align: 'center' });
+
+  currentY = 30;
+
+  // Conditions générales (réduction automatique de la police pour tenir sur 2 pages)
+  if (contractTerms.generalTerms.trim()) {
+    const maxWidth = pageWidth - 2 * margin;
+    const maxTermsBottomY = pageHeight - 85; // laisse de la place pour les signatures
+
+    let termsFont = 9; // taille de base
+    const minFont = 7; // taille minimale pour lisibilité
+    const lineHeight = 1.2;
+    const spacing = 3;
+
+    let lines: string[] = [];
+
+    // Ajuste la taille de police jusqu'à ce que le texte tienne dans l'espace disponible
+    while (termsFont >= minFont) {
+      pdf.setFontSize(termsFont);
+      lines = pdf.splitTextToSize(contractTerms.generalTerms, maxWidth);
+      const predictedHeight = (lines.length * termsFont * lineHeight * 0.35) + spacing;
+      if (currentY + predictedHeight <= maxTermsBottomY) break;
+      termsFont -= 0.5;
+    }
+
+    // Rendu des conditions générales
+    pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(termsFont);
+    pdf.text(lines, margin, currentY);
+
+    // Positionne le curseur à la fin de la zone allouée (évite d'ajouter une 3e page)
+    currentY = maxTermsBottomY;
+  }
+
+  // SIGNATURES (toujours en bas de la page 2)
+  const sigAreaTop = pageHeight - 70;
+  currentY = Math.max(currentY + 10, sigAreaTop);
+
+  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+  pdf.setFontSize(12);
+  pdf.setFont('helvetica', 'bold');
   pdf.text('SIGNATURES', pageWidth / 2, currentY, { align: 'center' });
   
-  currentY += 15;
+  currentY += 12;
   
   pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-  pdf.setFontSize(10);
+  pdf.setFontSize(9);
   pdf.setFont('helvetica', 'normal');
   pdf.text(`Fait à Lomé, le ${new Date().toLocaleDateString('fr-FR')}`, pageWidth / 2, currentY, { align: 'center' });
   
-  currentY += 30;
+  currentY += 22;
   
   // Zones de signature
   const sigWidth = 60;
@@ -363,7 +368,7 @@ Modalités: Espèces, mobile money, chèque acceptés`
   pdf.text('Le Locataire', leftSigX + sigWidth/2, currentY, { align: 'center' });
   pdf.text('Pro-Excellence', rightSigX + sigWidth/2, currentY, { align: 'center' });
   
-  currentY += 25;
+  currentY += 22;
   
   // Lignes de signature
   pdf.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
