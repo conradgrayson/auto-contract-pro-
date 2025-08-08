@@ -1,6 +1,6 @@
 import React from 'react';
 import jsPDF from 'jspdf';
-
+import { PDFDocument } from 'pdf-lib';
 interface Contract {
   id: string;
   clientNom: string;
@@ -444,6 +444,32 @@ Modalités: Espèces, mobile money, chèque acceptés`
   });
 
   return pdf;
+};
+
+export const generateContractPDFWithInvoice = async (
+  contract: Contract,
+  invoicePdf: ArrayBuffer | Uint8Array | Blob
+) => {
+  const basePdf = generateContractPDF(contract);
+  const baseBytes = basePdf.output('arraybuffer');
+
+  const merged = await PDFDocument.create();
+  const invoiceBytes = invoicePdf instanceof Blob ? await invoicePdf.arrayBuffer() : invoicePdf;
+  const invoiceDoc = await PDFDocument.load(invoiceBytes as ArrayBuffer);
+  const baseDoc = await PDFDocument.load(baseBytes);
+
+  const invoicePages = await merged.copyPages(invoiceDoc, [0]);
+  invoicePages.forEach((p) => merged.addPage(p));
+
+  const basePageCount = baseDoc.getPageCount();
+  const indicesToCopy = Array.from({ length: Math.max(basePageCount - 1, 0) }, (_, i) => i + 1);
+  if (indicesToCopy.length > 0) {
+    const contractPages = await merged.copyPages(baseDoc, indicesToCopy);
+    contractPages.forEach((p) => merged.addPage(p));
+  }
+
+  const out = await merged.save();
+  return out;
 };
 
 const ContractPDFGenerator: React.FC<ContractPDFGeneratorProps> = ({ contract }) => {

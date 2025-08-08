@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Download } from 'lucide-react';
-import { generateContractPDF } from './ContractPDFGenerator';
+import { generateContractPDF, generateContractPDFWithInvoice } from './ContractPDFGenerator';
 
 interface Contract {
   id: string;
@@ -33,6 +33,8 @@ interface ContractPreviewProps {
 }
 
 const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
+  const invoiceInputRef = React.useRef<HTMLInputElement>(null);
+
   const handlePrint = () => {
     window.print();
   };
@@ -59,6 +61,47 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
     pdf.save(`contrat-${contract.numeroContrat}.pdf`);
   };
 
+  const handleDownloadPDFWithInvoice = () => {
+    if (invoiceInputRef.current) {
+      invoiceInputRef.current.value = '';
+      invoiceInputRef.current.click();
+    }
+  };
+
+  const onInvoiceSelected: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const bytes = await file.arrayBuffer();
+      const mergedBytes = await generateContractPDFWithInvoice({
+        id: contract.id,
+        clientNom: contract.clientNom,
+        clientPrenom: contract.clientPrenom,
+        vehicleMarque: contract.vehicleMarque,
+        vehicleModele: contract.vehicleModele,
+        vehicleImmatriculation: contract.vehicleImmatriculation,
+        dateDebut: contract.dateDebut,
+        dateFin: contract.dateFin,
+        prixJour: contract.prixJour,
+        nbJours: contract.nbJours,
+        montantTotal: contract.montantTotal,
+        numeroContrat: contract.numeroContrat,
+        reductionType: contract.reductionType,
+        reductionValue: contract.reductionValue,
+        montantReduction: contract.montantReduction,
+      } as any, bytes);
+
+      const blob = new Blob([mergedBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `contrat-${contract.numeroContrat}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Erreur lors de la fusion du PDF de facture:', err);
+    }
+  };
   const today = new Date().toLocaleDateString('fr-FR');
   const subtotal = contract.nbJours * contract.prixJour;
   const reduction = contract.montantReduction || 0;
@@ -85,6 +128,17 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
             <Download className="h-4 w-4" />
             PDF
           </Button>
+          <Button onClick={handleDownloadPDFWithInvoice} variant="outline" className="flex items-center gap-2">
+            <Download className="h-4 w-4" />
+            PDF + Facture
+          </Button>
+          <input
+            ref={invoiceInputRef}
+            type="file"
+            accept="application/pdf"
+            onChange={onInvoiceSelected}
+            className="hidden"
+          />
         </div>
       </div>
 
