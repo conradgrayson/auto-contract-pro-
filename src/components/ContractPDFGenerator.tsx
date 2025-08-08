@@ -196,11 +196,11 @@ Modalités: Espèces, mobile money, chèque acceptés`
 
   currentY += 50;
 
-  // TABLEAU DES DÉTAILS DE LOCATION - Style professionnel
+  // FACTURE - Détails de la location
   pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
   pdf.setFontSize(14);
   pdf.setFont('helvetica', 'bold');
-  pdf.text('DÉTAILS DE LA LOCATION', margin, currentY);
+  pdf.text('FACTURE', margin, currentY);
   
   currentY += 12;
 
@@ -295,11 +295,11 @@ Modalités: Espèces, mobile money, chèque acceptés`
     currentY = addText(contractTerms.paymentTerms, margin, currentY, { spacing: 15 });
   }
 
-  // NOUVELLE PAGE POUR CONDITIONS GÉNÉRALES (optimisée pour tenir sur 2 pages)
+  // NOUVELLE PAGE POUR CONDITIONS GÉNÉRALES (réparties sur 2 pages)
   pdf.addPage();
   currentY = 20;
 
-  // En-tête de page 2 (compact)
+  // En-tête de page 2
   pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
   pdf.rect(0, 0, pageWidth, 20, 'F');
   
@@ -308,83 +308,131 @@ Modalités: Espèces, mobile money, chèque acceptés`
   pdf.setFont('helvetica', 'bold');
   pdf.text('CONDITIONS GÉNÉRALES DE LOCATION', pageWidth / 2, 13, { align: 'center' });
 
-  currentY = 30;
+  let pageIndex = 2; // 2 puis 3
+  const maxWidth = pageWidth - 2 * margin;
 
-  // Conditions générales (réduction automatique de la police pour tenir sur 2 pages)
+  const page2Top = 30;
+  const page2Bottom = pageHeight - 20; // toute la page 2 utilisable
+  const page3Top = 30;
+  const sigAreaTop = pageHeight - 70; // réserve pour signatures
+  const page3Bottom = sigAreaTop;
+
+  const availableHeightTotal = (page2Bottom - page2Top) + (page3Bottom - page3Top);
+
+  let termsFont = 10; // taille de base lisible
+  const minFont = 7; // limite basse
+  const lineHeightFactor = 1.25;
+
+  let lines: string[] = [];
+
   if (contractTerms.generalTerms.trim()) {
-    const maxWidth = pageWidth - 2 * margin;
-    const maxTermsBottomY = pageHeight - 85; // laisse de la place pour les signatures
-
-    let termsFont = 9; // taille de base
-    const minFont = 7; // taille minimale pour lisibilité
-    const lineHeight = 1.2;
-    const spacing = 3;
-
-    let lines: string[] = [];
-
-    // Ajuste la taille de police jusqu'à ce que le texte tienne dans l'espace disponible
+    // Cherche une taille de police qui tient sur 2 pages
     while (termsFont >= minFont) {
       pdf.setFontSize(termsFont);
       lines = pdf.splitTextToSize(contractTerms.generalTerms, maxWidth);
-      const predictedHeight = (lines.length * termsFont * lineHeight * 0.35) + spacing;
-      if (currentY + predictedHeight <= maxTermsBottomY) break;
+      const predictedHeight = lines.length * termsFont * lineHeightFactor * 0.35;
+      if (predictedHeight <= availableHeightTotal) break;
       termsFont -= 0.5;
     }
 
-    // Rendu des conditions générales
+    // Rendu sur 2 pages
     pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(termsFont);
-    pdf.text(lines, margin, currentY);
 
-    // Positionne le curseur à la fin de la zone allouée (évite d'ajouter une 3e page)
-    currentY = maxTermsBottomY;
+    let y = page2Top;
+    let onPage2 = true;
+    const lineAdvance = termsFont * lineHeightFactor * 0.35;
+
+    for (const line of lines) {
+      // Passer à la page 3 si nécessaire
+      if (onPage2 && y + lineAdvance > page2Bottom) {
+        // Nouvelle page 3
+        pdf.addPage();
+        pageIndex = 3;
+        onPage2 = false;
+
+        // En-tête de page 3 (suite)
+        pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
+        pdf.rect(0, 0, pageWidth, 20, 'F');
+        pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(14);
+        pdf.text('CONDITIONS GÉNÉRALES DE LOCATION (suite)', pageWidth / 2, 13, { align: 'center' });
+
+        // Préparer zone de contenu
+        pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setFontSize(termsFont);
+        y = page3Top;
+      }
+
+      // Arrêter avant la zone de signatures de la page 3
+      if (!onPage2 && y + lineAdvance > page3Bottom) {
+        break; // le reste du texte est compressé via la taille choisie pour tenir sur 2 pages
+      }
+
+      pdf.text(line, margin, y);
+      y += lineAdvance;
+    }
+
+    // SIGNATURES (en bas de la page 3)
+    if (pageIndex === 2) {
+      // Si aucune bascule n'a eu lieu, on crée tout de même la page 3 pour les signatures
+      pdf.addPage();
+      // En-tête de page 3
+      pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
+      pdf.rect(0, 0, pageWidth, 20, 'F');
+      pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(14);
+      pdf.text('CONDITIONS GÉNÉRALES DE LOCATION (suite)', pageWidth / 2, 13, { align: 'center' });
+      pageIndex = 3;
+    }
+
+    const signaturesTop = sigAreaTop;
+
+    pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('SIGNATURES', pageWidth / 2, signaturesTop, { align: 'center' });
+    
+    let sigY = signaturesTop + 12;
+    
+    pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    pdf.setFontSize(9);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Fait à Lomé, le ${new Date().toLocaleDateString('fr-FR')}`, pageWidth / 2, sigY, { align: 'center' });
+    
+    sigY += 22;
+    
+    // Zones de signature
+    const sigWidth = 60;
+    const leftSigX = margin + 20;
+    const rightSigX = pageWidth - margin - sigWidth - 20;
+    
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Le Locataire', leftSigX + sigWidth/2, sigY, { align: 'center' });
+    pdf.text('Pro-Excellence', rightSigX + sigWidth/2, sigY, { align: 'center' });
+    
+    sigY += 22;
+    
+    // Lignes de signature
+    pdf.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+    pdf.line(leftSigX, sigY, leftSigX + sigWidth, sigY);
+    pdf.line(rightSigX, sigY, rightSigX + sigWidth, sigY);
   }
 
-  // SIGNATURES (toujours en bas de la page 2)
-  const sigAreaTop = pageHeight - 70;
-  currentY = Math.max(currentY + 10, sigAreaTop);
-
-  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.setFontSize(12);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('SIGNATURES', pageWidth / 2, currentY, { align: 'center' });
-  
-  currentY += 12;
-  
-  pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-  pdf.setFontSize(9);
-  pdf.setFont('helvetica', 'normal');
-  pdf.text(`Fait à Lomé, le ${new Date().toLocaleDateString('fr-FR')}`, pageWidth / 2, currentY, { align: 'center' });
-  
-  currentY += 22;
-  
-  // Zones de signature
-  const sigWidth = 60;
-  const leftSigX = margin + 20;
-  const rightSigX = pageWidth - margin - sigWidth - 20;
-  
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('Le Locataire', leftSigX + sigWidth/2, currentY, { align: 'center' });
-  pdf.text('Pro-Excellence', rightSigX + sigWidth/2, currentY, { align: 'center' });
-  
-  currentY += 22;
-  
-  // Lignes de signature
-  pdf.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
-  pdf.line(leftSigX, currentY, leftSigX + sigWidth, currentY);
-  pdf.line(rightSigX, currentY, rightSigX + sigWidth, currentY);
-
-  // Pied de page professionnel
-  currentY = pageHeight - 20;
+  // Pied de page professionnel (page courante)
+  const footerY = pageHeight - 20;
   pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
-  pdf.rect(0, currentY - 10, pageWidth, 30, 'F');
+  pdf.rect(0, footerY - 10, pageWidth, 30, 'F');
   
   pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
   pdf.setFontSize(8);
   pdf.setFont('helvetica', 'normal');
-  pdf.text('Pro-Excellence - N° RCCM : TG-LFW-01-2022-A10-00507', pageWidth / 2, currentY, { align: 'center' });
-  pdf.text(`Document généré automatiquement - Contrat N° ${contract.numeroContrat}`, pageWidth / 2, currentY + 5, { align: 'center' });
+  pdf.text('Pro-Excellence - N° RCCM : TG-LFW-01-2022-A10-00507', pageWidth / 2, footerY, { align: 'center' });
+  pdf.text(`Document généré automatiquement - Contrat N° ${contract.numeroContrat}`, pageWidth / 2, footerY + 5, { align: 'center' });
 
   // Métadonnées
   pdf.setProperties({
