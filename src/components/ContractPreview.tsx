@@ -25,6 +25,8 @@ interface Contract {
   reductionType?: string;
   reductionValue?: number;
   montantReduction?: number;
+  heureRecuperation?: string;
+  heureRendu?: string;
 }
 
 interface ContractPreviewProps {
@@ -41,23 +43,26 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
   };
 
   const handleDownloadPDF = async () => {
-    const pdf = generateContractPDF({
-      id: contract.id,
-      clientNom: contract.clientNom,
-      clientPrenom: contract.clientPrenom,
-      vehicleMarque: contract.vehicleMarque,
-      vehicleModele: contract.vehicleModele,
-      vehicleImmatriculation: contract.vehicleImmatriculation,
-      dateDebut: contract.dateDebut,
-      dateFin: contract.dateFin,
-      prixJour: contract.prixJour,
-      nbJours: contract.nbJours,
-      montantTotal: contract.montantTotal,
-      numeroContrat: contract.numeroContrat,
-      reductionType: contract.reductionType,
-      reductionValue: contract.reductionValue,
-      montantReduction: contract.montantReduction,
-    });
+const pdf = generateContractPDF({
+  id: contract.id,
+  clientId: contract.clientId,
+  clientNom: contract.clientNom,
+  clientPrenom: contract.clientPrenom,
+  vehicleMarque: contract.vehicleMarque,
+  vehicleModele: contract.vehicleModele,
+  vehicleImmatriculation: contract.vehicleImmatriculation,
+  dateDebut: contract.dateDebut,
+  dateFin: contract.dateFin,
+  prixJour: contract.prixJour,
+  nbJours: contract.nbJours,
+  montantTotal: contract.montantTotal,
+  numeroContrat: contract.numeroContrat,
+  reductionType: contract.reductionType,
+  reductionValue: contract.reductionValue,
+  montantReduction: contract.montantReduction,
+  heureRecuperation: contract.heureRecuperation,
+  heureRendu: contract.heureRendu,
+});
     
     pdf.save(`contrat-${contract.numeroContrat}.pdf`);
   };
@@ -74,23 +79,26 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
     if (!file) return;
     try {
       const bytes = await file.arrayBuffer();
-      const mergedBytes = await generateContractPDFWithInvoice({
-        id: contract.id,
-        clientNom: contract.clientNom,
-        clientPrenom: contract.clientPrenom,
-        vehicleMarque: contract.vehicleMarque,
-        vehicleModele: contract.vehicleModele,
-        vehicleImmatriculation: contract.vehicleImmatriculation,
-        dateDebut: contract.dateDebut,
-        dateFin: contract.dateFin,
-        prixJour: contract.prixJour,
-        nbJours: contract.nbJours,
-        montantTotal: contract.montantTotal,
-        numeroContrat: contract.numeroContrat,
-        reductionType: contract.reductionType,
-        reductionValue: contract.reductionValue,
-        montantReduction: contract.montantReduction,
-      } as any, bytes);
+const mergedBytes = await generateContractPDFWithInvoice({
+  id: contract.id,
+  clientId: contract.clientId,
+  clientNom: contract.clientNom,
+  clientPrenom: contract.clientPrenom,
+  vehicleMarque: contract.vehicleMarque,
+  vehicleModele: contract.vehicleModele,
+  vehicleImmatriculation: contract.vehicleImmatriculation,
+  dateDebut: contract.dateDebut,
+  dateFin: contract.dateFin,
+  prixJour: contract.prixJour,
+  nbJours: contract.nbJours,
+  montantTotal: contract.montantTotal,
+  numeroContrat: contract.numeroContrat,
+  reductionType: contract.reductionType,
+  reductionValue: contract.reductionValue,
+  montantReduction: contract.montantReduction,
+  heureRecuperation: contract.heureRecuperation,
+  heureRendu: contract.heureRendu,
+} as any, bytes);
 
       // Crée une URL Blob pour permettre Télécharger ou Imprimer plus tard
       const blob = new Blob([mergedBytes], { type: 'application/pdf' });
@@ -249,11 +257,12 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
                   INFORMATIONS CLIENT
                 </h3>
-                <div className="space-y-2">
-                  <p><strong>Nom:</strong> {contract.clientNom}</p>
-                  <p><strong>Prénom:</strong> {contract.clientPrenom}</p>
-                  <p><strong>Date du contrat:</strong> {new Date(contract.dateCreation).toLocaleDateString('fr-FR')}</p>
-                </div>
+<div className="space-y-2">
+  <p><strong>Nom:</strong> {contract.clientNom}</p>
+  <p><strong>Prénom:</strong> {contract.clientPrenom}</p>
+  <p><strong>Date du contrat:</strong> {new Date(contract.dateCreation).toLocaleDateString('fr-FR')}</p>
+  <p><strong>Référence client:</strong> {contract.clientId}</p>
+</div>
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
@@ -272,24 +281,36 @@ const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">
                 DÉTAILS DE LA LOCATION
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Date de début</p>
-                  <p className="font-medium">{new Date(contract.dateDebut).toLocaleDateString('fr-FR')}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Date de fin</p>
-                  <p className="font-medium">{new Date(contract.dateFin).toLocaleDateString('fr-FR')}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Durée</p>
-                  <p className="font-medium">{contract.nbJours} jour(s)</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Prix par jour</p>
-                  <p className="font-medium">{contract.prixJour.toLocaleString()} CFA</p>
-                </div>
-              </div>
+<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+  <div>
+    <p className="text-sm text-gray-600">Date de début</p>
+    <p className="font-medium">{new Date(contract.dateDebut).toLocaleDateString('fr-FR')}</p>
+  </div>
+  <div>
+    <p className="text-sm text-gray-600">Date de fin</p>
+    <p className="font-medium">{new Date(contract.dateFin).toLocaleDateString('fr-FR')}</p>
+  </div>
+  <div>
+    <p className="text-sm text-gray-600">Durée</p>
+    <p className="font-medium">{contract.nbJours} jour(s)</p>
+  </div>
+  <div>
+    <p className="text-sm text-gray-600">Prix par jour</p>
+    <p className="font-medium">{contract.prixJour.toLocaleString()} CFA</p>
+  </div>
+  {contract.heureRecuperation && (
+    <div>
+      <p className="text-sm text-gray-600">Heure de prise du véhicule</p>
+      <p className="font-medium">{contract.heureRecuperation}</p>
+    </div>
+  )}
+  {contract.heureRendu && (
+    <div>
+      <p className="text-sm text-gray-600">Heure de restitution</p>
+      <p className="font-medium">{contract.heureRendu}</p>
+    </div>
+  )}
+</div>
             </div>
 
             {/* Facturation avec réduction */}

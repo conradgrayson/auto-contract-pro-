@@ -3,6 +3,7 @@ import jsPDF from 'jspdf';
 import { PDFDocument } from 'pdf-lib';
 interface Contract {
   id: string;
+  clientId?: string;
   clientNom: string;
   clientPrenom: string;
   vehicleMarque: string;
@@ -158,29 +159,32 @@ Modalités: Espèces, mobile money, chèque acceptés`
   // SECTION CLIENT ET VÉHICULE
   const colWidth = (pageWidth - 3 * margin) / 2;
   
-  // Encadré Client
-  pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
-  pdf.rect(margin, currentY, colWidth, 35, 'F');
-  pdf.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
-  pdf.rect(margin, currentY, colWidth, 35);
-  
-  pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
-  pdf.setFontSize(12);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text('INFORMATIONS CLIENT', margin + 5, currentY + 8);
-  
-  pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-  pdf.setFontSize(10);
-  pdf.setFont('helvetica', 'normal');
-  pdf.text(`Nom: ${contract.clientNom}`, margin + 5, currentY + 16);
-  pdf.text(`Prénom: ${contract.clientPrenom}`, margin + 5, currentY + 22);
-  pdf.text(`Date du contrat: ${new Date().toLocaleDateString('fr-FR')}`, margin + 5, currentY + 28);
+// Encadré Client
+pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
+pdf.rect(margin, currentY, colWidth, 42, 'F');
+pdf.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+pdf.rect(margin, currentY, colWidth, 42);
+
+pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
+pdf.setFontSize(12);
+pdf.setFont('helvetica', 'bold');
+pdf.text('INFORMATIONS CLIENT', margin + 5, currentY + 8);
+
+pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+pdf.setFontSize(10);
+pdf.setFont('helvetica', 'normal');
+pdf.text(`Nom: ${contract.clientNom}`, margin + 5, currentY + 16);
+pdf.text(`Prénom: ${contract.clientPrenom}`, margin + 5, currentY + 22);
+pdf.text(`Date du contrat: ${new Date().toLocaleDateString('fr-FR')}`, margin + 5, currentY + 28);
+if (contract.clientId) {
+  pdf.text(`Référence client: ${contract.clientId}`, margin + 5, currentY + 34);
+}
 
   // Encadré Véhicule
   pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
-  pdf.rect(margin + colWidth + 10, currentY, colWidth, 35, 'F');
-  pdf.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
-  pdf.rect(margin + colWidth + 10, currentY, colWidth, 35);
+pdf.rect(margin + colWidth + 10, currentY, colWidth, 42, 'F');
+pdf.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+pdf.rect(margin + colWidth + 10, currentY, colWidth, 42);
   
   pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
   pdf.setFontSize(12);
