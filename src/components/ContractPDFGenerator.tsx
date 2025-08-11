@@ -21,6 +21,8 @@ interface Contract {
   heureRecuperation?: string;
   heureRendu?: string;
   caution?: number;
+  clientNumeroPermis?: string;
+  clientNumeroCNI?: string;
 }
 
 interface ContractTerms {
@@ -161,9 +163,9 @@ Modalités: Espèces, mobile money, chèque acceptés`
   
 // Encadré Client
 pdf.setFillColor(bgGray[0], bgGray[1], bgGray[2]);
-pdf.rect(margin, currentY, colWidth, 42, 'F');
+pdf.rect(margin, currentY, colWidth, 54, 'F');
 pdf.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
-pdf.rect(margin, currentY, colWidth, 42);
+pdf.rect(margin, currentY, colWidth, 54);
 
 pdf.setTextColor(primaryBlue[0], primaryBlue[1], primaryBlue[2]);
 pdf.setFontSize(12);
@@ -178,6 +180,14 @@ pdf.text(`Prénom: ${contract.clientPrenom}`, margin + 5, currentY + 22);
 pdf.text(`Date du contrat: ${new Date().toLocaleDateString('fr-FR')}`, margin + 5, currentY + 28);
 if (contract.clientId) {
   pdf.text(`Référence client: ${contract.clientId}`, margin + 5, currentY + 34);
+}
+let yRef = currentY + 40;
+if (contract.clientNumeroPermis) {
+  pdf.text(`Permis: ${contract.clientNumeroPermis}`, margin + 5, yRef);
+  yRef += 6;
+}
+if (contract.clientNumeroCNI) {
+  pdf.text(`CNI: ${contract.clientNumeroCNI}`, margin + 5, yRef);
 }
 
   // Encadré Véhicule
@@ -223,16 +233,23 @@ pdf.rect(margin + colWidth + 10, currentY, colWidth, 42);
   currentY += 8;
 
   // Lignes du tableau
-  const tableData = [
-    [`Location (${new Date(contract.dateDebut).toLocaleDateString('fr-FR')} - ${new Date(contract.dateFin).toLocaleDateString('fr-FR')})`, `${contract.nbJours} jour(s)`, `${contract.prixJour.toLocaleString()} CFA`, `${(contract.nbJours * contract.prixJour).toLocaleString()} CFA`]
-  ];
+const tableData = [
+  [`Location (${new Date(contract.dateDebut).toLocaleDateString('fr-FR')} - ${new Date(contract.dateFin).toLocaleDateString('fr-FR')})`, `${contract.nbJours} jour(s)`, `${contract.prixJour.toLocaleString()} CFA`, `${(contract.nbJours * contract.prixJour).toLocaleString()} CFA`]
+];
 
-  if (contract.heureRecuperation) {
-    tableData.push([`Heure de récupération: ${contract.heureRecuperation}`, '', '', '']);
-  }
-  if (contract.heureRendu) {
-    tableData.push([`Heure de rendu: ${contract.heureRendu}`, '', '', '']);
-  }
+const refs: string[] = [];
+if (contract.clientNumeroPermis) refs.push(`Permis: ${contract.clientNumeroPermis}`);
+if (contract.clientNumeroCNI) refs.push(`CNI: ${contract.clientNumeroCNI}`);
+if (refs.length) {
+  tableData.push([`Références client: ${refs.join(' | ')}`, '', '', '']);
+}
+
+if (contract.heureRecuperation) {
+  tableData.push([`Heure de récupération / prise du véhicule: ${contract.heureRecuperation}`, '', '', '']);
+}
+if (contract.heureRendu) {
+  tableData.push([`Heure de restitution (rendu): ${contract.heureRendu}`, '', '', '']);
+}
 
   pdf.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
   pdf.setFontSize(10);

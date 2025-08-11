@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Printer, Download } from 'lucide-react';
 import { generateContractPDF, generateContractPDFWithInvoice } from './ContractPDFGenerator';
+import { useSupabaseClients } from '@/hooks/useSupabaseClients';
 
 interface Contract {
   id: string;
@@ -37,12 +38,13 @@ interface ContractPreviewProps {
 const ContractPreview = ({ contract, onBack }: ContractPreviewProps) => {
   const invoiceInputRef = React.useRef<HTMLInputElement>(null);
   const [mergedUrl, setMergedUrl] = React.useState<string | null>(null);
+  const { clients } = useSupabaseClients();
+  const clientDetails = React.useMemo(() => clients.find(c => c.id === contract.clientId), [clients, contract.clientId]);
 
   const handlePrint = () => {
     window.print();
   };
-
-  const handleDownloadPDF = async () => {
+const handleDownloadPDF = async () => {
 const pdf = generateContractPDF({
   id: contract.id,
   clientId: contract.clientId,
@@ -62,6 +64,8 @@ const pdf = generateContractPDF({
   montantReduction: contract.montantReduction,
   heureRecuperation: contract.heureRecuperation,
   heureRendu: contract.heureRendu,
+  clientNumeroPermis: clientDetails?.numeroPermis,
+  clientNumeroCNI: clientDetails?.numeroCarteId,
 });
     
     pdf.save(`contrat-${contract.numeroContrat}.pdf`);
@@ -98,6 +102,8 @@ const mergedBytes = await generateContractPDFWithInvoice({
   montantReduction: contract.montantReduction,
   heureRecuperation: contract.heureRecuperation,
   heureRendu: contract.heureRendu,
+  clientNumeroPermis: clientDetails?.numeroPermis,
+  clientNumeroCNI: clientDetails?.numeroCarteId,
 } as any, bytes);
 
       // Crée une URL Blob pour permettre Télécharger ou Imprimer plus tard
@@ -262,6 +268,12 @@ const mergedBytes = await generateContractPDFWithInvoice({
   <p><strong>Prénom:</strong> {contract.clientPrenom}</p>
   <p><strong>Date du contrat:</strong> {new Date(contract.dateCreation).toLocaleDateString('fr-FR')}</p>
   <p><strong>Référence client:</strong> {contract.clientId}</p>
+  {clientDetails?.numeroPermis && (
+    <p><strong>Numéro de permis:</strong> {clientDetails.numeroPermis}</p>
+  )}
+  {clientDetails?.numeroCarteId && (
+    <p><strong>Numéro CNI:</strong> {clientDetails.numeroCarteId}</p>
+  )}
 </div>
               </div>
               <div>
@@ -323,6 +335,23 @@ const mergedBytes = await generateContractPDFWithInvoice({
                   <span>Location ({contract.nbJours} jour(s) × {contract.prixJour.toLocaleString()} CFA)</span>
                   <span>{subtotal.toLocaleString()} CFA</span>
                 </div>
+
+                {(clientDetails?.numeroPermis || clientDetails?.numeroCarteId || contract.heureRecuperation || contract.heureRendu) && (
+                  <div className="text-sm text-gray-700 mb-2 space-y-1">
+                    {clientDetails?.numeroPermis && (
+                      <div>Réf. client — Permis: <span className="font-medium">{clientDetails.numeroPermis}</span></div>
+                    )}
+                    {clientDetails?.numeroCarteId && (
+                      <div>Réf. client — CNI: <span className="font-medium">{clientDetails.numeroCarteId}</span></div>
+                    )}
+                    {contract.heureRecuperation && (
+                      <div>Heure de récupération / prise du véhicule: <span className="font-medium">{contract.heureRecuperation}</span></div>
+                    )}
+                    {contract.heureRendu && (
+                      <div>Heure de restitution (rendu): <span className="font-medium">{contract.heureRendu}</span></div>
+                    )}
+                  </div>
+                )}
                 
                 {reduction > 0 && (
                   <div className="flex justify-between items-center mb-2 text-red-600">
