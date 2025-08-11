@@ -29,13 +29,20 @@ const FactureManagement = () => {
     const nbJours = Math.ceil((dateFin.getTime() - dateDebut.getTime()) / (1000 * 3600 * 24)) + 1;
     const prixJour = vehicle?.prixParJour || 0;
     const subtotal = nbJours * prixJour;
-    const reduction = contract.montantReduction || 0;
-    const montantTotal = subtotal - reduction;
+    const reductionByType = contract.reductionType === 'pourcentage'
+      ? Math.round((subtotal * (contract.reductionValue || 0)) / 100)
+      : contract.reductionType === 'montant'
+        ? (contract.reductionValue || 0)
+        : (contract.montantReduction || 0);
+    const reduction = Math.max(0, Math.min(subtotal, reductionByType));
+    const montantTotal = Math.max(0, subtotal - reduction);
 
     return {
       ...contract,
       clientNom: client?.nom || 'N/A',
       clientPrenom: client?.prenom || 'N/A',
+      clientNumeroPermis: client?.numeroPermis || undefined,
+      clientNumeroCNI: client?.numeroCarteId || undefined,
       vehicleMarque: vehicle?.marque || 'N/A',
       vehicleModele: vehicle?.modele || 'N/A',
       vehicleImmatriculation: vehicle?.immatriculation || 'N/A',
@@ -131,6 +138,12 @@ const FactureManagement = () => {
           <div>
             <h3 className="font-semibold mb-2">FACTURER À:</h3>
             <p>{facture.clientPrenom} {facture.clientNom}</p>
+            {facture.clientNumeroPermis && (
+              <p className="text-sm text-gray-600">Permis: {facture.clientNumeroPermis}</p>
+            )}
+            {facture.clientNumeroCNI && (
+              <p className="text-sm text-gray-600">CNI: {facture.clientNumeroCNI}</p>
+            )}
           </div>
           <div>
             <h3 className="font-semibold mb-2">DÉTAILS:</h3>
