@@ -26,8 +26,10 @@ const FactureManagement = () => {
     
     const dateDebut = new Date(contract.dateDebut);
     const dateFin = new Date(contract.dateFin);
-    const nbJours = Math.ceil((dateFin.getTime() - dateDebut.getTime()) / (1000 * 3600 * 24)) + 1;
-    const prixJour = vehicle?.prixParJour || 0;
+    // Aligne le calcul avec le contrat: utilise nbJours du contrat si dispo, sinon même formule (sans +1)
+    const computedNbJours = Math.ceil((dateFin.getTime() - dateDebut.getTime()) / (1000 * 60 * 60 * 24));
+    const nbJours = (contract as any).nbJours && (contract as any).nbJours > 0 ? (contract as any).nbJours : Math.max(0, computedNbJours);
+    const prixJour = (contract as any).prixJour ?? (vehicle?.prixParJour || 0);
     const subtotal = nbJours * prixJour;
     const reductionByType = contract.reductionType === 'pourcentage'
       ? Math.round((subtotal * (contract.reductionValue || 0)) / 100)
