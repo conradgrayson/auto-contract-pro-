@@ -46,6 +46,8 @@ const FactureManagement = () => {
       vehicleMarque: vehicle?.marque || 'N/A',
       vehicleModele: vehicle?.modele || 'N/A',
       vehicleImmatriculation: vehicle?.immatriculation || 'N/A',
+      heureRecuperation: contract.heureRecuperation,
+      heureRendu: contract.heureRendu,
       nbJours,
       prixJour,
       montantTotal,
@@ -149,6 +151,12 @@ const FactureManagement = () => {
             <h3 className="font-semibold mb-2">DÉTAILS:</h3>
             <p>Facture N° {facture.numeroContrat}</p>
             <p>Période: {new Date(facture.dateDebut).toLocaleDateString('fr-FR')} - {new Date(facture.dateFin).toLocaleDateString('fr-FR')}</p>
+            {facture.heureRecuperation && (
+              <p>Heure de prise: {facture.heureRecuperation}</p>
+            )}
+            {facture.heureRendu && (
+              <p>Heure de restitution: {facture.heureRendu}</p>
+            )}
           </div>
         </div>
 
