@@ -105,11 +105,11 @@ const FactureManagement = () => {
     pdf.save(`facture-${facture.numeroContrat}.pdf`);
   };
 
-  const renderFacturePreview = (facture: any) => {
+  const renderFacturePreview = (facture: any, visible: boolean = false) => {
     const today = new Date().toLocaleDateString('fr-FR');
 
     return (
-      <div id={`facture-${facture.id}`} className="bg-white p-8" style={{ display: 'none' }}>
+      <div id={`facture-${facture.id}`} className="bg-white p-8" style={{ display: visible ? 'block' : 'none' }}>
         <div className="flex justify-between items-start mb-8">
           <div className="flex items-center gap-4">
             <img 
@@ -326,7 +326,7 @@ const FactureManagement = () => {
                   </Button>
                 </div>
               </div>
-              {renderFacturePreview(selectedFacture)}
+              {renderFacturePreview(selectedFacture, true)}
             </div>
           </div>
         </div>
