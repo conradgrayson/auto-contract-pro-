@@ -138,51 +138,6 @@ const FactureManagement = () => {
           </div>
         </div>
 
-        {/* Section Référence du Locataire */}
-        <div className="mb-6 p-4 border border-gray-300">
-          <h3 className="font-bold text-center mb-4">REFERENCE DU LOCATAIRE</h3>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
-            <div>Nom : {facture.clientNom}</div>
-            <div>Prénoms : {facture.clientPrenom}</div>
-            <div>Adresse à l'Etranger : ........................</div>
-            <div>Adresse : ................................</div>
-            <div>Profession : ..............................</div>
-            <div>N° de téléphone : ........................</div>
-            <div>N° de carte d'identité : {facture.clientNumeroCNI || '................'}</div>
-            <div>Nationalité : ...........................</div>
-            <div>N° de permis de conduire : {facture.clientNumeroPermis || '................'}</div>
-            <div className="col-span-2">Raison de la location : ................................</div>
-          </div>
-          
-          <h4 className="font-bold mt-4 mb-2">DESCRIPTION DE LA VOITURE</h4>
-          <div className="grid grid-cols-3 gap-4 text-sm">
-            <div>Marque : {facture.vehicleMarque}</div>
-            <div>Modèle : {facture.vehicleModele}</div>
-            <div>Immatriculation : {facture.vehicleImmatriculation}</div>
-          </div>
-
-          <h4 className="font-bold mt-4 mb-2">REFERENCE DU CHAUFFEUR</h4>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
-            <div>Nom : ................................</div>
-            <div>Prénoms : ............................</div>
-            <div>Adresse : .............................</div>
-            <div>N° de téléphone : ....................</div>
-            <div>N° de carte d'identité : .............</div>
-            <div>Nationalité : ........................</div>
-            <div className="col-span-2">N° de permis de conduire : ...............</div>
-          </div>
-
-          <h4 className="font-bold mt-4 mb-2">LA LOCATION</h4>
-          <div className="grid grid-cols-1 gap-2 text-sm">
-            <div>Date et heure début : {new Date(facture.dateDebut).toLocaleDateString('fr-FR')} {facture.heureRecuperation || '...........'}</div>
-            <div>Date et heure fin : {new Date(facture.dateFin).toLocaleDateString('fr-FR')} {facture.heureRendu || '...........'}</div>
-            <div>Soit : {facture.nbJours} Jour(s)</div>
-            <div>Prix de location : {facture.prixJour.toLocaleString()} CFA/jour</div>
-            <div>Net à payer HT : {facture.montantTotal.toLocaleString()} CFA</div>
-            <div>Caution : ................................</div>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div>
             <h3 className="font-semibold mb-2">FACTURER À:</h3>
@@ -245,6 +200,51 @@ const FactureManagement = () => {
             </tr>
           </tfoot>
         </table>
+
+        {/* Section Référence du Locataire */}
+        <div className="mb-6 p-4 border border-gray-300">
+          <h3 className="font-bold text-center mb-4">REFERENCE DU LOCATAIRE</h3>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+            <div>Nom : {facture.clientNom}</div>
+            <div>Prénoms : {facture.clientPrenom}</div>
+            <div>Adresse à l'Etranger : ........................</div>
+            <div>Adresse : ................................</div>
+            <div>Profession : ..............................</div>
+            <div>N° de téléphone : ........................</div>
+            <div>N° de carte d'identité : {facture.clientNumeroCNI || '................'}</div>
+            <div>Nationalité : ...........................</div>
+            <div>N° de permis de conduire : {facture.clientNumeroPermis || '................'}</div>
+            <div className="col-span-2">Raison de la location : ................................</div>
+          </div>
+          
+          <h4 className="font-bold mt-4 mb-2">DESCRIPTION DE LA VOITURE</h4>
+          <div className="grid grid-cols-3 gap-4 text-sm">
+            <div>Marque : {facture.vehicleMarque}</div>
+            <div>Modèle : {facture.vehicleModele}</div>
+            <div>Immatriculation : {facture.vehicleImmatriculation}</div>
+          </div>
+
+          <h4 className="font-bold mt-4 mb-2">REFERENCE DU CHAUFFEUR</h4>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+            <div>Nom : ................................</div>
+            <div>Prénoms : ............................</div>
+            <div>Adresse : .............................</div>
+            <div>N° de téléphone : ....................</div>
+            <div>N° de carte d'identité : .............</div>
+            <div>Nationalité : ........................</div>
+            <div className="col-span-2">N° de permis de conduire : ...............</div>
+          </div>
+
+          <h4 className="font-bold mt-4 mb-2">LA LOCATION</h4>
+          <div className="grid grid-cols-1 gap-2 text-sm">
+            <div>Date et heure début : {new Date(facture.dateDebut).toLocaleDateString('fr-FR')} {facture.heureRecuperation || '...........'}</div>
+            <div>Date et heure fin : {new Date(facture.dateFin).toLocaleDateString('fr-FR')} {facture.heureRendu || '...........'}</div>
+            <div>Soit : {facture.nbJours} Jour(s)</div>
+            <div>Prix de location : {facture.prixJour.toLocaleString()} CFA/jour</div>
+            <div>Net à payer HT : {facture.montantTotal.toLocaleString()} CFA</div>
+            <div>Caution : ................................</div>
+          </div>
+        </div>
 
         <div className="text-sm text-gray-600">
           <p><strong>Conditions de paiement:</strong> Paiement à la prise du véhicule</p>
