@@ -206,6 +206,59 @@ const FactureManagement = () => {
           <p><strong>Modalités:</strong> Espèces, mobile money (Flooz, T-Money), chèque acceptés</p>
         </div>
 
+        {/* REFERENCE DU LOCATAIRE section */}
+        <div className="mt-8 border-t pt-6 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-bold mb-3">RÉFÉRENCE DU LOCATAIRE</h3>
+              <div className="space-y-1">
+                <p>Nom : {facture.clientNom}</p>
+                <p>Prénoms : {facture.clientPrenom}</p>
+                <p>Adresse à l'Étranger : ...........................</p>
+                <p>Adresse : ................................................</p>
+                <p>Profession : ........................................</p>
+                <p>N° de téléphone : ................................</p>
+                <p>N° de carte d'identité : {facture.clientNumeroCNI || '........................'}</p>
+                <p>Nationalité : .........................................</p>
+                <p>N° de permis de conduire : {facture.clientNumeroPermis || '..................'}</p>
+                <p>Raison de la location : .........................</p>
+              </div>
+              
+              <h3 className="font-bold mt-4 mb-3">DESCRIPTION DE LA VOITURE</h3>
+              <div className="space-y-1">
+                <p>Marque : {facture.vehicleMarque}</p>
+                <p>Modèle : {facture.vehicleModele}</p>
+                <p>Immatriculation : {facture.vehicleImmatriculation}</p>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="font-bold mb-3">RÉFÉRENCE DU CHAUFFEUR</h3>
+              <div className="space-y-1">
+                <p>Nom : ...................................................</p>
+                <p>Prénoms : ..........................................</p>
+                <p>Adresse : ...........................................</p>
+                <p>N° de téléphone : ................................</p>
+                <p>N° de carte d'identité : ........................</p>
+                <p>Nationalité : .........................................</p>
+                <p>N° de permis de conduire : ..................</p>
+              </div>
+              
+              <h3 className="font-bold mt-4 mb-3">LA LOCATION</h3>
+              <div className="space-y-1">
+                <p>Date début : {new Date(facture.dateDebut).toLocaleDateString('fr-FR')}</p>
+                <p>Heure début : {facture.heureRecuperation || '...........'}</p>
+                <p>Date fin : {new Date(facture.dateFin).toLocaleDateString('fr-FR')}</p>
+                <p>Heure fin : {facture.heureRendu || '...........'}</p>
+                <p>Soit : {facture.nbJours} Jour(s)</p>
+                <p>Prix de location : {facture.prixJour.toLocaleString()} CFA/jour</p>
+                <p>Net à payer HT : {facture.montantTotal.toLocaleString()} CFA</p>
+                <p>Caution : ..........................................</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="mt-8 pt-4 border-t border-gray-200 text-center text-xs text-gray-500">
           <p>Pro-Excellence - N° RCCM : TG-LFW-01-2022-A10-00507</p>
           <p>Prestation de service - Nettoyage de Bureau -Achat/Vente/Location d'Appartement – Achat/Vente/Location de Voiture- Réalisation de jardin</p>
